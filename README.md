@@ -3,7 +3,7 @@
 ## 1. Mô tả dự án
 **MyMiniCloud** là một hệ thống kiến trúc Microservices mô phỏng một môi trường Cloud thu nhỏ, được triển khai và tự động hóa thông qua Docker Compose. Dự án này bao gồm đa dạng các dịch vụ được container hóa nhằm cung cấp giải pháp toàn diện từ phục vụ web tĩnh, xử lý API, quản lý định danh người dùng, lưu trữ dữ liệu có cấu trúc và phi cấu trúc, đến việc giám sát hệ thống (Monitoring) và định tuyến nội bộ (DNS).
 
-Ngoài việc là một nền tảng Cloud thu nhỏ, dự án đồng thời đóng vai trò làm không gian blog cá nhân để chia sẻ kiến thức về lập trình, học tập, Docker và Web Dev của nhóm nhóm sinh viên đam mê công nghệ.
+Ngoài việc là một nền tảng Cloud thu nhỏ, dự án đồng thời đóng vai trò làm không gian blog cá nhân để chia sẻ kiến thức về lập trình, học tập, Docker và Web Dev của nhóm sinh viên đam mê công nghệ.
 
 ## 2. Thành viên thực hiện
 Dự án được triển khai và phát triển bởi nhóm sinh viên chuyên ngành Mạng Máy Tính (Computer Networks):
@@ -11,96 +11,66 @@ Dự án được triển khai và phát triển bởi nhóm sinh viên chuyên 
 - **Nguyễn Yến Phụng** (ST001)
 - **Đỗ Văn Trọng** (ST002)
 
-## 3. Kiến trúc Chức năng (Functional Architecture)
+## 3. Sơ đồ Cấu trúc & Kiến trúc Tổng thể
 
-Hệ thống được đưa vào mạng ảo nội bộ `cloud-net` và phân chia nhiệm vụ một cách rõ ràng.
+![Sơ đồ Network](/BaoCao/sodo_network.png)
 
-### Sơ đồ kiến trúc tổng quan
+![Kiến trúc Tổng thể](/BaoCao/kientruc_tongthe.png)
 
-```mermaid
-graph TD
-    Client((Client/Trình duyệt)) --> APIGateway[API Gateway & Load Balancer\nNginx :80]
+Hệ thống được thiết kế chạy trên một mạng Docker ảo (`cloud-net`), định hướng theo mô hình Microservices với các thành phần chính như sau:
+- **API Gateway (Nginx)**: Điểm chạm duy nhất của hệ thống, tiếp nhận mọi request ở port `80`, định tuyến đến các luồng dịch vụ phía sau một cách linh hoạt (như tải web, gọi API backend `/api`, `/student` hay xác thực `/auth`), đồng thời hỗ trợ cân bằng tải.
+- **Frontend & Backend**: Tách biệt rõ ràng. Web tĩnh phục vụ giao diện (được triển khai trên 2 Server độc lập để đảm bảo High Availability theo thuật toán Round-Robin), trong khi đó API nội bộ xử lý logic được viết rành mạch bằng Flask.
+- **Database & Storage**: Tách biệt lưu trữ dữ liệu có cấu trúc (MariaDB với các script init database tự động) và lưu trữ dữ liệu phi cấu trúc như hình ảnh profile, tài liệu môn học (MinIO Object Storage tương thích S3).
+- **Bảo mật & Phân giải DNS**: Quản lý truy cập Single Sign-On (SSO) và bảo mật API qua token OIDC/JWT với Keycloak; đồng bộ quản lý tên miền nội bộ của các nhóm container (như `app-backend.cloud.local`) bằng hệ thống CoreDNS.
+- **Giám sát (Monitoring)**: Toàn bộ tiến trình Node và Web server được Node Exporter rà quét liên tục, đẩy số liệu về Prometheus, cho phép nhà quản trị quan sát trực quan sự biến động CPU, Memory trên Grafana Dashboard.
 
-    APIGateway -->|Web Traffic| WebAppGroup(Web Frontend Group)
-    APIGateway -->|/api/ & /student/| AppBackend[Backend API Server\nPython Flask :8081]
-    APIGateway -->|/auth/| Keycloak[Auth & Identity Server\nKeycloak :8080]
-    
-    subgraph WebAppGroup[Frontend Servers \nRound-robin Load Balancing]
-        WebFrontend1[Web Server 1\nNginx]
-        WebFrontend2[Web Server 2\nNginx]
-    end
-    
-    AppBackend --> DB[(Relational Database\nMariaDB :3306)]
-    AppBackend --> Keycloak
-    
-    Minio[(Object Storage\nMinIO :9000)]
-    DNS[Internal DNS\nCoreDNS :1053]
-    
-    subgraph Monitoring[Hệ thống Giám sát & Đo lường]
-        Prometheus[Prometheus :9090]
-        Grafana[Grafana Dashboards :3000]
-        NodeExporter[Node Exporter :9100]
-        Prometheus -.-> NodeExporter
-        Prometheus -.-> WebAppGroup
-        Grafana -.-> Prometheus
-    end
+## 4. Hướng dẫn Triển khai & Sử dụng
+
+### 4.1. Yêu cầu hệ thống
+- Yêu cầu môi trường máy chủ đã cài đặt **Docker** và **Docker Compose**.
+- Đảm bảo các TCP/UDP Port sau đang không bị chiếm dụng trên máy chủ: `80`, `8080`, `8081`, `3306`, `9000`, `9001`, `9090`, `9100`, `3000`, `1053`.
+
+### 4.2. Cách triển khai hệ thống
+Mở Terminal/Powershell, đi đến thư mục mã nguồn dự án:
+
+**Khởi chạy toàn bộ hệ thống**
+Hệ thống sẽ kéo các base image, tự động phân giải cấu hình build image và khởi tạo mạng nội bộ hoạt động theo chế độ background:
+```bash
+docker-compose build --no-cache
+docker-compose up -d
 ```
 
-### Chức năng chi tiết từng Service thành phần:
+Để kiểm tra danh sách và trạng thái các service đang chạy, dùng lệnh:
+```bash
+docker-compose ps
+```
 
-1. **API Gateway & Proxy Server (`api-gateway-proxy-server`)**: 
-   - Sử dụng Nginx làm Reverse Proxy và Load Balancer.
-   - Điểm chạm duy nhất (Single entry point) của hệ thống. Chịu trách nhiệm nhận HTTP Request ở port `80` và định tuyến chúng đến các dịch vụ Backend/Frontend tương ứng (như `/auth/`, `/student/`, ...).
-
-2. **Web Frontend Server (`web-frontend-server-1`, `web-frontend-server-2`)**:
-   - Sử dụng Nginx để phục vụ website tĩnh (HTML/CSS/JS) của trang blog cá nhân MyMiniCloud.
-   - Được Load Balancer phân tải lưu lượng (Round-Robin) lên 2 instance khác nhau nhằm đảm bảo tính sẵn sàng cao (High Availability).
-
-3. **Application Backend Server (`application-backend-server`)**:
-   - Xây dựng bằng Python (Flask framework).
-   - Tiếp nhận các yêu cầu API từ Client, ví dụ xuất file `students.json`, kiểm tra an ninh hệ thống... 
-   - Có tích hợp với Keycloak JWT để xác minh token (jwks) của người dùng nhằm bảo mật các API (endpoint `/secure`).
-
-4. **Authentication & Identity Server (`authentication-identity-server`)**:
-   - Sử dụng Keycloak Identity Broker.
-   - Đảm nhiệm việc xác thực Single Sign-On (SSO), phân quyền ứng dụng và quản lý người dùng bằng chuỗi Token (OIDC/OAuth2).
-
-5. **Relational Database Server (`relational-database-server`)**:
-   - Sử dụng cơ sở dữ liệu MariaDB 11.
-   - Lưu trữ các dữ liệu có cấu trúc. Được thiết lập sẵn các script `init.sql` để sinh các database mở đầu như `studentdb` và `minicloud`.
-
-6. **Object Storage Server (`object-storage-server`)**:
-   - Được triển khai bằng MinIO.
-   - Cung cấp dịch vụ lưu trữ Object Storage tương thích hoàn toàn với Amazon S3, phục vụ cho việc lưu file tĩnh (hình ảnh, tài liệu) dung lượng lớn. (Cung cấp Console qua port `9001`).
-
-7. **Internal DNS Server (`internal-dns-server`)**:
-   - Triển khai bằng CoreDNS.
-   - Giải quyết bài toán phân giải tên miền hệ thống nội bộ (như `cloud.local`) của các node, với các bản ghi cấu hình trong thư mục `zones/db.cloud.local`.
-
-8. **Monitoring System (Hệ thống Giám sát)**:
-   - **Node Exporter**: Thu thập metrics (CPU, RAM, OS layer) từ các container và hệ điều hành máy chủ.
-   - **Prometheus**: Liên tục pull metrics định kỳ 15s/lần từ Node Exporter và các Web Frontend để lưu trữ dạng chuỗi thời gian.
-   - **Grafana**: Kết nối với Prometheus để vẽ biểu đồ và hiển thị thông tin trực quan cho Admin.
-
-## 4. Hướng dẫn khởi chạy
-
-1. Đảm bảo cấu hình hệ thống đã cài đặt **Docker** và **Docker Compose**.
-2. Clone mã nguồn về máy tính và di chuyển vào thư mục dự án `tranhuunhanminiclouddemo`.
-3. Khởi chạy toàn bộ hệ thống ở chế độ background bằng câu lệnh:
-   ```bash
-   docker-compose up -d --build
-   ```
-4. Truy cập các dịch vụ:
-   - **Trang chủ Website**: [http://localhost:80](http://localhost:80)
-   - **API Test Sinh viên**: [http://localhost/student/](http://localhost/student/)
-   - **Trang quản trị Keycloak**: [http://localhost:8081](http://localhost:8081)
-   - **MinIO Storage Console**: [http://localhost:9001](http://localhost:9001) (Tài khoản mặc định: `minioadmin`/`minioadmin`)
-   - **Grafana Dashboard**: [http://localhost:3000](http://localhost:3000)
-   - **Prometheus UI**: [http://localhost:9090](http://localhost:9090)
-
-## 5. Dừng hệ thống
-Để dừng các containers và xóa logs network một cách gọn gàng, chạy lệnh:
+**Tắt và dọn dẹp hệ thống**
+Để dừng và xóa bỏ cấu trúc container/network:
 ```bash
 docker-compose down
 ```
-_Lưu ý: Thêm cờ `-v` nếu bạn muốn xóa hệ thống file dữ liệu nội bộ (Volumes) của Database và MinIO._
+*(Lưu ý: Nếu bạn muốn reset toàn bộ cả cơ sở dữ liệu `[database]` và lưu trữ `[object-storage]` đang mount vào trong các ổ cứng Volumes cục bộ, hãy thêm cờ `-v` vào câu lệnh trên).*
+
+### 4.3. Demo và Kiểm thử
+Sau khi hệ thống khởi tạo thành công ở lệnh `docker-compose up -d`, bạn có thể thực hiện kiểm thử theo thông tin sau:
+
+- **Web Frontend (Home & Blog)**: 
+  - Truy cập để đọc Blog thông qua API Gateway Server ở Cổng mạng chuẩn (`80`): `http://localhost/` 
+  - *Nếu tải trang (F5) liên tục, API Gateway sẽ tự động cân bằng tải traffic chia đều xuống hai node `web-frontend-server-1` và `web-frontend-server-2`.*
+- **Application Backend (API)**:
+  - Qua Gateway: `http://localhost/api/hello`
+  - Lấy thông tin sinh viên từ file cấu trúc JSON: `http://localhost/student/`
+- **Quản trị Xác thực (Keycloak)**:
+  - Cổng Admin: `http://localhost:8081` (Sau khi truy cập Realm, ứng dụng client `flask-app` sẽ có thể nhận JWT Token để mở endpoint `/secure` trên Flask API).
+- **Lưu trữ Object Storage (MinIO)**:
+  - Truy cập giao diện làm việc (Console) tại: `http://localhost:9001` (Sử dụng thông tin tài khoản và mật khẩu định nghĩa ở môi trường: `minioadmin` / `minioadmin`).
+  - *Tham khảo tải tài liệu hoặc Avatar của sinh viên vào cấu trúc các Bucket.*
+- **Giám sát (Prometheus & Grafana)**:
+  - **Prometheus** (Engine lấy Metrics): `http://localhost:9090` (Truy cập `Status -> Targets` để xem Job đã thu thập được từ Web server và Node exporter hay chưa).
+  - **Grafana** (Bảng thông tin điều khiển): `http://localhost:3000` (User mặc định `admin`/`admin`). Sau khi thêm Data Source Prometheus, bạn có thể tự Dashboard biểu đồ CPU, Network hệ thống.
+- **Kiểm tra Phân giải DNS Nội bộ**:
+  Mỗi ứng dụng nội bộ có một Zone ánh xạ riêng. Có thể kiểm thử DNS nội mạng bằng một container `busybox` như sau:
+  ```bash
+  docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
+  ```
