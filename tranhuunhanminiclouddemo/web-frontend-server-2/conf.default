@@ -13,9 +13,4 @@ server {
         index index.html;
         autoindex off;
     }
-
-    location /metrics {
-        default_type text/plain;
-        try_files /metrics =404;
-    }
 }

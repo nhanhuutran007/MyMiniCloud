@@ -1,0 +1,10 @@
+# MinIO data
+object-storage-server/data/
+
+# Secrets / keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.env
+.env.*

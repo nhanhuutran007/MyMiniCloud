@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>MyMiniCloud – Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #1d4ed8, #020617 55%);
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 960px;
+      width: 100%;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      color: #bfdbfe;
+    }
+
+    .nav a {
+      text-decoration: none;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      opacity: 0.85;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: border-color 0.2s ease, background 0.2s ease,
+        opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav a:hover {
+      border-color: #38bdf8;
+      background: rgba(15, 23, 42, 0.7);
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 28px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-main h1 {
+      font-size: clamp(2.2rem, 3vw + 1.2rem, 3rem);
+      margin-bottom: 12px;
+    }
+
+    .hero-main h1 span {
+      color: #38bdf8;
+    }
+
+    .hero-main p {
+      font-size: 0.98rem;
+      color: #cbd5f5;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      max-width: 520px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary,
+    .btn-ghost {
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      border: 1px solid transparent;
+      transition: background 0.2s ease, color 0.2s ease,
+        transform 0.2s ease, box-shadow 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #38bdf8;
+      color: #0f172a;
+      box-shadow: 0 16px 40px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 60px rgba(56, 189, 248, 0.65);
+    }
+
+    .btn-ghost {
+      border-color: #4b5563;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .btn-ghost:hover {
+      border-color: #9ca3af;
+      transform: translateY(-1px);
+    }
+
+    .hero-note {
+      font-size: 0.82rem;
+      color: #9ca3af;
+    }
+
+    .hero-card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 20px;
+      padding: 20px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 22px 50px rgba(15, 23, 42, 0.9);
+    }
+
+    .hero-card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #bfdbfe;
+    }
+
+    .hero-card p {
+      font-size: 0.9rem;
+      color: #cbd5f5;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 4px 10px;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    footer {
+      margin-top: 26px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="nav">
+      <div class="logo">MYMINICLOUD</div>
+      <h2 style="color: red;">This is Web Frontend Server 1</h2>
+      <div>
+        <a href="/blog/">Blog</a>
+      </div>
+    </nav>
+
+    <main class="hero">
+      <section class="hero-main">
+        <h1>Xin chào,chúng mình là <span>Văn Trọng, Yến Phụng, Hữu Nhân</span>.</h1>
+        <p>
+          Đây là không gian nhỏ nơi tụi mình lưu lại hành trình học lập trình,
+          chia sẻ về công nghệ và cuộc sống sinh viên. Nếu bạn cũng quan tâm
+          tới web, Docker hay các dự án cá nhân, mời ghé thăm blog của tụi mình.
+        </p>
+
+        <div class="hero-actions">
+          <!-- Nút đi tới blog -->
+          <a class="btn-primary" href="/blog/">
+            🚀 Vào trang Blog
+          </a>
+        </div>
+
+        <p class="hero-note">
+          Được xây dựng bằng HTML tĩnh Docker.
+        </p>
+      </section>
+      <aside class="hero-card" id="about">
+        <h2>Về blog này</h2>
+        <p>
+          Blog gồm nhiều bài viết ngắn về:
+        </p>
+        <div class="pill-list">
+          <span class="pill">Công Nghệ</span>
+          <span class="pill">Học tập</span>
+          <span class="pill">Cuộc sống</span>
+        </div>
+        <p>
+          Mục tiêu của tụi mình là ghi lại những gì đã học, những project nhỏ
+          và vài câu chuyện bên lề – vừa để lưu lại hành trình, vừa hy vọng
+          giúp được một ai đó mới bắt đầu.
+        </p>
+        <p style="font-size:0.82rem;color:#9ca3af;margin-top:4px;">
+          Bạn có thể bắt đầu bằng cách bấm vào nút
+          <strong>“Vào trang Blog”</strong> phía bên trái.
+        </p>
+      </aside>
+    </main>
+
+    <footer>
+      &copy; 2025 · Blog cá nhân của tụi mình· Chạy trên web-frontend-server
+    </footer>
+  </div>
+</body>
+
+</html>

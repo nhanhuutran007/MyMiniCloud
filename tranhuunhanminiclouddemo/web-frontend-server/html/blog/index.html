@@ -1,1 +1,498 @@
-<h1>MyMiniCloud Blog</h1><a href="/">Back</a>
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Blog – MyMiniCloud</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description"
+    content="Chia sẻ về học lập trình, công nghệ và cuộc sống sinh viên từ Văn Trọng, Yến Phụng, Hữu Nhân." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sky: #38bdf8;
+      --sky-dim: rgba(56, 189, 248, 0.12);
+      --sky-glow: rgba(56, 189, 248, 0.45);
+      --bg: #020617;
+      --surface: rgba(15, 23, 42, 0.85);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --radius: 20px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 15% -5%, rgba(56, 189, 248, 0.14) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 45% at 85% 105%, rgba(99, 102, 241, 0.13) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.2;
+      animation: drift 12s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 320px;
+      height: 320px;
+      background: #3b82f6;
+      top: -60px;
+      left: -60px;
+    }
+
+    .orb-2 {
+      width: 240px;
+      height: 240px;
+      background: #6366f1;
+      bottom: -50px;
+      right: -50px;
+      animation-delay: -6s;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        transform: translate(25px, 18px) scale(1.06);
+      }
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── Navbar ─── */
+    nav {
+      padding: 20px 0;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(2, 6, 23, 0.6);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      background: linear-gradient(90deg, var(--sky), #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface);
+    }
+
+    .nav-links a.active {
+      color: var(--sky);
+      border-color: var(--sky-dim);
+      background: var(--sky-dim);
+    }
+
+    /* ─── Header ─── */
+    .page-header {
+      padding: 60px 0 40px;
+      text-align: center;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .page-header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sky);
+      background: var(--sky-dim);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.8rem, 3vw + 1rem, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .page-header h1 span {
+      background: linear-gradient(135deg, var(--sky) 0%, #818cf8 60%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ─── Grid ─── */
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      padding-bottom: 60px;
+    }
+
+    /* ─── Card ─── */
+    .post-card {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px rgba(2, 6, 23, 0.6);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeUp 0.6s ease both;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .post-card:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .post-card:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .post-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 28px 60px rgba(2, 6, 23, 0.85), 0 0 0 1px rgba(56, 189, 248, 0.1) inset;
+    }
+
+    .post-image {
+      height: 180px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .post-image::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.85), transparent);
+    }
+
+    .post-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .post-card:hover .post-image img {
+      transform: scale(1.04);
+    }
+
+    .post-body {
+      padding: 20px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a5b4fc;
+      margin-bottom: 10px;
+    }
+
+    .post-meta .dot {
+      opacity: 0.5;
+    }
+
+    .post-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .post-excerpt {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 18px;
+    }
+
+    .post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .read-time {
+      font-size: 0.78rem;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .post-footer a {
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--sky);
+      background: var(--sky-dim);
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .post-footer a:hover {
+      background: var(--sky);
+      color: #0f172a;
+      transform: translateY(-1px);
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding: 20px 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #475569;
+    }
+
+    footer a {
+      color: var(--sky);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    <nav>
+      <div class="container">
+        <a class="logo" href="/">MYMINICLOUD</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/blog/" class="active">Blog</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="container">
+        <div class="page-header-tag">✦ Tất cả bài viết</div>
+        <h1>Blog <span>của tụi mình</span></h1>
+        <p>Chia sẻ về học lập trình, công nghệ và cuộc sống sinh viên – viết bằng tất cả sự chân thành.</p>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <main>
+      <div class="container">
+        <div class="post-grid">
+
+          <!-- Bài 1 -->
+          <article class="post-card">
+            <div class="post-image">
+              <img src="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg" alt="Laptop và code"
+                loading="lazy" />
+            </div>
+            <div class="post-body">
+              <div class="post-meta">
+                <span>🖥️ Công nghệ</span>
+                <span class="dot">·</span>
+                <span>14/11/2025</span>
+              </div>
+              <h2 class="post-title">Hành trình bắt đầu học lập trình web</h2>
+              <p class="post-excerpt">
+                Tại sao mình chọn lập trình web, cần chuẩn bị gì, và những bài học
+                đầu tiên sau vài tháng "vật lộn" với HTML, CSS, JavaScript.
+              </p>
+              <div class="post-footer">
+                <span class="read-time">⏱ ~5 phút đọc</span>
+                <a href="/blog/blog1.html">Đọc tiếp →</a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Bài 2 -->
+          <article class="post-card">
+            <div class="post-image">
+              <img src="https://images.pexels.com/photos/3808029/pexels-photo-3808029.jpeg" alt="Sinh viên học tập"
+                loading="lazy" />
+            </div>
+            <div class="post-body">
+              <div class="post-meta">
+                <span>📚 Học tập</span>
+                <span class="dot">·</span>
+                <span>14/11/2025</span>
+              </div>
+              <h2 class="post-title">3 thói quen giúp mình học tập hiệu quả hơn</h2>
+              <p class="post-excerpt">
+                Một vài thay đổi nhỏ trong cách ghi chép, quản lý thời gian và ôn tập
+                đã giúp điểm số của mình ổn định hơn rất nhiều.
+              </p>
+              <div class="post-footer">
+                <span class="read-time">⏱ ~4 phút đọc</span>
+                <a href="/blog/blog2.html">Đọc tiếp →</a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Bài 3 -->
+          <article class="post-card">
+            <div class="post-image">
+              <img src="https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg" alt="Thành phố về đêm"
+                loading="lazy" />
+            </div>
+            <div class="post-body">
+              <div class="post-meta">
+                <span>☕ Cuộc sống</span>
+                <span class="dot">·</span>
+                <span>14/11/2025</span>
+              </div>
+              <h2 class="post-title">Một ngày "chill" của sinh viên IT</h2>
+              <p class="post-excerpt">
+                Không chỉ có bug và deadline, đôi khi sinh viên IT cũng cần một ngày
+                chậm lại để nạp năng lượng và lấy lại cảm hứng.
+              </p>
+              <div class="post-footer">
+                <span class="read-time">⏱ ~3 phút đọc</span>
+                <a href="/blog/blog3.html">Đọc tiếp →</a>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        &copy; 2025 · Blog cá nhân của Văn Trọng, Yến Phụng, Hữu Nhân ·
+        <a href="/">← Về trang Home</a>
+      </div>
+    </footer>
+  </div>
+</body>
+
+</html>

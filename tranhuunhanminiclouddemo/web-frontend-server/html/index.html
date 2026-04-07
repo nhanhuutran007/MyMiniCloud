@@ -1,1 +1,544 @@
-<h1>MyMiniCloud � Home</h1><a href="/blog/">Blog</a>
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>MyMiniCloud – Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description"
+    content="Blog cá nhân của Văn Trọng, Yến Phụng, Hữu Nhân – chia sẻ về công nghệ, học tập và cuộc sống sinh viên." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --sky: #38bdf8;
+      --sky-dim: rgba(56, 189, 248, 0.15);
+      --sky-glow: rgba(56, 189, 248, 0.5);
+      --indigo: #6366f1;
+      --bg: #020617;
+      --surface: rgba(15, 23, 42, 0.85);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --radius: 20px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── Animated background ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% -10%, rgba(56, 189, 248, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 110%, rgba(99, 102, 241, 0.16) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Floating orbs ─── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      animation: drift 12s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 380px;
+      height: 380px;
+      background: #3b82f6;
+      top: -80px;
+      left: -80px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 280px;
+      height: 280px;
+      background: #6366f1;
+      bottom: -60px;
+      right: -60px;
+      animation-delay: -5s;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        transform: translate(30px, 20px) scale(1.08);
+      }
+    }
+
+    /* ─── Layout wrapper ─── */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── Navbar ─── */
+    nav {
+      padding: 20px 0;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(2, 6, 23, 0.6);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      background: linear-gradient(90deg, var(--sky), #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface);
+    }
+
+    .nav-links a.active {
+      color: var(--sky);
+      border-color: var(--sky-dim);
+      background: var(--sky-dim);
+    }
+
+    /* ─── Hero ─── */
+    .hero-section {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 80px 0 60px;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 48px;
+      align-items: center;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .hero-section {
+        padding: 48px 0 40px;
+      }
+    }
+
+    /* ─── Hero Text ─── */
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sky);
+      background: var(--sky-dim);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-tag::before {
+      content: '✦';
+      font-size: 0.7rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw + 1rem, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--sky) 0%, #818cf8 60%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 32px;
+      max-width: 480px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    /* ─── Buttons ─── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      color: #fff;
+      box-shadow: 0 8px 32px var(--sky-glow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+      transition: opacity 0.2s;
+      opacity: 0;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px var(--sky-glow);
+      filter: brightness(1.1);
+    }
+
+    .btn-primary:hover::after {
+      opacity: 1;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--surface);
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .btn-ghost:hover {
+      transform: translateY(-2px);
+      border-color: rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    /* ─── Hero card ─── */
+    .hero-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 32px 64px rgba(2, 6, 23, 0.7);
+      animation: fadeUp 0.6s 0.35s ease both;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hero-card:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.1) inset, 0 32px 64px rgba(2, 6, 23, 0.9);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #bfdbfe;
+    }
+
+    .hero-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      color: var(--text);
+      background: rgba(15, 23, 42, 0.6);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .pill:hover {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: var(--sky-dim);
+      color: var(--sky);
+    }
+
+    .card-hint {
+      font-size: 0.78rem;
+      color: #64748b;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    .card-hint strong {
+      color: var(--sky);
+    }
+
+    /* ─── Stats row ─── */
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--sky), #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #475569;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── Animations ─── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    <nav>
+      <div class="container">
+        <a class="logo" href="/">MYMINICLOUD</a>
+        <div class="nav-links">
+          <a href="/" class="active">Home</a>
+          <a href="/blog/">Blog</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-inner">
+          <!-- Left: Text -->
+          <div>
+            <div class="hero-tag">Mini Cloud Project</div>
+            <h1>Xin chào, chúng mình là<br /><span class="highlight">Văn Trọng, Yến Phụng &amp; Hữu Nhân</span>.</h1>
+            <p class="hero-desc">
+              Đây là không gian nhỏ nơi tụi mình lưu lại hành trình học lập trình,
+              chia sẻ về công nghệ và cuộc sống sinh viên. Nếu bạn cũng yêu thích
+              web, Docker hay các dự án cá nhân – mời ghé blog!
+            </p>
+            <div class="hero-actions">
+              <a class="btn-primary" href="/blog/">🚀 Vào trang Blog</a>
+              <a class="btn-ghost" href="#about">📖 Tìm hiểu thêm</a>
+            </div>
+
+            <div class="stats-row">
+              <div class="stat">
+                <span class="stat-value">3</span>
+                <span class="stat-label">Tác giả</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">3</span>
+                <span class="stat-label">Bài viết</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">1</span>
+                <span class="stat-label">Docker App</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Card -->
+          <aside id="about" class="hero-card">
+            <div class="card-header">
+              <div class="card-icon">☁️</div>
+              <span class="card-title">Về blog này</span>
+            </div>
+            <p>Blog gồm nhiều bài viết ngắn gọn, dễ đọc về các chủ đề:</p>
+            <div class="pill-list">
+              <span class="pill">🖥️ Công Nghệ</span>
+              <span class="pill">📚 Học tập</span>
+              <span class="pill">☕ Cuộc sống</span>
+              <span class="pill">🐳 Docker</span>
+              <span class="pill">🌐 Web Dev</span>
+            </div>
+            <p>
+              Mục tiêu của tụi mình là ghi lại những gì đã học, những project nhỏ
+              và vài câu chuyện bên lề – vừa để lưu lại hành trình, vừa hy vọng
+              giúp được ai đó mới bắt đầu.
+            </p>
+            <p class="card-hint">
+              Bắt đầu bằng cách bấm <strong>"Vào trang Blog"</strong> ở bên trái ✨
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        &copy; 2025 · Blog cá nhân của tụi mình · Chạy trên web-frontend-server &amp; Docker
+      </div>
+    </footer>
+  </div>
+</body>
+
+</html>
