@@ -3,10 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Hành trình bắt đầu học lập trình web – MyMiniCloud</title>
+  <title>Đà Lạt - Thành phố mộng mơ | TINYFLOWERS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description"
-    content="Tại sao mình chọn lập trình web, cần chuẩn bị gì, và những bài học đầu tiên sau vài tháng vật lộn với HTML, CSS, JavaScript." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -22,9 +20,8 @@
 
     :root {
       --font: 'Inter', system-ui, -apple-system, sans-serif;
-      --accent: #38bdf8;
-      --accent-dim: rgba(56, 189, 248, 0.12);
-      --accent-glow: rgba(56, 189, 248, 0.4);
+      --accent: #10b981;
+      --accent-dim: rgba(16, 185, 129, 0.12);
       --bg: #020617;
       --surface: rgba(15, 23, 42, 0.8);
       --border: rgba(148, 163, 184, 0.18);
@@ -33,27 +30,39 @@
       --radius: 20px;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
+      line-height: 1.8;
     }
 
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(ellipse 65% 50% at 10% -5%, rgba(56, 189, 248, 0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 90% 105%, rgba(99, 102, 241, 0.1) 0%, transparent 60%);
+      background: radial-gradient(ellipse 65% 50% at 10% -5%, rgba(16, 185, 129, 0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 90% 105%, rgba(5, 150, 105, 0.06) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--accent);
+      width: 0%;
+      box-shadow: 0 0 10px var(--accent);
+      transition: width 0.2s ease-out;
     }
 
     .orb {
@@ -69,7 +78,7 @@
     .orb-1 {
       width: 300px;
       height: 300px;
-      background: #3b82f6;
+      background: #059669;
       top: -50px;
       left: -50px;
     }
@@ -77,7 +86,7 @@
     .orb-2 {
       width: 220px;
       height: 220px;
-      background: #6366f1;
+      background: #047857;
       bottom: -40px;
       right: -40px;
       animation-delay: -6s;
@@ -102,22 +111,21 @@
     }
 
     .container {
-      max-width: 820px;
+      max-width: 860px;
       width: 100%;
       margin: 0 auto;
       padding: 0 24px;
     }
 
-    /* ─── Navbar ─── */
     nav {
       padding: 20px 0;
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       background: rgba(2, 6, 23, 0.6);
       position: sticky;
       top: 0;
       z-index: 100;
+      margin-top: 4px;
     }
 
     nav .nav-inner {
@@ -133,10 +141,9 @@
       font-size: 1.1rem;
       font-weight: 800;
       letter-spacing: 0.08em;
-      background: linear-gradient(90deg, var(--accent), #818cf8);
+      background: linear-gradient(90deg, #fcd34d, #f59e0b);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
       text-decoration: none;
     }
 
@@ -153,29 +160,25 @@
       color: var(--muted);
       padding: 7px 16px;
       border-radius: 999px;
-      border: 1px solid transparent;
-      transition: all 0.25s ease;
+      transition: all 0.25s;
     }
 
     .nav-links a:hover {
       color: var(--text);
-      border-color: var(--border);
       background: var(--surface);
     }
 
     .nav-links a.active {
       color: var(--accent);
-      border-color: var(--accent-dim);
       background: var(--accent-dim);
+      border: 1px solid var(--accent-dim);
     }
 
-    /* ─── Article wrapper ─── */
     .article-wrapper {
       padding: 56px 0 64px;
-      animation: fadeUp 0.6s ease both;
+      animation: fadeUp 0.8s ease both;
     }
 
-    /* ─── Breadcrumb ─── */
     .breadcrumb {
       display: flex;
       align-items: center;
@@ -194,14 +197,16 @@
       text-decoration: underline;
     }
 
-    .breadcrumb span {
-      opacity: 0.5;
+    .article-header {
+      text-align: center;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    /* ─── Badge ─── */
     .badge {
       display: inline-flex;
-      align-items: center;
       gap: 5px;
       font-size: 0.72rem;
       font-weight: 700;
@@ -209,28 +214,29 @@
       letter-spacing: 0.1em;
       color: var(--accent);
       background: var(--accent-dim);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      border: 1px solid rgba(16, 185, 129, 0.25);
       padding: 4px 12px;
       border-radius: 999px;
       margin-bottom: 18px;
     }
 
-    /* ─── Title ─── */
     h1 {
-      font-size: clamp(1.7rem, 3vw + 0.8rem, 2.5rem);
+      font-family: var(--font);
+      font-size: clamp(2rem, 4vw + 1rem, 3.2rem);
       font-weight: 800;
-      letter-spacing: -0.02em;
       line-height: 1.2;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+      color: #fff;
+      letter-spacing: -0.02em;
     }
 
     .meta {
       font-size: 0.85rem;
       color: var(--muted);
-      margin-bottom: 28px;
       display: flex;
-      align-items: center;
       gap: 10px;
+      align-items: center;
+      justify-content: center;
       flex-wrap: wrap;
     }
 
@@ -238,130 +244,194 @@
       opacity: 0.4;
     }
 
-    /* ─── Hero image ─── */
     .hero-img {
       border-radius: var(--radius);
       overflow: hidden;
-      margin-bottom: 32px;
+      margin-bottom: 40px;
       border: 1px solid var(--border);
       box-shadow: 0 24px 56px rgba(2, 6, 23, 0.8);
+      position: relative;
     }
 
     .hero-img img {
       width: 100%;
       display: block;
       object-fit: cover;
-      max-height: 380px;
+      max-height: 500px;
     }
 
-    /* ─── Article content ─── */
     .article-content {
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 32px 36px;
+      padding: 48px;
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 28px 56px rgba(2, 6, 23, 0.7);
     }
 
+    .article-content>p:first-of-type::first-letter {
+      float: left;
+      font-family: var(--font);
+      font-size: 5rem;
+      line-height: 0.8;
+      padding-top: 8px;
+      padding-right: 12px;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
     .article-content p {
-      margin-bottom: 18px;
-      font-size: 1rem;
-      line-height: 1.8;
+      margin-bottom: 24px;
+      font-size: 1.05rem;
       color: #cbd5e1;
+      font-weight: 400;
     }
 
     .article-content h2 {
-      margin: 28px 0 12px;
-      font-size: 1.25rem;
+      font-family: var(--font);
+      margin: 40px 0 16px;
+      font-size: 1.5rem;
       font-weight: 700;
-      color: #bfdbfe;
-      padding-left: 14px;
+      color: #a7f3d0;
       border-left: 3px solid var(--accent);
+      padding-left: 14px;
     }
 
-    .article-content code {
-      font-family: 'Consolas', 'Fira Code', monospace;
-      font-size: 0.88em;
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      color: var(--accent);
-      padding: 2px 7px;
+    .inner-img {
+      width: 100%;
+      border-radius: 12px;
+      margin: 32px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-height: 450px;
+      object-fit: cover;
+    }
+
+    .img-caption {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: -24px;
+      margin-bottom: 32px;
+      font-style: italic;
+    }
+
+    blockquote {
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(90deg, var(--accent-dim), transparent);
+      padding: 24px 32px;
+      margin: 40px 0;
+      border-radius: 0 12px 12px 0;
+    }
+
+    blockquote p {
+      font-family: var(--font);
+      font-size: 1.25rem;
+      font-style: italic;
+      color: #fff;
+      margin-bottom: 0 !important;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .article-tags {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
       border-radius: 6px;
+      transition: 0.3s;
+      font-weight: 500;
     }
 
-    @media (max-width: 600px) {
-      .article-content {
-        padding: 22px 18px;
-      }
+    .tag:hover {
+      background: var(--accent-dim);
+      color: var(--accent);
+      cursor: pointer;
     }
 
-    /* ─── Back button ─── */
     .back-nav {
-      margin-top: 32px;
+      margin-top: 48px;
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
     }
 
     .back-nav a {
       text-decoration: none;
-      padding: 10px 22px;
+      padding: 12px 28px;
       border-radius: 999px;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       font-weight: 600;
       transition: all 0.2s ease;
     }
 
-    .back-nav .btn-outline {
-      border: 1px solid rgba(56, 189, 248, 0.4);
+    .btn-outline {
+      border: 1px solid rgba(16, 185, 129, 0.4);
       color: var(--accent);
       background: var(--accent-dim);
     }
 
-    .back-nav .btn-outline:hover {
+    .btn-outline:hover {
       background: var(--accent);
-      color: #0f172a;
-      transform: translateY(-1px);
+      color: #022c22;
+      transform: translateY(-2px);
     }
 
-    .back-nav .btn-home {
+    .btn-home {
       border: 1px solid var(--border);
       color: var(--muted);
       background: var(--surface);
     }
 
-    .back-nav .btn-home:hover {
+    .btn-home:hover {
       color: var(--text);
       border-color: rgba(148, 163, 184, 0.4);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
     }
 
-    /* ─── Footer ─── */
     footer {
       margin-top: auto;
       border-top: 1px solid var(--border);
-      padding: 20px 0;
+      padding: 24px 0;
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #475569;
     }
 
     footer a {
       color: var(--accent);
       text-decoration: none;
+      font-weight: 500;
     }
 
     footer a:hover {
       text-decoration: underline;
     }
 
+    @media (max-width: 768px) {
+      .article-content {
+        padding: 24px;
+      }
+
+      blockquote {
+        padding: 16px 20px;
+      }
+    }
+
     @keyframes fadeUp {
       from {
         opacity: 0;
-        transform: translateY(18px);
+        transform: translateY(20px);
       }
 
       to {
@@ -373,111 +443,116 @@
 </head>
 
 <body>
+  <div class="progress-container">
+    <div class="progress-bar" id="myBar"></div>
+  </div>
+
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-
   <div class="page-wrapper">
-    <!-- Navbar -->
     <nav>
       <div class="nav-inner">
-        <a class="logo" href="/">MYMINICLOUD</a>
+        <a class="logo" href="/index.html">TINYFLOWERS</a>
         <div class="nav-links">
-          <a href="/">Home</a>
-          <a href="/blog/" class="active">Blog</a>
+          <a href="/index.html">Home</a>
+          <a href="/blog/index.html" class="active">Blog</a>
         </div>
       </div>
     </nav>
-
-    <!-- Content -->
     <main>
       <div class="container">
         <div class="article-wrapper">
-          <!-- Breadcrumb -->
-          <nav class="breadcrumb" aria-label="Breadcrumb">
-            <a href="/">Home</a>
-            <span>›</span>
-            <a href="/blog/">Blog</a>
-            <span>›</span>
-            <span>Hành trình học lập trình web</span>
+          <nav class="breadcrumb">
+            <a href="/index.html">Home</a> <span>›</span> <a href="/blog/index.html">Blog</a> <span>›</span> <span>Đà
+              Lạt</span>
           </nav>
 
-          <!-- Header -->
-          <div class="badge">🖥️ Công nghệ</div>
-          <h1>Hành trình bắt đầu học lập trình web</h1>
-          <div class="meta">
-            <span>📅 Đăng ngày 14/11/2025</span>
-            <span class="sep">·</span>
-            <span>✍️ Văn Trọng</span>
-            <span class="sep">·</span>
-            <span>⏱ ~5 phút đọc</span>
-          </div>
+          <header class="article-header">
+            <div class="badge">🌲 Nghỉ dưỡng & Khám phá</div>
+            <h1>Đà Lạt - Bức họa nguyên sơ giữa lòng cao nguyên</h1>
+            <div class="meta">
+              <span>✍️ Chongdoo</span>
+              <span class="sep">·</span>
+              <span>📅 05/03/2026</span>
+              <span class="sep">·</span>
+              <span>⏱ ~8 phút đọc</span>
+            </div>
+          </header>
 
-          <!-- Hero Image -->
           <div class="hero-img">
-            <img src="https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg" alt="Màn hình code và laptop"
-              loading="lazy" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Xuan_Huong_Lake_11.jpg/1280px-Xuan_Huong_Lake_11.jpg"
+              alt="Đà Lạt" />
           </div>
 
-          <!-- Article -->
           <article class="article-content">
-            <p>
-              Mình bắt đầu học lập trình web từ một lý do rất đơn giản: muốn tự tay
-              làm một trang web "nhìn cho được" để giới thiệu bản thân và những dự án
-              nhỏ mình đã làm. Lúc mới tìm hiểu, mọi thứ đều khá mơ hồ: HTML là gì,
-              CSS để làm gì, JavaScript có cần học ngay không?
-            </p>
+            <p>Đà Lạt từ lâu đã được ví von như một nàng thơ ngủ quên giữa đại ngàn Tây Nguyên, nơi thời gian dường như
+              trôi chậm lại để nhường chỗ cho những làn sương giăng kín lối mỗi độ bình minh. Không ồn ào, vội vã như
+              chốn phồn hoa đô thị, vùng đất này đón kẻ lữ hành bằng cái se lạnh đặc trưng, bằng tiếng thông reo vi vu
+              và hương thơm ngai ngái của cỏ cây sau cơn mưa rào.</p>
 
-            <h2>Bắt đầu với những viên gạch đầu tiên</h2>
-            <p>
-              Mình chọn học HTML và CSS trước. HTML giống như bộ khung xương của
-              trang web, còn CSS giúp "trang điểm" cho khung xương đó trở nên đẹp và
-              dễ nhìn hơn. Chỉ cần vài thẻ cơ bản như
-              <code>&lt;h1&gt;</code>, <code>&lt;p&gt;</code>,
-              <code>&lt;a&gt;</code> – mình đã có thể tạo ra những trang đơn giản
-              nhưng chạy được trên trình duyệt.
-            </p>
-            <p>
-              Cảm giác gõ vài dòng code rồi F5 và thấy kết quả thay đổi ngay trên
-              màn hình thật sự rất "phê". Nó cho mình động lực để tiếp tục đọc thêm
-              tài liệu và thử nghiệm nhiều layout khác nhau.
-            </p>
+            <p>Người ta tìm đến Đà Lạt không hẳn chỉ vì phong cảnh đẹp, mà nhiều khi chỉ để trốn chạy khỏi những áp lực
+              vô hình, tìm một góc ban công nhỏ, pha một tách cà phê phin nóng hổi và phóng tầm mắt xuống thung lũng mây
+              mù.</p>
 
-            <h2>Những khó khăn ban đầu</h2>
-            <p>
-              Khó khăn lớn nhất với mình không phải là cú pháp, mà là sự kiên nhẫn.
-              Nhiều lúc chỉnh CSS hoài mà giao diện vẫn không như ý, hay chỉ vì quên
-              dấu <code>;</code> mà cả file không hoạt động. Có những hôm ngồi fix
-              giao diện đến khuya, nhưng đổi lại mình hiểu sâu hơn về cách trình
-              duyệt "suy nghĩ".
-            </p>
+            <h2>Dấu ấn kiến trúc quyện trong thời gian</h2>
+            <p>Đâu chỉ có thiên nhiên hoang sơ, hồn cốt của Đà Lạt còn nằm ở những tuyệt tác kiến trúc cổ kính được
+              người Pháp để lại từ hơn một thế kỷ trước. Những ngôi biệt thự mái ngói rêu phong nằm khuất lấp sau rặng
+              thông già, nhà ga xe lửa răng cưa độc đáo nhất Đông Dương, hay trường Cao đẳng Sư phạm với tháp chuông
+              vươn cao kiêu hãnh trên bầu trời xanh thẳm.</p>
 
-            <h2>Điều mình học được</h2>
-            <p>
-              Quan trọng nhất là: đừng chờ hiểu hết rồi mới bắt đầu làm. Cứ bắt tay
-              vào một project nhỏ, ví dụ như trang blog cá nhân này. Trong quá trình
-              làm, mình buộc phải tìm tài liệu, đọc thêm, hỏi bạn bè – và đó chính
-              là cách kiến thức bám lại lâu nhất.
-            </p>
-            <p>
-              Chặng đường phía trước còn dài: responsive, JavaScript, framework,
-              backend… nhưng việc có một trang web nhỏ chạy đúng theo ý mình đã là
-              một khởi đầu rất đáng nhớ.
-            </p>
+            <img src="https://dichoithoi.com/diem-den/truong-cao-dang-sp-da-lat.jpg" alt="Cảnh sắc Đà Lạt"
+              class="inner-img" />
+            <div class="img-caption">Trường cao đẳng sư phạm Đà Lạt</div>
+
+            <p>Ngày nay, những công trình ấy đã được khéo léo cải tạo thành các khu resort, boutique hotel đẳng cấp, nơi
+              du khách vừa có thể trải nghiệm tiện nghi của thế kỷ 21, vừa được sống lại trong không gian hoài niệm của
+              những thập niên trước. Bước chân trên những bậc thềm lát gạch hoa cổ, bạn sẽ cảm nhận được hơi thở của
+              lịch sử đang rì rào qua từng khe cửa.</p>
+
+            <blockquote>
+              <p>"Đà Lạt không chỉ là một điểm đến, mà là một chốn đi về để tâm hồn được xoa dịu, để ta thấy lòng mình
+                nhẹ bẫng sau những giông bão cuộc đời."</p>
+            </blockquote>
+
+            <h2>Vị ngon nấp sau màn sương lạnh</h2>
+            <p>Sẽ là một thiếu sót lớn nếu nhắc về "Thành phố mộng mơ" mà bỏ quên những hương vị ẩm thực đã làm nức lòng
+              bao thực khách. Trong cái giá buốt của đêm cao nguyên, việc ngồi quây quần bên bếp than hồng, thưởng thức
+              chiếc bánh tráng nướng giòn rụm, ly sữa đậu nành nóng bốc khói nghi ngút, hay nồi lẩu gà lá é thơm lừng vị
+              cay nồng của ớt xanh... chính là những trải nghiệm mộc mạc nhưng đắt giá nhất.</p>
+
+            <p>Đà Lạt cứ thế, dịu dàng và dung dị níu chân người. Dù là lần đầu đặt chân đến hay đã quay lại lần thứ
+              mười, thành phố này vẫn luôn biết cách khơi gợi trong ta những xúc cảm tươi mới, tinh khôi nhất. Hãy thử
+              một lần thả lỏng mình, bước đi không cần bản đồ và để trái tim dẫn lối giữa thành phố ngàn hoa này.</p>
+
+            <div class="article-tags">
+              <span class="tag">#DaLat</span>
+              <span class="tag">#Nature</span>
+              <span class="tag">#LuxuryRetreat</span>
+              <span class="tag">#SlowLiving</span>
+            </div>
           </article>
 
-          <!-- Navigation -->
           <div class="back-nav">
-            <a class="btn-outline" href="/blog/">← Quay lại danh sách bài viết</a>
-            <a class="btn-home" href="/">🏠 Về trang Home</a>
+            <a class="btn-outline" href="/blog/index.html">← Quay lại danh sách điểm đến</a>
+            <a class="btn-home" href="/index.html">🏠 Về trang Home</a>
           </div>
         </div>
       </div>
     </main>
-
     <footer>
-      <div>&copy; 2025 · Blog cá nhân của tụi mình · <a href="/">MYMINICLOUD</a></div>
+      <div>&copy; 2026 · Thiết kế và phát triển bởi <a href="/index.html">Tiny Flowers</a></div>
     </footer>
   </div>
+
+  <script>
+    window.onscroll = function () {
+      var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      var scrolled = (winScroll / height) * 100;
+      document.getElementById("myBar").style.width = scrolled + "%";
+    };
+  </script>
 </body>
 
 </html>

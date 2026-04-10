@@ -102,7 +102,7 @@ docker-compose ps
 **Mục đích:** Xác minh dữ liệu khởi tạo tự động.
 - Kiểm tra bảng `notes`:
 ```bash
-docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-database-server -uroot -proot -D minicloud -e "SELECT * FROM notes;"'
+docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-database-server -uroot -proot -D minicloud -e "SHOW TABLES; SELECT * FROM notes;"'
 ```
 - Kiểm tra danh sách sinh viên trong `studentdb`:
 ```bash
@@ -153,6 +153,7 @@ ping -c 3 object-storage-server
 ping -c 3 monitoring-prometheus-server
 ping -c 3 monitoring-grafana-dashboard-server
 ping -c 3 internal-dns-server
+```
 
 ### 7.2. Push Image lên Docker Hub
 Hệ thống đã được đẩy image tùy chỉnh lên Docker Hub:

@@ -3,10 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Blog – MyMiniCloud</title>
+  <title>TINYFLOWERS | Danh sách điểm đến</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description"
-    content="Chia sẻ về học lập trình, công nghệ và cuộc sống sinh viên từ Văn Trọng, Yến Phụng, Hữu Nhân." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -22,9 +20,8 @@
 
     :root {
       --font: 'Inter', system-ui, -apple-system, sans-serif;
-      --sky: #38bdf8;
-      --sky-dim: rgba(56, 189, 248, 0.12);
-      --sky-glow: rgba(56, 189, 248, 0.45);
+      --accent: #fbbf24;
+      --accent-dim: rgba(251, 191, 36, 0.12);
       --bg: #020617;
       --surface: rgba(15, 23, 42, 0.85);
       --border: rgba(148, 163, 184, 0.18);
@@ -49,9 +46,7 @@
       content: '';
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(ellipse 70% 55% at 15% -5%, rgba(56, 189, 248, 0.14) 0%, transparent 60%),
-        radial-gradient(ellipse 55% 45% at 85% 105%, rgba(99, 102, 241, 0.13) 0%, transparent 60%);
+      background: radial-gradient(ellipse 70% 55% at 15% -5%, rgba(251, 191, 36, 0.1) 0%, transparent 60%), radial-gradient(ellipse 55% 45% at 85% 105%, rgba(217, 119, 6, 0.1) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -60,7 +55,7 @@
       position: fixed;
       border-radius: 50%;
       filter: blur(80px);
-      opacity: 0.2;
+      opacity: 0.15;
       animation: drift 12s ease-in-out infinite alternate;
       pointer-events: none;
       z-index: 0;
@@ -69,7 +64,7 @@
     .orb-1 {
       width: 320px;
       height: 320px;
-      background: #3b82f6;
+      background: #f59e0b;
       top: -60px;
       left: -60px;
     }
@@ -77,7 +72,7 @@
     .orb-2 {
       width: 240px;
       height: 240px;
-      background: #6366f1;
+      background: #d97706;
       bottom: -50px;
       right: -50px;
       animation-delay: -6s;
@@ -108,11 +103,9 @@
       padding: 0 24px;
     }
 
-    /* ─── Navbar ─── */
     nav {
       padding: 20px 0;
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       background: rgba(2, 6, 23, 0.6);
       position: sticky;
@@ -130,11 +123,11 @@
       font-size: 1.1rem;
       font-weight: 800;
       letter-spacing: 0.08em;
-      background: linear-gradient(90deg, var(--sky), #818cf8);
+      background: linear-gradient(90deg, #fcd34d, #f59e0b);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
       text-decoration: none;
+      text-transform: uppercase;
     }
 
     .nav-links {
@@ -161,12 +154,11 @@
     }
 
     .nav-links a.active {
-      color: var(--sky);
-      border-color: var(--sky-dim);
-      background: var(--sky-dim);
+      color: var(--accent);
+      border-color: var(--accent-dim);
+      background: var(--accent-dim);
     }
 
-    /* ─── Header ─── */
     .page-header {
       padding: 60px 0 40px;
       text-align: center;
@@ -181,9 +173,9 @@
       font-weight: 600;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--sky);
-      background: var(--sky-dim);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(251, 191, 36, 0.25);
       padding: 5px 14px;
       border-radius: 999px;
       margin-bottom: 20px;
@@ -197,10 +189,9 @@
     }
 
     .page-header h1 span {
-      background: linear-gradient(135deg, var(--sky) 0%, #818cf8 60%, #c084fc 100%);
+      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 60%, #b45309 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
     .page-header p {
@@ -211,7 +202,6 @@
       line-height: 1.65;
     }
 
-    /* ─── Grid ─── */
     .post-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -219,16 +209,14 @@
       padding-bottom: 60px;
     }
 
-    /* ─── Card ─── */
     .post-card {
       background: rgba(15, 23, 42, 0.75);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 20px 40px rgba(2, 6, 23, 0.6);
-      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.3s ease;
       animation: fadeUp 0.6s ease both;
       display: flex;
       flex-direction: column;
@@ -244,12 +232,12 @@
 
     .post-card:hover {
       transform: translateY(-6px);
-      border-color: rgba(56, 189, 248, 0.4);
-      box-shadow: 0 28px 60px rgba(2, 6, 23, 0.85), 0 0 0 1px rgba(56, 189, 248, 0.1) inset;
+      border-color: rgba(251, 191, 36, 0.4);
+      box-shadow: 0 28px 60px rgba(2, 6, 23, 0.85), 0 0 0 1px rgba(251, 191, 36, 0.1) inset;
     }
 
     .post-image {
-      height: 180px;
+      height: 200px;
       overflow: hidden;
       position: relative;
     }
@@ -291,7 +279,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #a5b4fc;
+      color: #fcd34d;
       margin-bottom: 10px;
     }
 
@@ -300,7 +288,7 @@
     }
 
     .post-title {
-      font-size: 1.05rem;
+      font-size: 1.15rem;
       font-weight: 700;
       margin-bottom: 10px;
       color: var(--text);
@@ -323,10 +311,7 @@
 
     .read-time {
       font-size: 0.78rem;
-      color: #475569;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      color: #64748b;
     }
 
     .post-footer a {
@@ -335,19 +320,18 @@
       font-weight: 600;
       padding: 7px 16px;
       border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      color: var(--sky);
-      background: var(--sky-dim);
-      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: var(--accent);
+      background: var(--accent-dim);
+      transition: all 0.2s ease;
     }
 
     .post-footer a:hover {
-      background: var(--sky);
-      color: #0f172a;
+      background: var(--accent);
+      color: #020617;
       transform: translateY(-1px);
     }
 
-    /* ─── Footer ─── */
     footer {
       margin-top: auto;
       border-top: 1px solid var(--border);
@@ -358,12 +342,19 @@
     }
 
     footer a {
-      color: var(--sky);
+      color: var(--accent);
       text-decoration: none;
+      font-weight: 500;
     }
 
     footer a:hover {
       text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .page-header h1 {
+        font-size: 2.2rem;
+      }
     }
 
     @keyframes fadeUp {
@@ -383,114 +374,80 @@
 <body>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-
   <div class="page-wrapper">
-    <!-- Navbar -->
     <nav>
       <div class="container">
-        <a class="logo" href="/">MYMINICLOUD</a>
+        <a class="logo" href="/index.html">TINYFLOWERS</a>
         <div class="nav-links">
-          <a href="/">Home</a>
-          <a href="/blog/" class="active">Blog</a>
+          <a href="/index.html">Home</a>
+          <a href="/blog/index.html" class="active">Blog</a>
         </div>
       </div>
     </nav>
-
-    <!-- Header -->
     <div class="page-header">
       <div class="container">
-        <div class="page-header-tag">✦ Tất cả bài viết</div>
-        <h1>Blog <span>của tụi mình</span></h1>
-        <p>Chia sẻ về học lập trình, công nghệ và cuộc sống sinh viên – viết bằng tất cả sự chân thành.</p>
+        <div class="page-header-tag">✦ Điểm Đến Nổi Bật</div>
+        <h1>Khám Phá <span>Việt Nam</span></h1>
+        <p>Nâng tầm trải nghiệm của bạn qua những chuyến đi đẳng cấp và những khoảnh khắc không thể nào quên.</p>
       </div>
     </div>
-
-    <!-- Grid -->
     <main>
       <div class="container">
         <div class="post-grid">
 
-          <!-- Bài 1 -->
           <article class="post-card">
             <div class="post-image">
-              <img src="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg" alt="Laptop và code"
-                loading="lazy" />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Xuan_Huong_Lake_11.jpg/1280px-Xuan_Huong_Lake_11.jpg"
+                alt="Đà Lạt" loading="lazy" />
             </div>
             <div class="post-body">
-              <div class="post-meta">
-                <span>🖥️ Công nghệ</span>
-                <span class="dot">·</span>
-                <span>14/11/2025</span>
-              </div>
-              <h2 class="post-title">Hành trình bắt đầu học lập trình web</h2>
-              <p class="post-excerpt">
-                Tại sao mình chọn lập trình web, cần chuẩn bị gì, và những bài học
-                đầu tiên sau vài tháng "vật lộn" với HTML, CSS, JavaScript.
-              </p>
-              <div class="post-footer">
-                <span class="read-time">⏱ ~5 phút đọc</span>
-                <a href="/blog/blog1.html">Đọc tiếp →</a>
-              </div>
+              <div class="post-meta"><span>🌲 Nghỉ dưỡng</span><span class="dot">·</span><span>05/03/2026</span></div>
+              <h2 class="post-title">Đà Lạt - Bức họa nguyên sơ giữa lòng cao nguyên</h2>
+              <p class="post-excerpt">Đà Lạt từ lâu đã được ví von như một nàng thơ ngủ quên giữa đại ngàn Tây Nguyên,
+                mang đến cảm giác thư thái hiếm có...</p>
+              <div class="post-footer"><span class="read-time">⏱ ~8 phút đọc</span><a href="/blog/blog1.html">Đọc tiếp
+                  →</a></div>
             </div>
           </article>
 
-          <!-- Bài 2 -->
           <article class="post-card">
             <div class="post-image">
-              <img src="https://images.pexels.com/photos/3808029/pexels-photo-3808029.jpeg" alt="Sinh viên học tập"
-                loading="lazy" />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Bai-sao-phu-quoc-tuonglamphotos.jpg/1280px-Bai-sao-phu-quoc-tuonglamphotos.jpg"
+                alt="Phú Quốc" loading="lazy" />
             </div>
             <div class="post-body">
-              <div class="post-meta">
-                <span>📚 Học tập</span>
-                <span class="dot">·</span>
-                <span>14/11/2025</span>
-              </div>
-              <h2 class="post-title">3 thói quen giúp mình học tập hiệu quả hơn</h2>
-              <p class="post-excerpt">
-                Một vài thay đổi nhỏ trong cách ghi chép, quản lý thời gian và ôn tập
-                đã giúp điểm số của mình ổn định hơn rất nhiều.
-              </p>
-              <div class="post-footer">
-                <span class="read-time">⏱ ~4 phút đọc</span>
-                <a href="/blog/blog2.html">Đọc tiếp →</a>
-              </div>
+              <div class="post-meta"><span>🌊 Biển đảo</span><span class="dot">·</span><span>12/03/2026</span></div>
+              <h2 class="post-title">Phú Quốc - Đảo ngọc say giấc giữa đại dương</h2>
+              <p class="post-excerpt">Phú Quốc không chỉ là một hòn đảo, mà dường như là một bản tình ca êm đềm được
+                viết nên bởi đại dương và mây trời...</p>
+              <div class="post-footer"><span class="read-time">⏱ ~7 phút đọc</span><a href="/blog/blog2.html">Đọc tiếp
+                  →</a></div>
             </div>
           </article>
 
-          <!-- Bài 3 -->
           <article class="post-card">
             <div class="post-image">
-              <img src="https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg" alt="Thành phố về đêm"
-                loading="lazy" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/%C4%90%C3%A8o_M%C3%A3_P%C3%AC_L%C3%A8ng.jpg"
+                alt="Hà Giang" loading="lazy" />
             </div>
             <div class="post-body">
-              <div class="post-meta">
-                <span>☕ Cuộc sống</span>
-                <span class="dot">·</span>
-                <span>14/11/2025</span>
-              </div>
-              <h2 class="post-title">Một ngày "chill" của sinh viên IT</h2>
-              <p class="post-excerpt">
-                Không chỉ có bug và deadline, đôi khi sinh viên IT cũng cần một ngày
-                chậm lại để nạp năng lượng và lấy lại cảm hứng.
-              </p>
-              <div class="post-footer">
-                <span class="read-time">⏱ ~3 phút đọc</span>
-                <a href="/blog/blog3.html">Đọc tiếp →</a>
-              </div>
+              <div class="post-meta"><span>⛰️ Khám phá</span><span class="dot">·</span><span>18/03/2026</span></div>
+              <h2 class="post-title">Hà Giang - Bản hùng ca của đá và hoa</h2>
+              <p class="post-excerpt">Mảnh đất địa đầu Tổ quốc này thử thách kẻ lữ hành bằng những con đèo uốn lượn, đổi
+                lại là một bức tranh thiên nhiên kỳ vĩ...</p>
+              <div class="post-footer"><span class="read-time">⏱ ~9 phút đọc</span><a href="/blog/blog3.html">Đọc tiếp
+                  →</a></div>
             </div>
           </article>
 
         </div>
       </div>
     </main>
-
     <footer>
-      <div class="container">
-        &copy; 2025 · Blog cá nhân của Văn Trọng, Yến Phụng, Hữu Nhân ·
-        <a href="/">← Về trang Home</a>
-      </div>
+      <div class="container">&copy; 2026 · Thiết kế và phát triển bởi TINYFLOWERS · <a href="/index.html">← Về trang
+          Home</a></div>
     </footer>
   </div>
 </body>
