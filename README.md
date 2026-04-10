@@ -110,14 +110,35 @@ docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-datab
 ```
 
 ### 6.4. Authentication Identity (Keycloak)
-**Mục đích:** Kiểm tra OIDC và bảo mật API.
-- Lấy Access Token (PowerShell):
-```powershell
-curl.exe -X POST "http://localhost:8081/realms/52300235/protocol/openid-connect/token" `
-  -H "Content-Type: application/x-www-form-urlencoded" `
-  -d "client_id=flask-app" -d "grant_type=password" -d "username=sv01" -d "password=sv01"
+**Mục đích:** Kiểm tra OIDC và bảo mật API. Quá trình kiểm tra gồm 2 bước: lấy token và dùng token đó để truy cập tài nguyên bảo mật.
+
+**Bước 1: Lấy Token (Access Token)**
+Mở Terminal/PowerShell và thực thi lệnh `curl` sau để xin cấp token từ Keycloak (lưu ý Realm `TranHuuNhan_52300235` và password `123`):
+
+```bash
+curl -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "username=sv01" \
+     -d "password=123" \
+     -d "grant_type=password" \
+     -d "client_id=flask-app"
 ```
-- Dùng Token gọi `/secure`: `curl -H "Authorization: Bearer <TOKEN_CỦA_BẠN>" http://localhost/api/secure`
+Kết quả trả về sẽ là một chuỗi JSON. Bạn hãy copy phần chữ dài loằng ngoằng nằm trong đoạn `"access_token": "..."` (không lặp lại dấu nháy kép).
+
+**Bước 2: Truy cập API bảo mật (Secure API)**
+Sử dụng Access Token vừa copy (`<TOKEN_CỦA_BẠN>`) để truy cập endpoint bảo mật `/secure`.
+
+Ví dụ cụ thể: (thay chuỗi `eyJhbG...` bằng token thật của bạn)
+
+*Cách 1: Truy cập thẳng vào Application Container qua Port 8085*
+```bash
+curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI..." http://localhost:8085/secure
+```
+
+*Cách 2: Truy cập thông qua API Gateway Server qua Port 80 (Khuyên dùng, chuẩn Microservices)*
+```bash
+curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI..." http://localhost/api/secure
+```
 
 ### 6.5. Object Storage (MinIO)
 - Console quản trị: [http://localhost:9001](http://localhost:9001)
