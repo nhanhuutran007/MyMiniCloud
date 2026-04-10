@@ -88,33 +88,64 @@ docker-compose ps
 ## 6. Demo & Kiểm thử từng Server
 
 ### 6.1. Web Frontend & Load Balancer
-**Mục đích:** Kiểm tra web tĩnh và khả năng cân bằng tải.
-- Truy cập trực tiếp: [http://localhost:8080](http://localhost:8080)
-- Truy cập qua Gateway: [http://localhost](http://localhost)
-- **Kiểm tra:** Bấm F5 liên tục, nội dung sẽ luân phiên giữa các server frontend (Round Robin).
+
+**Mục tiêu:** Kiểm tra web tĩnh và khả năng phân tải tự động qua Nginx Load Balancer.
+
+**Cách thực hiện:** Đóng vai người dùng truy cập trực tiếp vào phân hệ web và tiếp cận thông qua API Gateway.
+
+**Lệnh kiểm tra yêu cầu cơ bản:**
+- Truy cập trực tiếp cổng Container 1: [http://localhost:8080](http://localhost:8080)
+- Gọi web qua hệ Gateway: [http://localhost](http://localhost)
+
+**Lệnh kiểm tra yêu cầu mở rộng:**
+- Load Balancer Round Robin: Truy cập [http://localhost](http://localhost) và f5 liên tục (reload website nhiều lần).
+
+**Kết quả dự kiến:** Hiệu ứng chuyển hướng trên trang thay đổi luân phiên theo chu kỳ giữa các node web frontend con chứng minh Load balancer điều phối request thành công.
 
 ### 6.2. Application Backend (Flask API)
-**Mục đích:** Kiểm tra API hoạt động và định tuyến từ Gateway.
-- Gọi API hello: `curl http://localhost/api/hello`
-- Trả về danh sách sinh viên (EXT 2 & 9): `curl http://localhost/student/`
+
+**Mục tiêu:** Xác minh tính chuyên biệt về mặt logic của Application API và sự chuyển tiếp chuẩn xác từ tuyến Gateway.
+
+**Cách thực hiện:** Dùng lệnh `curl` gọi các endpoint trực tiếp.
+
+**Lệnh kiểm tra yêu cầu cơ bản:**
+- Gọi API trạng thái (`hello`): `curl http://localhost/api/hello`
+
+**Lệnh kiểm tra yêu cầu mở rộng:**
+- Trả về danh sách sinh viên trực tiếp từ kết nối db (Mở rộng EXT 2 & 9): `curl http://localhost/student/`
+
+**Kết quả dự kiến:**
+- Lệnh `hello`: Trả lời thông báo chào mừng từ Flask API theo định dạng JSON chuyên nghiệp.
+- Lệnh `student`: Load thành công danh sách tập sinh viên từ backend gửi lên dạng chuẩn.
 
 ### 6.3. Relational Database (MariaDB)
-**Mục đích:** Xác minh dữ liệu khởi tạo tự động.
-- Kiểm tra bảng `notes`:
+
+**Mục tiêu:** Kiểm chứng kết nối dữ liệu có cấu trúc từ backend, minh chứng sự tự động hóa Scripts khởi tạo.
+
+**Cách thực hiện:** Giả lập container con để mở luồng mysql trỏ thẳng vào Master Data.
+
+**Lệnh kiểm tra yêu cầu cơ bản:**
+- Xác nhận tập dữ liệu của schema chính `minicloud`:
 ```bash
 docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-database-server -uroot -proot -D minicloud -e "SHOW TABLES; SELECT * FROM notes;"'
 ```
-- Kiểm tra danh sách sinh viên trong `studentdb`:
+
+**Lệnh kiểm tra yêu cầu mở rộng:**
+- Xác nhận bảng thực thể dữ liệu mới cho luồng Database riêng biệt `studentdb`:
 ```bash
 docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-database-server -uroot -proot -D studentdb -e "SELECT * FROM students;"'
 ```
 
+**Kết quả dự kiến:** Hệ thống tự động phản hồi lại bảng chứa cấu hình dữ liệu được seed thành công bằng script SQL của hệ.
+
 ### 6.4. Authentication Identity (Keycloak)
-**Mục đích:** Kiểm tra OIDC và bảo mật API. Quá trình kiểm tra gồm 2 bước: lấy token và dùng token đó để truy cập tài nguyên bảo mật.
 
-**Bước 1: Lấy Token (Access Token)**
-Mở Terminal/PowerShell và thực thi lệnh `curl` sau để xin cấp token từ Keycloak (lưu ý Realm `TranHuuNhan_52300235` và password `123`):
+**Mục tiêu:** Kiểm tra OIDC (OpenID Connect) và bảo mật Identity API theo quy chuẩn bảo vệ microservice.
 
+**Cách thực hiện:** Thực thi tuần tự quy trình xin thông tin gói xác thực sau đó lấy Bearer Token chèn vào Header cho lệnh triệu gọi.
+
+**Lệnh kiểm tra yêu cầu cơ bản:**
+*Bước 1: Xin Token qua xác thực user*
 ```bash
 curl -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
@@ -123,75 +154,97 @@ curl -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-
      -d "grant_type=password" \
      -d "client_id=flask-app"
 ```
-Kết quả trả về sẽ là một chuỗi JSON. Bạn hãy copy phần chữ dài loằng ngoằng nằm trong đoạn `"access_token": "..."` (không lặp lại dấu nháy kép).
+*(Copy giá trị trong `"access_token": "..."` từ chùm json trả về, giả sử là `<TOKEN_CỦA_BẠN>`)*
 
-**Bước 2: Truy cập API bảo mật (Secure API)**
-Sử dụng Access Token vừa copy (`<TOKEN_CỦA_BẠN>`) để truy cập endpoint bảo mật `/secure`.
-
-Ví dụ cụ thể: (thay chuỗi `eyJhbG...` bằng token thật của bạn)
-
-*Cách 1: Truy cập thẳng vào Application Container qua Port 8085*
+*Bước 2: Xuyên phòng vệ lớp cổng ngoài Gateway Port 80*
 ```bash
-curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI..." http://localhost:8085/secure
+curl -H "Authorization: Bearer <TOKEN_CỦA_BẠN>" http://localhost/api/secure
 ```
 
-*Cách 2: Truy cập thông qua API Gateway Server qua Port 80 (Khuyên dùng, chuẩn Microservices)*
+**Lệnh kiểm tra yêu cầu mở rộng:**
+*Xuyên phòng vệ cổng backend thuần (port 8085):*
 ```bash
-curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI..." http://localhost/api/secure
+curl -H "Authorization: Bearer <TOKEN_CỦA_BẠN>" http://localhost:8085/secure
 ```
+
+**Kết quả dự kiến:**
+- Nếu bạn gọi route `/secure` mà bỏ quên token, hệ thống Keycloak sẽ bẻ khóa chặn lại (401 Unauthorized).
+- Nếu mã chuẩn xác, Backend Flask sẽ tiếp nhận và chào mừng thành công.
 
 ### 6.5. Object Storage (MinIO)
-- Console quản trị: [http://localhost:9001](http://localhost:9001)
-- Tài khoản: `minioadmin` / `minioadmin`
-- Sử dụng các bucket `profile-pics` và `documents` để lưu trữ dữ liệu.
 
-**Lưu ý quan trọng:** Hiện tại, thao tác chuyển quyền truy cập bucket từ Private sang Public trực tiếp trên giao diện console hoặc qua máy local có thể không được hỗ trợ hoặc báo lỗi. Để giải quyết, chúng ta sẽ sử dụng MinIO Client (`mc`) cấu hình trực tiếp bên trong container của MinIO.
+**Mục tiêu:** Cấp phát hạ tầng Storage chứa Object tĩnh như ảnh, tệp tin với bộ khung tiêu chuẩn S3 kết hợp Access Policy rõ ràng.
 
-**TỔNG HỢP LỆNH CẤU HÌNH MINIO (Chuyển Bucket thành Public)**
+**Cách thực hiện:** Xác thực hệ Console Web và sau đó thao tác trên luồng terminal MinIO Client chuyển access policies.
+
+**Lệnh kiểm tra yêu cầu cơ bản:**
+- Mở Server Storage Engine: [http://localhost:9001](http://localhost:9001)
+- Lệnh đăng nhập qua trình duyệt: `minioadmin` / `minioadmin`
+- Xác minh hai bucket tự động được sinh: `profile-pics` và `documents`.
+
+**Lệnh kiểm tra yêu cầu mở rộng:**
+*(Thiết lập quyền truy cập Public trực tiếp qua cơ chế `mc` tích hợp sẵn trong MinIO)*
 
 ```bash
 # Bước 1: Chui vào bên trong container MinIO
 docker exec -it object-storage-server sh
 
-# Bước 2: Đăng nhập MinIO Client (mc)
+# Bước 2: Khởi tạo biến môi trường MinIO Client (mc)
 mc alias set local http://localhost:9000 minioadmin minioadmin
 
-# Bước 3: Cấp quyền Public (Chỉ tải xuống/Xem) cho bucket profile-pics
+# Bước 3: Cấp quyền Public (Tải xuống/Xem tài nguyên) ở bucket profile-pics
 mc anonymous set download local/profile-pics
 
-# Bước 4: Kiểm tra lại xem quyền đã được set thành công chưa
+# Bước 4: Kiểm tra lại quyền set
 mc anonymous get local/profile-pics
 
-# Bước 5: Thoát khỏi container trở về máy tính của bạn
+# Bước 5: Thoát khỏi MinIO
 exit
 ```
-- Truy cập ảnh: http://localhost:9000/profile-pics/avatar.jpg
+
+**Kết quả dự kiến:** URL hình ảnh trực tiếp (như: [http://localhost:9000/profile-pics/avatar.jpg](http://localhost:9000/profile-pics/avatar.jpg)) sau khi thiết lập được truy cập trơn tru mà không yêu cầu ID bảo mật.
 ### 6.6. Internal DNS (CoreDNS)
-**Mục đích:** Phân giải tên miền `*.cloud.local`.
 
-#### Lệnh kiểm tra bắt buộc
+**Mục tiêu:** Thay vì giao tiếp bằng địa chỉ IP thô cứng, hệ thống Microservices sẽ phân giải tên miền định nghĩa linh hoạt theo pattern `*.cloud.local`.
 
-Dùng container `busybox` để `nslookup` qua mạng `cloud-net`:
+**Cách thực hiện:** Kích hoạt một shell Alpine/Busybox chung cụm mạng ảo và dùng `nslookup` tra tên trên máy chủ CoreDNS.
 
+**Lệnh kiểm tra yêu cầu cơ bản:**
+Dùng container `busybox` tra cứu tuyến đầu:
 ```bash
 docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
 ```
 
-**Kỳ vọng:** phân giải được `web-frontend-server.cloud.local` về đúng IP trong `db.cloud.local`.
-
-#### Lệnh kiểm tra mở rộng
-
+**Lệnh kiểm tra yêu cầu mở rộng:**
+1. Khám phá các Backend Component:
 ```bash
 docker run --rm --network cloud-net busybox nslookup app-backend.cloud.local internal-dns-server
 docker run --rm --network cloud-net busybox nslookup minio.cloud.local internal-dns-server
 docker run --rm --network cloud-net busybox nslookup keycloak.cloud.local internal-dns-server
 ```
 
-**Kỳ vọng:** tất cả tên trên đều phân giải đúng IP nội bộ tương ứng.
+2. Bổ sung bản ghi thực tế theo dự án thiết kế (Trang 25):
+- Cập nhật trực tiếp: Mở Zone tại `tranhuunhanminiclouddemo/internal-dns-server/zones/db.cloud.local`.
+- Ghi mới địa chỉ: `new-service IN A 10.10.10.50`
+- Áp dụng thay đổi: `docker restart internal-dns-server`.
+
+**Kết quả dự kiến:** Domain truy xuất chuyển giao được thành đúng IP nội mạng `cloud-net`, khi gõ lệnh nslookup hệ thống hiển thị chính xác tên miền tương quan (vd tên miền gốc, root ip...).
 
 ### 6.7. Monitoring (Prometheus & Grafana)
-- **Prometheus:** [http://localhost:9090](http://localhost:9090) (Xem Status -> Targets).
-- **Grafana:** [http://localhost:3000](http://localhost:3000) (User: `admin/admin`). Thêm Data Source từ `http://monitoring-prometheus-server:9090`.
+
+**Mục tiêu:** Tạo nên biểu đồ phân tích thời gian thực và log trạng thái tài nguyên cho toàn bộ Microservices Nodes.
+
+**Cách thực hiện:** Trích xuất Target của Metrics trên Prometheus, sau đó nạp số liệu Data lên Dashboard đồ thị của Grafana.
+
+**Lệnh kiểm tra yêu cầu cơ bản:**
+- Giao diện Prometheus: Cập bến [http://localhost:9090](http://localhost:9090) và truy cập Status -> Targets.
+
+**Lệnh kiểm tra yêu cầu mở rộng:**
+- Giám sát qua Biểu diễn hình ảnh Dashboard: Vào thẳng [http://localhost:3000](http://localhost:3000) (User `admin/admin`), tạo Data Source móc nối đường truyền nội mạng `http://monitoring-prometheus-server:9090` rồi tự do vẽ thông số.
+
+**Kết quả dự kiến:**
+- Prometheus cho cờ hiệu UP xanh đối với toàn bộ tiến trình báo cáo.
+- Grafana kết nối luồng dữ liệu trơn tru, hiển thị chuẩn hệ mét máy chủ (RAM, Disk, Network).
 
 ---
 
