@@ -145,11 +145,49 @@ curl -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI..." http://localhost/
 - Tài khoản: `minioadmin` / `minioadmin`
 - Sử dụng các bucket `profile-pics` và `documents` để lưu trữ dữ liệu.
 
+**Lưu ý quan trọng:** Hiện tại, thao tác chuyển quyền truy cập bucket từ Private sang Public trực tiếp trên giao diện console hoặc qua máy local có thể không được hỗ trợ hoặc báo lỗi. Để giải quyết, chúng ta sẽ sử dụng MinIO Client (`mc`) cấu hình trực tiếp bên trong container của MinIO.
+
+**TỔNG HỢP LỆNH CẤU HÌNH MINIO (Chuyển Bucket thành Public)**
+
+```bash
+# Bước 1: Chui vào bên trong container MinIO
+docker exec -it object-storage-server sh
+
+# Bước 2: Đăng nhập MinIO Client (mc)
+mc alias set local http://localhost:9000 minioadmin minioadmin
+
+# Bước 3: Cấp quyền Public (Chỉ tải xuống/Xem) cho bucket profile-pics
+mc anonymous set download local/profile-pics
+
+# Bước 4: Kiểm tra lại xem quyền đã được set thành công chưa
+mc anonymous get local/profile-pics
+
+# Bước 5: Thoát khỏi container trở về máy tính của bạn
+exit
+```
+- Truy cập ảnh: http://localhost:9000/profile-pics/avatar.jpg
 ### 6.6. Internal DNS (CoreDNS)
 **Mục đích:** Phân giải tên miền `*.cloud.local`.
+
+#### Lệnh kiểm tra bắt buộc
+
+Dùng container `busybox` để `nslookup` qua mạng `cloud-net`:
+
+```bash
+docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
+```
+
+**Kỳ vọng:** phân giải được `web-frontend-server.cloud.local` về đúng IP trong `db.cloud.local`.
+
+#### Lệnh kiểm tra mở rộng
+
 ```bash
 docker run --rm --network cloud-net busybox nslookup app-backend.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup minio.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup keycloak.cloud.local internal-dns-server
 ```
+
+**Kỳ vọng:** tất cả tên trên đều phân giải đúng IP nội bộ tương ứng.
 
 ### 6.7. Monitoring (Prometheus & Grafana)
 - **Prometheus:** [http://localhost:9090](http://localhost:9090) (Xem Status -> Targets).
