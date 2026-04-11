@@ -45,20 +45,53 @@ Hệ thống sử dụng mạng Docker `cloud-net` (bridge). Mỗi server là m�
 
 ```text
 tranhuunhanminiclouddemo/
-├─ docker-compose.yml
-├─ web-frontend-server/
-│  ├─ html/ (Trang chủ & Blog)
+├─ .gitignore                          (Bỏ qua các file không cần thiết trên Git)
+├─ docker-compose.yml                  (File thiết kế Orchestrator khởi chạy toàn cụm node)
+│
+├─ api-gateway-proxy-server/           (Nginx cấu hình tĩnh Load Balancing & API Gateway)
+│  ├─ nginx.conf                       (Điều phối route và Round Robin)
+│  └─ Dockerfile              
+│
+├─ application-backend-server/         (Ứng dụng Flask đảm nhận RESTful APIs)
+│  ├─ app.py                           (Mã nguồn chính xử lý kết nối Database & Auth Keycloak)
+│  ├─ students.json                    (Tài nguyên mock data ban đầu)
 │  └─ Dockerfile
-├─ web-frontend-server-1, 2/ (Nodes cân bằng tải)
-├─ application-backend-server/ (Flask API & students.json)
-├─ relational-database-server/
-│  └─ init/ (SQL scripts khởi tạo tự động)
-├─ authentication-identity-server/ (Keycloak)
-├─ object-storage-server/ (MinIO data)
-├─ internal-dns-server/ (Corefile & Zone files)
-├─ monitoring-prometheus-server/ (prometheus.yml)
-├─ monitoring-grafana-dashboard-server/
-└─ api-gateway-proxy-server/ (Nginx Load Balancer config)
+│
+├─ authentication-identity-server/     (Máy chủ cấp phát và định danh OAuth2/OIDC)
+│  └─ .gitkeep                         (Sử dụng base image quay.io/keycloak/keycloak)
+│
+├─ internal-dns-server/                (CoreDNS Server phân giải tên miền nội bộ)
+│  ├─ Corefile                         (Cấu hình thiết lập máy chủ DNS)
+│  └─ zones/                  
+│     └─ db.cloud.local                (File ánh xạ các Domain ảo thành IP thực tế của cụm)
+│
+├─ monitoring-grafana-dashboard-server/ (Giao diện hiển thị biểu đồ đo lường)
+│  └─ .gitkeep                         (Sử dụng image grafana/grafana)
+│
+├─ monitoring-prometheus-server/       (Kho cào/thu thập dữ liệu Metrics)
+│  └─ prometheus.yml                   (Lịch trình và mục tiêu thu thập node / web)
+│
+├─ object-storage-server/              (MinIO - Kho lưu trữ Objects Data độc lập)
+│  └─ data/                            (Thư mục Map Volumes ảo chứa bucket: profile-pics...)
+│
+├─ relational-database-server/         (Ổ lưu trữ dữ liệu cấu trúc MariaDB)
+│  └─ init/                            (Tự động seed dữ liệu lúc bootup)
+│     ├─ 001_init.sql                  (Cấu hình Scheme Myminicloud)
+│     └─ 002_init.sql                  (Cấu hình Scheme Studentdb)
+│
+├─ web-frontend-server/                (Bản web tĩnh cơ sở mẫu thiết kế UI/UX)
+│  ├─ html/                            (Thư mục chứa mã nguồn website tĩnh: Trang chủ, Blog)
+│  ├─ conf.default                     (Nginx Server block config)
+│  ├─ metrics.txt                      (Trang lộ trình Metrics mẫu để Prometheus theo dõi)
+│  └─ Dockerfile
+│
+├─ web-frontend-server-1/              (Bản sao Frontend làm Node 1 cân bằng tải)
+│  ├─ html/                            (Đã biến thể thành giao diện SERVER 1)
+│  └─ Dockerfile
+│
+└─ web-frontend-server-2/              (Bản sao Frontend làm Node 2 cân bằng tải)
+   ├─ html/                            (Đã biến thể thành giao diện SERVER 2)
+   └─ Dockerfile
 ```
 
 ---
