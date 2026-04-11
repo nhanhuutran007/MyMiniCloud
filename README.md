@@ -429,7 +429,12 @@ ping -c 3 internal-dns-server
 ```
 
 ### 7.2. Push Image lên Docker Hub
-Hệ thống đã được đẩy image tùy chỉnh lên Docker Hub:
-- **Repository:** `tranhuunhan/tranhuunhan-minicloud-backend`
-- **Link:** [https://hub.docker.com/r/tranhuunhan/tranhuunhan-minicloud-backend](https://hub.docker.com/r/tranhuunhan/tranhuunhan-minicloud-backend)
+Các image tùy chỉnh của hệ thống (bao gồm Web Server và Application Backend) đã được triển khai và đẩy trực tiếp lên kho chứa Docker Hub để sẵn sàng pull về trên môi trường Cloud thực tế (như AWS EC2):
+
+- **Docker Hub Profile:** [https://hub.docker.com/u/nhanhuutran007](https://hub.docker.com/u/nhanhuutran007)
+- **Các Repository chính:**
+  - `nhanhuutran007/myminicloud-web:latest`
+  - `nhanhuutran007/myminicloud-web1:latest`
+  - `nhanhuutran007/myminicloud-web2:latest`
+  - `nhanhuutran007/myminicloud-app:latest`
 

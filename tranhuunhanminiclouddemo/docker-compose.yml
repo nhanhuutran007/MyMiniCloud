@@ -6,8 +6,8 @@ networks:
 
 services:
   web-frontend-server:
-    build: ./web-frontend-server
-    image: tranhuunhan/web:dev
+    # build: ./web-frontend-server
+    image: nhanhuutran007/myminicloud-web:latest
     container_name: web-frontend-server
     networks:
       - cloud-net
@@ -16,8 +16,8 @@ services:
     restart: unless-stopped
 
   web-frontend-server-1:
-    build: ./web-frontend-server-1
-    image: tranhuunhan/web-1:dev
+    # build: ./web-frontend-server-1
+    image: nhanhuutran007/myminicloud-web1:latest
     container_name: web-frontend-server-1
     networks:
       - cloud-net
@@ -26,8 +26,8 @@ services:
     restart: unless-stopped
 
   web-frontend-server-2:
-    build: ./web-frontend-server-2
-    image: tranhuunhan/web-2:dev
+    # build: ./web-frontend-server-2
+    image: nhanhuutran007/myminicloud-web2:latest
     container_name: web-frontend-server-2
     networks:
       - cloud-net
@@ -36,8 +36,8 @@ services:
     restart: unless-stopped
 
   application-backend-server:
-    build: ./application-backend-server
-    image: tranhuunhan/app:dev
+    # build: ./application-backend-server
+    image: nhanhuutran007/myminicloud-app:latest
     container_name: application-backend-server
     networks:
       - cloud-net
