@@ -3,245 +3,475 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>MyMiniCloud – Home</title>
+  <title>TINYFLOWERS – Trang chủ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <style>
-    * {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    :root {
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --accent: #fbbf24;
+      --accent-dim: rgba(251, 191, 36, 0.15);
+      --accent-glow: rgba(251, 191, 36, 0.5);
+      --bg: #020617;
+      --surface: rgba(15, 23, 42, 0.85);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --radius: 20px;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      background: radial-gradient(circle at top, #1d4ed8, #020617 55%);
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      overflow-x: hidden;
     }
 
-    .container {
-      max-width: 960px;
-      width: 100%;
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 20% -10%, rgba(251, 191, 36, 0.15) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 110%, rgba(217, 119, 6, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: drift 12s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .logo {
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      color: #bfdbfe;
+    .orb-1 {
+      width: 380px;
+      height: 380px;
+      background: #f59e0b;
+      top: -80px;
+      left: -80px;
+      animation-delay: 0s;
     }
 
-    .nav a {
-      text-decoration: none;
-      font-size: 0.9rem;
-      color: #e5e7eb;
-      opacity: 0.85;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      transition: border-color 0.2s ease, background 0.2s ease,
-        opacity 0.2s ease, transform 0.2s ease;
+    .orb-2 {
+      width: 280px;
+      height: 280px;
+      background: #d97706;
+      bottom: -60px;
+      right: -60px;
+      animation-delay: -5s;
     }
 
-    .nav a:hover {
-      border-color: #38bdf8;
-      background: rgba(15, 23, 42, 0.7);
-      opacity: 1;
-      transform: translateY(-1px);
-    }
+    @keyframes drift {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
 
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 28px;
-      align-items: center;
-    }
-
-    @media (max-width: 768px) {
-      .hero {
-        grid-template-columns: 1fr;
+      to {
+        transform: translate(30px, 20px) scale(1.08);
       }
     }
 
-    .hero-main h1 {
-      font-size: clamp(2.2rem, 3vw + 1.2rem, 3rem);
-      margin-bottom: 12px;
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    .hero-main h1 span {
-      color: #38bdf8;
+    .container {
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
     }
 
-    .hero-main p {
-      font-size: 0.98rem;
-      color: #cbd5f5;
-      line-height: 1.7;
+    nav {
+      padding: 20px 0;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(2, 6, 23, 0.6);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      background: linear-gradient(90deg, #fcd34d, #f59e0b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface);
+    }
+
+    .nav-links a.active {
+      color: var(--accent);
+      border-color: var(--accent-dim);
+      background: var(--accent-dim);
+    }
+
+    .hero-section {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 80px 0 60px;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 48px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 5px 12px;
+      border-radius: 999px;
       margin-bottom: 20px;
-      max-width: 520px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-tag::before {
+      content: '✦';
+      font-size: 0.7rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw + 1rem, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 60%, #b45309 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 32px;
+      max-width: 480px;
+      animation: fadeUp 0.6s 0.2s ease both;
     }
 
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .btn-primary,
-    .btn-ghost {
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 999px;
-      font-size: 0.92rem;
-      border: 1px solid transparent;
-      transition: background 0.2s ease, color 0.2s ease,
-        transform 0.2s ease, box-shadow 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      animation: fadeUp 0.6s 0.3s ease both;
     }
 
     .btn-primary {
-      background: #38bdf8;
-      color: #0f172a;
-      box-shadow: 0 16px 40px rgba(56, 189, 248, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      color: #fff;
+      box-shadow: 0 8px 32px var(--accent-glow);
+      transition: 0.2s ease;
     }
 
     .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 20px 60px rgba(56, 189, 248, 0.65);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px var(--accent-glow);
+      filter: brightness(1.1);
     }
 
     .btn-ghost {
-      border-color: #4b5563;
-      color: #e5e7eb;
-      background: rgba(15, 23, 42, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--surface);
+      transition: 0.2s ease;
     }
 
     .btn-ghost:hover {
-      border-color: #9ca3af;
-      transform: translateY(-1px);
-    }
-
-    .hero-note {
-      font-size: 0.82rem;
-      color: #9ca3af;
+      transform: translateY(-2px);
+      border-color: rgba(251, 191, 36, 0.4);
+      background: rgba(15, 23, 42, 0.95);
     }
 
     .hero-card {
-      background: rgba(15, 23, 42, 0.95);
-      border-radius: 20px;
-      padding: 20px 18px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      box-shadow: 0 22px 50px rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 32px 64px rgba(2, 6, 23, 0.7);
+      animation: fadeUp 0.6s 0.35s ease both;
+      transition: 0.3s ease;
     }
 
-    .hero-card h2 {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-      color: #bfdbfe;
+    .hero-card:hover {
+      border-color: rgba(251, 191, 36, 0.35);
+      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.1) inset, 0 32px 64px rgba(2, 6, 23, 0.9);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #fcd34d, #f59e0b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fde68a;
     }
 
     .hero-card p {
-      font-size: 0.9rem;
-      color: #cbd5f5;
-      margin-bottom: 10px;
-      line-height: 1.6;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 16px;
     }
 
     .pill-list {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 4px;
-      margin-bottom: 4px;
+      margin-bottom: 16px;
     }
 
     .pill {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
+      font-weight: 500;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      padding: 4px 10px;
-      color: #e5e7eb;
-      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      color: var(--text);
+      background: rgba(15, 23, 42, 0.6);
+      transition: 0.2s;
+    }
+
+    .pill:hover {
+      border-color: rgba(251, 191, 36, 0.5);
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .card-hint {
+      font-size: 0.78rem;
+      color: #64748b;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    .card-hint strong {
+      color: var(--accent);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 32px;
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fcd34d, #f59e0b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     footer {
-      margin-top: 26px;
-      font-size: 0.78rem;
-      color: #9ca3af;
+      border-top: 1px solid var(--border);
+      padding: 20px 0;
       text-align: center;
+      font-size: 0.8rem;
+      color: #475569;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .hero-section {
+        padding: 48px 0 40px;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <nav class="nav">
-      <div class="logo">MYMINICLOUD</div>
-      <h2 style="color: red;">This is Web Frontend Server 1</h2>
-      <div>
-        <a href="/blog/">Blog</a>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="page-wrapper">
+    <nav>
+      <div class="container">
+        <a class="logo" href="/index.html">TINYFLOWERS</a>
+        <h2 style="color: #ef4444; font-size: 1rem; flex: 1; text-align: center;">This is Web Frontend Server 1</h2>
+        <div class="nav-links">
+          <a href="/index.html" class="active">Home</a>
+          <a href="/blog/index.html">Blog</a>
+        </div>
       </div>
     </nav>
-
-    <main class="hero">
-      <section class="hero-main">
-        <h1>Xin chào,chúng mình là <span>Văn Trọng, Yến Phụng, Hữu Nhân</span>.</h1>
-        <p>
-          Đây là không gian nhỏ nơi tụi mình lưu lại hành trình học lập trình,
-          chia sẻ về công nghệ và cuộc sống sinh viên. Nếu bạn cũng quan tâm
-          tới web, Docker hay các dự án cá nhân, mời ghé thăm blog của tụi mình.
-        </p>
-
-        <div class="hero-actions">
-          <!-- Nút đi tới blog -->
-          <a class="btn-primary" href="/blog/">
-            🚀 Vào trang Blog
-          </a>
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-inner">
+          <div>
+            <div class="hero-tag">Hành trình xê dịch</div>
+            <h1>Xin chào, chúng mình là<br /><span class="highlight">Văn Trọng, Yến Phụng &amp; Hữu Nhân (Tiny
+                Flowers)</span>.</h1>
+            <p class="hero-desc">Đây là không gian nhỏ nơi mình lưu lại hành trình khám phá thế giới, chia sẻ những trải
+              nghiệm du lịch đẳng cấp và những khoảnh khắc không thể nào quên tại Việt Nam.</p>
+            <div class="hero-actions">
+              <a class="btn-primary" href="/blog/index.html">🚀 Khám phá Blog</a>
+              <a class="btn-ghost" href="#about">📖 Tìm hiểu thêm</a>
+            </div>
+            <div class="stats-row">
+              <div class="stat"><span class="stat-value">3</span><span class="stat-label">Tác giả</span></div>
+              <div class="stat"><span class="stat-value">3</span><span class="stat-label">Điểm đến</span></div>
+              <div class="stat"><span class="stat-value">100%</span><span class="stat-label">Đam mê</span></div>
+            </div>
+          </div>
+          <aside id="about" class="hero-card">
+            <div class="card-header">
+              <div class="card-icon">✈️</div><span class="card-title">Về blog này</span>
+            </div>
+            <p>Blog gồm những bài viết trải nghiệm chuyên sâu về các chủ đề:</p>
+            <div class="pill-list">
+              <span class="pill">🌲 Đà Lạt</span><span class="pill">🌊 Phú Quốc</span><span class="pill">⛰️ Hà
+                Giang</span><span class="pill">✨ Nghỉ dưỡng</span><span class="pill">📸 Nhiếp ảnh</span>
+            </div>
+            <p>Mục tiêu của mình là ghi lại những khung cảnh tuyệt đẹp, văn hóa độc đáo và các khu resort cao cấp – vừa
+              để lưu giữ thanh xuân, vừa truyền cảm hứng xê dịch đến bạn.</p>
+            <p class="card-hint">Bắt đầu bằng cách bấm <strong>"Khám phá Blog"</strong> ở bên trái ✨</p>
+          </aside>
         </div>
-
-        <p class="hero-note">
-          Được xây dựng bằng HTML tĩnh Docker.
-        </p>
-      </section>
-      <aside class="hero-card" id="about">
-        <h2>Về blog này</h2>
-        <p>
-          Blog gồm nhiều bài viết ngắn về:
-        </p>
-        <div class="pill-list">
-          <span class="pill">Công Nghệ</span>
-          <span class="pill">Học tập</span>
-          <span class="pill">Cuộc sống</span>
-        </div>
-        <p>
-          Mục tiêu của tụi mình là ghi lại những gì đã học, những project nhỏ
-          và vài câu chuyện bên lề – vừa để lưu lại hành trình, vừa hy vọng
-          giúp được một ai đó mới bắt đầu.
-        </p>
-        <p style="font-size:0.82rem;color:#9ca3af;margin-top:4px;">
-          Bạn có thể bắt đầu bằng cách bấm vào nút
-          <strong>“Vào trang Blog”</strong> phía bên trái.
-        </p>
-      </aside>
-    </main>
-
+      </div>
+    </section>
     <footer>
-      &copy; 2025 · Blog cá nhân của tụi mình· Chạy trên web-frontend-server
+      <div class="container">&copy; 2026 · Thiết kế và phát triển bởi TINYFLOWERS</div>
     </footer>
   </div>
 </body>

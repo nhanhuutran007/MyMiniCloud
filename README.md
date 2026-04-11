@@ -230,21 +230,182 @@ docker run --rm --network cloud-net busybox nslookup keycloak.cloud.local intern
 
 **Kết quả dự kiến:** Domain truy xuất chuyển giao được thành đúng IP nội mạng `cloud-net`, khi gõ lệnh nslookup hệ thống hiển thị chính xác tên miền tương quan (vd tên miền gốc, root ip...).
 
-### 6.7. Monitoring (Prometheus & Grafana)
+### 6.7. Monitoring (Prometheus)
 
-**Mục tiêu:** Tạo nên biểu đồ phân tích thời gian thực và log trạng thái tài nguyên cho toàn bộ Microservices Nodes.
+**Mục tiêu:** Thu thập metrics và trạng thái tài nguyên cho toàn bộ Microservices Nodes.
 
-**Cách thực hiện:** Trích xuất Target của Metrics trên Prometheus, sau đó nạp số liệu Data lên Dashboard đồ thị của Grafana.
+**Cách thực hiện:**
 
-**Lệnh kiểm tra yêu cầu cơ bản:**
-- Giao diện Prometheus: Cập bến [http://localhost:9090](http://localhost:9090) và truy cập Status -> Targets.
+**Bước 1: Chỉnh sửa file cấu hình prometheus.yml**
+Trong dự án của bạn, hãy tìm đến thư mục `monitoring-prometheus-server` và mở file `prometheus.yml` lên.
+Mặc định ở phần cơ bản, file này đang có cấu hình scrape cho `node` (Node Exporter). Bạn cần bổ sung thêm cục cấu hình cho `web` vào dưới cùng.
+> ⚠️ **LƯU Ý CỰC KỲ QUAN TRỌNG:** Trong file `.yml` (YAML), khoảng trắng (căn lề) là sự sống còn. Thụt lề sai 1 dấu cách là file sẽ bị lỗi.
 
-**Lệnh kiểm tra yêu cầu mở rộng:**
-- Giám sát qua Biểu diễn hình ảnh Dashboard: Vào thẳng [http://localhost:3000](http://localhost:3000) (User `admin/admin`), tạo Data Source móc nối đường truyền nội mạng `http://monitoring-prometheus-server:9090` rồi tự do vẽ thông số.
+Để an toàn tuyệt đối, bạn hãy xóa hết nội dung cũ và copy/paste toàn bộ đoạn code chuẩn dưới đây đè vào file `prometheus.yml` của bạn:
+
+```yaml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'node'
+    static_configs:
+      - targets: ['monitoring-node-exporter-server:9100']
+
+  - job_name: 'web'
+    static_configs:
+      - targets: ['web-frontend-server:80']
+```
+*(Sau khi paste xong, nhớ lưu file lại).*
+
+**Bước 2: Khởi động lại (Restart) container Prometheus**
+Vì bạn vừa thay đổi file cấu hình gốc, Prometheus đang chạy ngầm sẽ không tự đọc được nội dung mới. Bạn cần ra lệnh khởi động lại nó.
+Mở Terminal và chạy lệnh sau:
+```bash
+docker restart monitoring-prometheus-server
+```
+*(Nếu nó in ra lại dòng chữ `monitoring-prometheus-server` là đã restart thành công).*
+
+**Bước 3: Kiểm tra thành quả**
+Mở trình duyệt web của bạn lên, truy cập vào đường dẫn:
+👉 [http://localhost:9090/targets](http://localhost:9090/targets)
+
+Lúc này, trên màn hình của bạn sẽ hiện ra 2 danh sách (Jobs) thay vì 1 cái như trước:
+- Một cái là `node` (cái cũ, cổng 9100).
+- Một cái mới mang tên `web` (trỏ vào `http://web-frontend-server:80/metrics`).
+
+Hãy nhìn vào cột **State** (Trạng thái). Nếu mục `web` hiện chữ **UP** màu xanh lá cây, thì xin chúc mừng, bạn đã cấu hình thành công!
 
 **Kết quả dự kiến:**
-- Prometheus cho cờ hiệu UP xanh đối với toàn bộ tiến trình báo cáo.
-- Grafana kết nối luồng dữ liệu trơn tru, hiển thị chuẩn hệ mét máy chủ (RAM, Disk, Network).
+- Prometheus cho cờ hiệu UP xanh đối với toàn bộ các target được cấu hình (`node` và `web`).
+
+### 6.8. Monitoring (Grafana Dashboard)
+
+**Mục tiêu:** Trực quan hóa dữ liệu bằng các biểu đồ phân tích thời gian thực từ metrics của Prometheus.
+
+**Cách thực hiện:** Khai báo Data Source trên Grafana trỏ về Prometheus và tạo Dashboard.
+
+**Kiểm tra và thực hiện:**
+- Truy cập Grafana: Vào thẳng [http://localhost:3000](http://localhost:3000) (Đăng nhập với User `admin` / Password `admin`).
+- Tạo Data Source: Móc nối đường truyền nội mạng tới Prometheus qua URL `http://monitoring-prometheus-server:9090`.
+- Thiết lập Dashboard: Tự do vẽ thông số hoặc import các dashboard có sẵn (ví dụ báo cáo Node Exporter).
+
+**Kết quả dự kiến:**
+- Grafana kết nối luồng dữ liệu trơn tru từ Prometheus.
+- Hiển thị biểu đồ phân tích chuẩn xác cho hệ mét máy chủ (RAM, Disk, Network) và các dịch vụ khác.
+
+### 6.9. API Gateway Proxy Server & Load Balancer Test
+
+**Mục tiêu:** Chứng minh API Gateway hoạt động ổn định và thuật toán phân tải Round Robin của Nginx điều hướng request luân phiên giữa các node.
+
+**Cách thực hiện:**
+
+**Bước 1: Nhân bản Web Server để dễ nhận biết**
+Vào thư mục dự án, nhân bản thư mục `web-frontend-server` làm 2 thư mục mới:
+- `web-frontend-server1`
+- `web-frontend-server2`
+
+Mở file `web-frontend-server1/html/index.html` và sửa thẻ title/tiêu đề thành: `<h1>MyMiniCloud – Home (SERVER 1)</h1>`
+Mở file `web-frontend-server2/html/index.html` và sửa thẻ title/tiêu đề thành: `<h1>MyMiniCloud – Home (SERVER 2)</h1>`
+
+**Bước 2: Cập nhật file docker-compose.yml**
+Mở file `docker-compose.yml`, xóa khối cấu hình `web-frontend-server` cũ và thêm 2 khối mới vào vị trí đó:
+```yaml
+  web-frontend-server1:
+    build: ./web-frontend-server1
+    container_name: web-frontend-server1
+    networks: [cloud-net]
+
+  web-frontend-server2:
+    build: ./web-frontend-server2
+    container_name: web-frontend-server2
+    networks: [cloud-net]
+```
+Tiếp tục tìm phần `api-gateway-proxy-server`. Cập nhật mục `depends_on`:
+```yaml
+  api-gateway-proxy-server:
+    image: nginx:stable
+    container_name: api-gateway-proxy-server
+    depends_on:
+      - web-frontend-server1
+      - web-frontend-server2
+      - application-backend-server
+      - authentication-identity-server
+    ports: [ "80:80" ]
+    volumes:
+      - ./api-gateway-proxy-server/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks: [cloud-net]
+    restart: unless-stopped
+```
+
+**Bước 3: Cấu hình Load Balancer (Round Robin) & Route /student**
+Mở file `api-gateway-proxy-server/nginx.conf`. Xóa toàn bộ nội dung cũ và chép đoạn cấu hình dưới đây vào:
+```nginx
+events {}
+http {
+    upstream web_cluster {
+        server web-frontend-server1:80;
+        server web-frontend-server2:80;
+    }
+
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://web_cluster;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /student/ {
+            proxy_pass http://application-backend-server:8081/student;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /api/ {
+            proxy_pass http://application-backend-server:8081/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /auth/ {
+            proxy_pass http://authentication-identity-server:8080/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}
+```
+
+**Bước 4: Khởi động lại hệ thống**
+Mở Terminal, chạy 2 lệnh sau để Docker cập nhật kiến trúc:
+```bash
+docker compose down
+docker compose up -d --build
+```
+
+**Kiểm tra và thực hiện:**
+
+**1. Kiểm thử Route /student/:**
+Mở Terminal, chạy lệnh:
+```bash
+curl http://localhost/student/
+```
+
+**2. Kiểm thử Cân Bằng Tải (Load Balancing):**
+Mở trình duyệt Web, truy cập URL: `http://localhost/`
+
+- Lần 1: Giao diện sẽ hiện chữ **MyMiniCloud – Home (SERVER 1)**.
+- Tải lại trang (F5): Giao diện đổi thành **MyMiniCloud – Home (SERVER 2)**.
+- Tải lại trang lần nữa (F5): Giao diện quay về **SERVER 1**.
+(Trang web sẽ tự động luân phiên đổi qua đổi lại giữa 2 server).
+
+**Kết quả dự kiến:**
+- Lệnh curl trả về danh sách sinh viên định dạng JSON.
+- Giao diện người dùng trên web luân chuyển tự động, chứng minh Load Balancer hoạt động thành công.
 
 ---
 
