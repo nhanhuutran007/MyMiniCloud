@@ -1,0 +1,20 @@
+options {
+    directory "/var/cache/bind";
+
+    // Forward các truy vấn ngoài cloud.local ra DNS công cộng
+    forwarders {
+        8.8.8.8;
+        1.1.1.1;
+    };
+
+    forward only;
+
+    // Cho phép query từ tất cả các host trong mạng nội bộ Docker
+    allow-query { any; };
+
+    // Tắt DNSSEC để phù hợp với môi trường nội bộ
+    dnssec-validation no;
+
+    listen-on { any; };
+    listen-on-v6 { none; };
+};

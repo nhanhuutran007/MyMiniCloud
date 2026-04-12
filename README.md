@@ -9,7 +9,7 @@
 - **Relational Database Server** – MariaDB lưu trữ dữ liệu có cấu trúc (`minicloud` & `studentdb`).
 - **Authentication & Identity Server** – Keycloak quản lý định danh (OIDC, realm riêng, client `flask-app`).
 - **Object Storage Server** – MinIO lưu trữ đối tượng (bucket `profile-pics`, `documents`).
-- **Internal DNS Server** – CoreDNS quản lý tên miền nội bộ (zone `cloud.local`).
+- **Internal DNS Server** – BIND9 quản lý tên miền nội bộ (zone `cloud.local`).
 - **Monitoring Node Exporter** – Thu thập chỉ số tài nguyên hệ thống.
 - **Monitoring Prometheus Server** – Thu thập metric từ Node Exporter & Web Server.
 - **Monitoring Grafana Dashboard Server** – Hệ thống hiển thị biểu đồ giám sát.
@@ -60,8 +60,10 @@ tranhuunhanminiclouddemo/
 ├─ authentication-identity-server/     (Máy chủ cấp phát và định danh OAuth2/OIDC)
 │  └─ .gitkeep                         (Sử dụng base image quay.io/keycloak/keycloak)
 │
-├─ internal-dns-server/                (CoreDNS Server phân giải tên miền nội bộ)
-│  ├─ Corefile                         (Cấu hình thiết lập máy chủ DNS)
+├─ internal-dns-server/                (BIND9 Server phân giải tên miền nội bộ)
+│  ├─ Dockerfile                       (Build image từ ubuntu/bind9:latest)
+│  ├─ named.conf.options               (Cấu hình chung: forwarders, allow-query)
+│  ├─ named.conf.local                 (Khai báo zone cloud.local)
 │  └─ zones/                  
 │     └─ db.cloud.local                (File ánh xạ các Domain ảo thành IP thực tế của cụm)
 │
@@ -236,11 +238,11 @@ exit
 ```
 
 **Kết quả dự kiến:** URL hình ảnh trực tiếp (như: [http://localhost:9000/profile-pics/avatar.jpg](http://localhost:9000/profile-pics/avatar.jpg)) sau khi thiết lập được truy cập trơn tru mà không yêu cầu ID bảo mật.
-### 6.6. Internal DNS (CoreDNS)
+### 6.6. Internal DNS (BIND9)
 
 **Mục tiêu:** Thay vì giao tiếp bằng địa chỉ IP thô cứng, hệ thống Microservices sẽ phân giải tên miền định nghĩa linh hoạt theo pattern `*.cloud.local`.
 
-**Cách thực hiện:** Kích hoạt một shell Alpine/Busybox chung cụm mạng ảo và dùng `nslookup` tra tên trên máy chủ CoreDNS.
+**Cách thực hiện:** Kích hoạt một shell Alpine/Busybox chung cụm mạng ảo và dùng `nslookup` tra tên trên máy chủ BIND9.
 
 **Lệnh kiểm tra yêu cầu cơ bản:**
 Dùng container `busybox` tra cứu tuyến đầu:
@@ -256,7 +258,7 @@ docker run --rm --network cloud-net busybox nslookup minio.cloud.local internal-
 docker run --rm --network cloud-net busybox nslookup keycloak.cloud.local internal-dns-server
 ```
 
-2. Bổ sung bản ghi thực tế theo dự án thiết kế (Trang 25):
+2. Bổ sung bản ghi thực tế theo dự án thiết kế:
 - Cập nhật trực tiếp: Mở Zone tại `tranhuunhanminiclouddemo/internal-dns-server/zones/db.cloud.local`.
 - Ghi mới địa chỉ: `new-service IN A 10.10.10.50`
 - Áp dụng thay đổi: `docker restart internal-dns-server`.
