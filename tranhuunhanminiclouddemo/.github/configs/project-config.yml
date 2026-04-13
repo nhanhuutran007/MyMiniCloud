@@ -1,0 +1,72 @@
+# MyMiniCloud CI/CD Configuration
+# This file can be customized for different projects
+
+project:
+  name: "MyMiniCloud"
+  type: "docker-compose"
+  main_directory: "tranhuunhanminiclouddemo"
+
+# Docker configuration
+docker:
+  registry: "docker.io"
+  username_secret: "DOCKER_USERNAME"
+  password_secret: "DOCKER_PASSWORD"
+  
+  # Services to build (customize for your project)
+  services:
+    - name: "web-frontend-server"
+      dockerfile_path: "./web-frontend-server"
+      image_name: "myminicloud-web"
+    - name: "application-backend-server"
+      dockerfile_path: "./application-backend-server"
+      image_name: "myminicloud-app"
+    - name: "internal-dns-server"
+      dockerfile_path: "./internal-dns-server"
+      image_name: "myminicloud-dns"
+
+# Testing configuration
+testing:
+  health_check_script: "./health-check.sh"
+  startup_wait_time: 90
+  
+  # API endpoints to test (customize for your project)
+  api_tests:
+    - endpoint: "/api/hello"
+      expected_status: 200
+    - endpoint: "/student/"
+      expected_status: 200
+  
+  # Load balancer test
+  load_balancer:
+    enabled: true
+    test_requests: 5
+    expected_pattern: "Server [12]"
+
+# Deployment configuration
+deployment:
+  staging:
+    enabled: true
+    branch: "develop"
+    ssh_key_secret: "MINICLOUD_SSH_KEY"
+    host_secret: "MINICLOUD_HOST"
+    user: "ubuntu"
+    deploy_path: "/home/ubuntu/MyMiniCloud/tranhuunhanminiclouddemo"
+    
+  production:
+    enabled: true
+    branch: "main"
+    ssh_key_secret: "MINICLOUD_SSH_KEY"  # Sử dụng cùng key cho cả staging và production
+    host_secret: "MINICLOUD_HOST"        # Hoặc tạo PRODUCTION_HOST riêng nếu có server khác
+    user: "ubuntu"
+    deploy_path: "/home/ubuntu/MyMiniCloud/tranhuunhanminiclouddemo"
+    requires_approval: true
+
+# Security scanning
+security:
+  trivy_enabled: true
+  fail_on_high: false  # Set to true for stricter security
+  
+# Notifications (optional)
+notifications:
+  slack_webhook_secret: "SLACK_WEBHOOK"  # Optional
+  discord_webhook_secret: "DISCORD_WEBHOOK"  # Optional
