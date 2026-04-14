@@ -232,16 +232,34 @@ function getInitials(name) {
 
 // Hàm đăng nhập với Keycloak
 function keycloakLogin() {
-    console.log('Login button clicked - redirecting to Keycloak');
+    console.log('Login button clicked - checking Keycloak availability');
 
     const host = getHost();
-    const state = Math.random().toString(36).substring(2, 15);
     
-    // Redirect đến Keycloak login
-    const keycloakLoginUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(window.location.origin)}&response_type=code&scope=openid&state=${state}`;
-
-    console.log('Redirecting to:', keycloakLoginUrl);
-    window.location.href = keycloakLoginUrl;
+    // Kiểm tra Keycloak có sẵn không
+    fetch(`http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}`)
+        .then(response => {
+            if (response.ok) {
+                // Keycloak có sẵn, thử đăng nhập thực
+                const state = Math.random().toString(36).substring(2, 15);
+                const keycloakLoginUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(window.location.origin)}&response_type=code&scope=openid&state=${state}`;
+                
+                console.log('Redirecting to Keycloak:', keycloakLoginUrl);
+                window.location.href = keycloakLoginUrl;
+            } else {
+                throw new Error('Keycloak not available');
+            }
+        })
+        .catch(error => {
+            console.log('Keycloak not available, using demo mode:', error);
+            showNotification('Keycloak không khả dụng. Sử dụng chế độ demo.', 'info');
+            
+            // Fallback: demo mode
+            setTimeout(() => {
+                simulateSuccessfulLogin();
+                showNotification('Đăng nhập demo thành công!', 'success');
+            }, 1000);
+        });
 }
 
 // Hàm đăng xuất khỏi Keycloak
