@@ -41,8 +41,8 @@ command_exists() {
 
 # Function to detect environment (local vs cloud)
 detect_environment() {
-    if curl -s --max-time 2 http://169.254.169.254/latest/meta-data/public-ipv4 > /dev/null 2>&1; then
-        HOST=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+    if curl -s -f --max-time 2 http://169.254.169.254/latest/meta-data/public-ipv4 > /dev/null 2>&1; then
+        HOST=$(curl -s -f http://169.254.169.254/latest/meta-data/public-ipv4)
         ENV="EC2"
     else
         HOST="localhost"
