@@ -82,46 +82,25 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
-      - name: Build and test ${{ matrix.service }}
-        run: |
-          cd ${{ needs.load-config.outputs.main-directory || 'tranhuunhanminiclouddemo' }}
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ needs.load-config.outputs.main-directory || 'tranhuunhanminiclouddemo' }}/${{ matrix.service }}
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/myminicloud-${{ matrix.service }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/myminicloud-${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           
-          if [ -f "${{ matrix.service }}/Dockerfile" ]; then
-            echo "🔨 Building ${{ matrix.service }}..."
-            
-            # Build image
-            docker build -t myminicloud-${{ matrix.service }}:${{ github.sha }} ./${{ matrix.service }}
-            docker build -t myminicloud-${{ matrix.service }}:latest ./${{ matrix.service }}
-            
-            # Test image
-            echo "🧪 Testing ${{ matrix.service }} image..."
-            docker run --rm -d --name test-${{ matrix.service }} myminicloud-${{ matrix.service }}:latest || true
-            sleep 5
-            docker logs test-${{ matrix.service }} || true
-            docker stop test-${{ matrix.service }} || true
-            
-            echo "✅ ${{ matrix.service }} build completed"
-          else
-            echo "⚠️ No Dockerfile found for ${{ matrix.service }}, skipping"
-          fi
-      
-      - name: Push to Docker Hub
-        if: github.ref == 'refs/heads/main'
+      - name: Test ${{ matrix.service }} image
         run: |
-          cd ${{ needs.load-config.outputs.main-directory || 'tranhuunhanminiclouddemo' }}
-          
-          if [ -f "${{ matrix.service }}/Dockerfile" ]; then
-            echo "📤 Pushing ${{ matrix.service }} to Docker Hub..."
-            
-            # Tag and push
-            docker tag myminicloud-${{ matrix.service }}:latest ${{ secrets.DOCKER_USERNAME }}/myminicloud-${{ matrix.service }}:latest
-            docker tag myminicloud-${{ matrix.service }}:latest ${{ secrets.DOCKER_USERNAME }}/myminicloud-${{ matrix.service }}:${{ github.sha }}
-            
-            docker push ${{ secrets.DOCKER_USERNAME }}/myminicloud-${{ matrix.service }}:latest
-            docker push ${{ secrets.DOCKER_USERNAME }}/myminicloud-${{ matrix.service }}:${{ github.sha }}
-            
-            echo "✅ ${{ matrix.service }} pushed successfully"
-          fi
+          echo "🧪 Running basic test for ${{ matrix.service }} image..."
+          docker run --rm -d --name test-${{ matrix.service }} ${{ secrets.DOCKER_USERNAME }}/myminicloud-${{ matrix.service }}:latest || true
+          sleep 5
+          docker logs test-${{ matrix.service }} || true
+          docker stop test-${{ matrix.service }} || true
+          echo "✅ ${{ matrix.service }} testing completed"
 
   # Integration testing
   integration-test:
@@ -154,8 +133,18 @@ jobs:
           echo "🚀 Starting all services..."
           docker compose up -d
           
-          echo "⏳ Waiting for services to be ready..."
-          sleep 90
+          echo "⏳ Waiting for services to be ready (dynamic check)..."
+          for i in {1..20}; do
+            if docker compose ps | grep -q "starting"; then
+              echo "Attempt $i: Some services are still starting..."
+            else
+              echo "✅ All services shifted from 'starting' state."
+              # Optional: Add a small grace period for network binding
+              sleep 5
+              break
+            fi
+            sleep 5
+          done
           
           echo "📊 Service status:"
           docker compose ps

@@ -77,10 +77,6 @@ main() {
     # Create backup
     backup_deployment
     
-    # Stop services gracefully
-    echo "⏹️ Stopping services..."
-    run_command "docker compose down"
-    
     # Update code
     echo "📥 Updating code..."
     run_command "git fetch origin"
@@ -91,13 +87,22 @@ main() {
     echo "📦 Pulling latest Docker images..."
     run_command "docker compose pull"
     
-    # Start services
-    echo "🚀 Starting services..."
+    # Start/Update services
+    echo "🚀 Updating services (In-place)..."
     run_command "docker compose up -d"
     
-    # Wait for services to be ready
+    # Wait for services to be ready (Dynamic check)
     echo "⏳ Waiting for services to be ready..."
-    sleep 60
+    for i in {1..12}; do
+        if docker compose ps | grep -q "starting"; then
+            echo "Attempt $i: Services still starting..."
+            sleep 5
+        else
+            echo "✅ Services shifted from 'starting' state."
+            sleep 2 # Small final buffer
+            break
+        fi
+    done
     
     # Run health checks
     if ! health_check; then
