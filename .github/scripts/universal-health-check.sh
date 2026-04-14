@@ -179,15 +179,28 @@ test_load_balancer() {
 check_database() {
     log_info "Testing Database Connection..."
     
-    if docker exec relational-database-server mariadb -u root -proot -e "SELECT 1" > /dev/null 2>&1; then
-        log_success "Database connection successful"
-        
+    local max_retries=10
+    local retry_count=0
+    local success=0
+    
+    while [ $retry_count -lt $max_retries ]; do
+        if docker exec relational-database-server mariadb -u root -proot -e "SELECT 1" > /dev/null 2>&1; then
+            log_success "Database connection successful"
+            success=1
+            break
+        fi
+        retry_count=$((retry_count + 1))
+        log_warning "Database not ready yet, retrying in 3s... ($retry_count/$max_retries)"
+        sleep 3
+    done
+    
+    if [ $success -eq 1 ]; then
         # Get student count if available
         student_count=$(docker exec relational-database-server mariadb -u root -proot studentdb -e "SELECT COUNT(*) FROM students;" -s -N 2>/dev/null || echo "N/A")
         log_info "Students in database: $student_count"
         return 0
     else
-        log_error "Database connection failed"
+        log_error "Database connection failed after $max_retries attempts"
         return 1
     fi
 }
