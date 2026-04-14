@@ -431,7 +431,10 @@
       justify-content: center;
       padding: 24px;
     }
-    .sys-overlay.open { display: flex; }
+
+    .sys-overlay.open {
+      display: flex;
+    }
 
     .sys-modal {
       background: rgba(10, 17, 35, 0.97);
@@ -441,7 +444,7 @@
       max-width: 760px;
       max-height: 88vh;
       overflow-y: auto;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04) inset;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
       animation: fadeUp 0.28s ease both;
     }
 
@@ -472,13 +475,17 @@
       padding: 4px 10px;
       transition: 0.2s;
     }
-    .sys-close:hover { color: var(--text); border-color: rgba(251,191,36,0.4); }
+
+    .sys-close:hover {
+      color: var(--text);
+      border-color: rgba(251, 191, 36, 0.4);
+    }
 
     .sys-host-bar {
       margin: 14px 28px 0;
       padding: 10px 14px;
-      background: rgba(251,191,36,0.07);
-      border: 1px solid rgba(251,191,36,0.2);
+      background: rgba(251, 191, 36, 0.07);
+      border: 1px solid rgba(251, 191, 36, 0.2);
       border-radius: 10px;
       font-size: 0.8rem;
       color: var(--muted);
@@ -486,7 +493,12 @@
       align-items: center;
       gap: 6px;
     }
-    .sys-host-bar span { color: var(--accent); font-weight: 600; word-break: break-all; }
+
+    .sys-host-bar span {
+      color: var(--accent);
+      font-weight: 600;
+      word-break: break-all;
+    }
 
     .sys-section {
       padding: 20px 28px;
@@ -502,7 +514,7 @@
     }
 
     .sys-card {
-      background: rgba(15,23,42,0.6);
+      background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 16px 18px;
@@ -513,9 +525,16 @@
       gap: 16px;
       transition: border-color 0.2s;
     }
-    .sys-card:hover { border-color: rgba(251,191,36,0.3); }
 
-    .sys-card-info { flex: 1; min-width: 0; }
+    .sys-card:hover {
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    .sys-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
     .sys-card-name {
       font-size: 0.92rem;
       font-weight: 600;
@@ -525,6 +544,7 @@
       gap: 8px;
       margin-bottom: 4px;
     }
+
     .sys-badge {
       font-size: 0.68rem;
       font-weight: 600;
@@ -532,8 +552,18 @@
       padding: 2px 8px;
       letter-spacing: 0.05em;
     }
-    .badge-ui  { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-    .badge-cli { background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
+
+    .badge-ui {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-cli {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
 
     .sys-card-port {
       font-size: 0.78rem;
@@ -545,8 +575,8 @@
       font-family: 'Courier New', monospace;
       font-size: 0.78rem;
       color: #a5b4fc;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(99,102,241,0.2);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(99, 102, 241, 0.2);
       border-radius: 8px;
       padding: 10px 12px;
       white-space: pre-wrap;
@@ -556,7 +586,11 @@
       position: relative;
       transition: border-color 0.2s;
     }
-    .sys-cmd-block:hover { border-color: rgba(99,102,241,0.5); }
+
+    .sys-cmd-block:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+
     .sys-cmd-block::after {
       content: '📋 Copy';
       position: absolute;
@@ -564,11 +598,15 @@
       right: 8px;
       font-size: 0.68rem;
       color: var(--muted);
-      background: rgba(15,23,42,0.8);
+      background: rgba(15, 23, 42, 0.8);
       padding: 2px 6px;
       border-radius: 4px;
     }
-    .sys-cmd-block.copied::after { content: '✅ Copied!'; color: #4ade80; }
+
+    .sys-cmd-block.copied::after {
+      content: '✅ Copied!';
+      color: #4ade80;
+    }
 
     .sys-btn-open {
       display: inline-flex;
@@ -584,11 +622,16 @@
       cursor: pointer;
       text-decoration: none;
       white-space: nowrap;
-      box-shadow: 0 4px 16px rgba(251,191,36,0.25);
+      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.25);
       transition: 0.2s ease;
       flex-shrink: 0;
     }
-    .sys-btn-open:hover { transform: translateY(-1px); filter: brightness(1.1); box-shadow: 0 8px 24px rgba(251,191,36,0.4); }
+
+    .sys-btn-open:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+      box-shadow: 0 8px 24px rgba(251, 191, 36, 0.4);
+    }
 
     .sys-divider {
       border: none;
@@ -715,69 +758,191 @@
         <div class="sys-card" style="flex-direction:column;">
           <div class="sys-card-name">MariaDB / Relational Database <span class="sys-badge badge-cli">CLI</span></div>
           <div class="sys-card-port">Port: 3306 · Kiểm tra kết nối & dữ liệu</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># Kiểm tra kết nối từ host
-docker exec -it relational-database-server mariadb -u root -proot -e "SHOW DATABASES;"
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và kiểm tra database
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
 
-# Kiểm tra dữ liệu bảng sinh viên
-docker exec -it relational-database-server mariadb -u root -proot studentdb -e "SELECT * FROM students LIMIT 10;"</div>
+            # Trong EC2, kiểm tra kết nối database
+            docker exec -it relational-database-server mariadb -u root -proot -e "SHOW DATABASES;"
+
+            # Kiểm tra dữ liệu bảng sinh viên
+            docker exec -it relational-database-server mariadb -u root -proot studentdb -e "SELECT * FROM students LIMIT
+            10;"
+
+            # Kiểm tra bảng notes trong minicloud database
+            docker exec -it relational-database-server mariadb -u root -proot minicloud -e "SELECT * FROM notes;"</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
           <div class="sys-card-name">Node Exporter <span class="sys-badge badge-cli">CLI</span></div>
           <div class="sys-card-port">Port: 9100 · System Metrics Exporter</div>
-          <div class="sys-cmd-block" id="nodeExporterCmd" onclick="copyCmd(this)"># Kiểm tra metrics endpoint
-curl http://localhost:9100/metrics | head -30
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và kiểm tra Node Exporter
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
 
-# Kiểm tra container đang chạy
-docker ps | grep node-exporter</div>
+            # Kiểm tra metrics endpoint từ EC2
+            curl http://localhost:9100/metrics | head -30
+
+            # Kiểm tra container Node Exporter đang chạy
+            docker ps | grep node-exporter
+
+            # Test từ máy local (thay YOUR_EC2_IP)
+            curl http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:9100/metrics | head -20</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">API Gateway / Nginx Proxy <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 80 · Kiểm tra reverse proxy</div>
-          <div class="sys-cmd-block" id="nginxCmd" onclick="copyCmd(this)"># Kiểm tra nginx config
-docker exec api-gateway-proxy-server nginx -t
+          <div class="sys-card-name">API Gateway / Load Balancer Test <span class="sys-badge badge-cli">CLI</span></div>
+          <div class="sys-card-port">Port: 80 · Kiểm tra reverse proxy & load balancing</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test Load Balancer
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
 
-# Reload nginx không downtime
-docker exec api-gateway-proxy-server nginx -s reload
+            # Test Load Balancer Round Robin từ EC2
+            for i in {1..5}; do curl -s http://localhost | grep -o "Server [12]"; done
 
-# Xem access log
-docker logs api-gateway-proxy-server --tail 50</div>
+            # Test từ máy local - kiểm tra Load Balancer
+            for i in {1..5}; do curl -s http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com | grep -o "Server
+            [12]"; done
+
+            # Kiểm tra nginx config
+            docker exec api-gateway-proxy-server nginx -t
+
+            # Xem nginx access logs
+            docker logs api-gateway-proxy-server --tail 20</div>
+        </div>
+
+        <div class="sys-card" style="flex-direction:column;">
+          <div class="sys-card-name">API Backend Testing <span class="sys-badge badge-cli">CLI</span></div>
+          <div class="sys-card-port">Port: 8085 · Test Flask API endpoints</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test API endpoints
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
+
+            # Test API Hello endpoint từ EC2
+            curl http://localhost/api/hello
+
+            # Test Student API endpoint từ EC2
+            curl http://localhost/student/
+
+            # Test từ máy local
+            curl http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com/api/hello
+            curl http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com/student/
+
+            # Test direct backend (bypass gateway)
+            curl http://localhost:8085/hello
+            curl http://localhost:8085/student/</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
           <div class="sys-card-name">Internal DNS (BIND9) <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 1053 · Internal DNS Resolution (ubuntu/bind9)</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># Kiểm tra cấu hình BIND9 có hợp lệ không
-docker exec internal-dns-server named-checkconf
+          <div class="sys-card-port">Port: 1053 · Internal DNS Resolution</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test DNS
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
 
-# Test phân giải DNS nội bộ qua port 1053
-nslookup web-frontend-server.cloud.local 127.0.0.1 -port=1053
+            # Kiểm tra BIND9 config hợp lệ
+            docker exec internal-dns-server named-checkconf
 
-# Hoặc dùng dig (nếu có cài trên host)
-dig @127.0.0.1 -p 1053 web-frontend-server.cloud.local
+            # Test DNS resolution từ container khác
+            docker run --rm --network cloud-net busybox nslookup web-frontend-server-1.cloud.local internal-dns-server
+            docker run --rm --network cloud-net busybox nslookup web-frontend-server-2.cloud.local internal-dns-server
 
-# Reload zone mà không restart container
-docker exec internal-dns-server rndc reload
+            # Test ping giữa các container
+            docker run --rm --network cloud-net alpine ping -c 3 web-frontend-server-1
+            docker run --rm --network cloud-net alpine ping -c 3 relational-database-server
 
-# Xem log BIND9
-docker logs internal-dns-server --tail 30</div>
+            # Xem BIND9 logs
+            docker logs internal-dns-server --tail 30</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Docker Compose – Toàn bộ Stack <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Quản lý vòng đời tất cả containers</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># Xem trạng thái tất cả service
-docker compose ps
+          <div class="sys-card-name">Authentication (Keycloak) Testing <span class="sys-badge badge-cli">CLI</span>
+          </div>
+          <div class="sys-card-port">Port: 8081 · Test OIDC Authentication</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test Keycloak
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
 
-# Xem log realtime tất cả service
-docker compose logs -f
+            # Test Keycloak health từ EC2
+            curl -I http://localhost:8081/health
 
-# Khởi động lại toàn bộ
-docker compose restart
+            # Test từ máy local
+            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:8081/health
 
-# Dừng và xóa container (giữ volume)
-docker compose down</div>
+            # Lấy token (cần setup user trước trong Keycloak Admin)
+            TOKEN=$(curl -s -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "username=sv01" -d "password=123" -d "grant_type=password" -d "client_id=flask-app" | jq -r
+            '.access_token')
+
+            # Test secure API với token
+            curl -H "Authorization: Bearer $TOKEN" http://localhost/api/secure</div>
+        </div>
+
+        <div class="sys-card" style="flex-direction:column;">
+          <div class="sys-card-name">Object Storage (MinIO) Testing <span class="sys-badge badge-cli">CLI</span></div>
+          <div class="sys-card-port">Port: 9000/9001 · Test S3-compatible storage</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test MinIO
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
+
+            # Test MinIO API từ EC2
+            curl -I http://localhost:9000/minio/health/live
+
+            # Test từ máy local
+            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:9000/minio/health/live
+
+            # Vào MinIO container và test mc client
+            docker exec -it object-storage-server sh
+            mc alias set local http://localhost:9000 minioadmin minioadmin
+            mc ls local/
+            mc ls local/profile-pics/
+            exit
+
+            # Test upload file (nếu có bucket public)
+            curl -X PUT http://localhost:9000/profile-pics/test.txt -d "Hello MinIO"</div>
+        </div>
+
+        <div class="sys-card" style="flex-direction:column;">
+          <div class="sys-card-name">Monitoring Stack Testing <span class="sys-badge badge-cli">CLI</span></div>
+          <div class="sys-card-port">Prometheus + Grafana + Node Exporter</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test monitoring
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
+
+            # Test Prometheus targets từ EC2
+            curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | {job: .labels.job, health:
+            .health}'
+
+            # Test Grafana health từ EC2
+            curl -I http://localhost:3000/api/health
+
+            # Test từ máy local
+            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:9090/targets
+            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:3000/login
+
+            # Kiểm tra metrics được thu thập
+            curl -s http://localhost:9090/api/v1/query?query=up | jq '.data.result[] | {instance: .metric.instance,
+            value: .value[1]}'</div>
+        </div>
+
+        <div class="sys-card" style="flex-direction:column;">
+          <div class="sys-card-name">Docker Compose – System Health Check <span class="sys-badge badge-cli">CLI</span>
+          </div>
+          <div class="sys-card-port">Quản lý và kiểm tra toàn bộ stack</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và kiểm tra system health
+            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
+
+            # Di chuyển vào thư mục project
+            cd MyMiniCloud/tranhuunhanminiclouddemo
+
+            # Chạy health check script
+            ./health-check.sh
+
+            # Xem trạng thái tất cả services
+            docker compose ps
+
+            # Xem resource usage
+            docker stats --no-stream
+
+            # Kiểm tra logs của service bị lỗi (nếu có)
+            docker compose logs web-frontend-server-1 --tail 50
+            docker compose logs application-backend-server --tail 50
+
+            # Restart service cụ thể nếu cần
+            docker compose restart web-frontend-server-1</div>
         </div>
       </div>
     </div>
