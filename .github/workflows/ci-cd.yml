@@ -285,6 +285,17 @@ jobs:
         run: |
           echo "🚀 Deploying to Production on $CLEAN_HOST..."
           
+          # Wait for SSH to be available (max 60s)
+          echo "⏳ Waiting for SSH on $CLEAN_HOST..."
+          for i in $(seq 1 12); do
+            if ssh -v -o ConnectTimeout=5 -o BatchMode=yes -i ~/.ssh/minicloud-key.pem ubuntu@$CLEAN_HOST 'exit 0' 2>/dev/null; then
+              echo "✅ SSH is ready"
+              break
+            fi
+            echo "Attempt $i/12 failed, retrying in 5s..."
+            sleep 5
+          done
+          
           # Copy deployment script to server
           scp -v -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
           
