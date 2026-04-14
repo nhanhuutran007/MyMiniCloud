@@ -235,7 +235,7 @@ jobs:
           echo "🚀 Deploying to Staging on $CLEAN_HOST..."
           
           # Copy deployment script to server
-          scp -v -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
+          scp -v -i ~/.ssh/minicloud-key.pem tranhuunhanminiclouddemo/.github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
           
           # Run deployment
           ssh -v -i ~/.ssh/minicloud-key.pem ubuntu@$CLEAN_HOST '
@@ -286,7 +286,7 @@ jobs:
           echo "🚀 Deploying to Production on $CLEAN_HOST..."
           
           # Copy deployment script to server
-          scp -v -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
+          scp -v -i ~/.ssh/minicloud-key.pem tranhuunhanminiclouddemo/.github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
           
           # Run deployment
           ssh -v -i ~/.ssh/minicloud-key.pem ubuntu@$CLEAN_HOST '
