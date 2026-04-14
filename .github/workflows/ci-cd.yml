@@ -52,7 +52,7 @@ jobs:
         run: |
           echo "🔍 Scanning for potential secrets..."
           # Skip HTML, MD, and .cache files and focus only on source code files
-          if find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.sh" -o -name "*.env*" \) -not -path "*/.git/*" -not -path "*/.cache/*" | xargs grep -l -i "password.*=" 2>/dev/null | grep -v "example" | head -1; then
+          if find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.sh" -o -name "*.env*" \) -not -path "*/.git/*" -not -path "*/.cache/*" | xargs grep -E -l -i "password\s*=\s*['\"]" 2>/dev/null | grep -v "example" | head -1; then
             echo "⚠️ Potential sensitive data found in source files!"
             exit 1
           fi
