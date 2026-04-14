@@ -4,16 +4,14 @@
 
 **MyMiniCloud** là một hệ thống kiến trúc Microservices mô phỏng một môi trường Cloud thu nhỏ, được triển khai và tự động hóa thông qua Docker Compose. Dự án này xây dựng một “mini cloud platform” gồm các thành phần mục tiêu chính:
 
-- **Web Frontend Server** – Nginx static site (trang Home + Blog cá nhân).
-- **Application Backend Server** – Flask API xử lý các endpoint (`/hello`, `/secure`, `/student`).
-- **Relational Database Server** – MariaDB lưu trữ dữ liệu có cấu trúc (`minicloud` & `studentdb`).
-- **Authentication & Identity Server** – Keycloak quản lý định danh (OIDC, realm riêng, client `flask-app`).
-- **Object Storage Server** – MinIO lưu trữ đối tượng (bucket `profile-pics`, `documents`).
-- **Internal DNS Server** – BIND9 quản lý tên miền nội bộ (zone `cloud.local`).
-- **Monitoring Node Exporter** – Thu thập chỉ số tài nguyên hệ thống.
-- **Monitoring Prometheus Server** – Thu thập metric từ Node Exporter & Web Server.
-- **Monitoring Grafana Dashboard Server** – Hệ thống hiển thị biểu đồ giám sát.
-- **API Gateway / Load Balancer** – Nginx đóng vai trò cửa ngõ duy nhất, định tuyến và cân bằng tải.
+- **Web Frontend Server** – Nginx host website tĩnh (Trang Home, Blog, System Panel), hỗ trợ SSI.
+- **Application Backend Server** – Flask API xử lý logic nghiệp vụ, kết nối DB và xác thực OIDC.
+- **Relational Database Server** – MariaDB lưu trữ dữ liệu (Schema `minicloud` và `studentdb`).
+- **Authentication & Identity Server** – Keycloak quản lý định danh và bảo mật API.
+- **Object Storage Server** – MinIO lưu trữ tệp tin (S3 compatible).
+- **Internal DNS Server** – BIND9 quản lý tên miền nội bộ `*.cloud.local`.
+- **Monitoring Stack** – Node Exporter, Prometheus và Grafana để giám sát hệ thống.
+- **API Gateway / Load Balancer** – Nginx là cửa ngõ duy nhất, phân phối traffic tới các Web Replicas.
 
 Toàn bộ hệ thống chạy trên một mạng Docker duy nhất `cloud-net` để mô phỏng hạ tầng của một Cloud Platform thực thụ (tương tự AWS/Azure/GCP).
 
@@ -45,46 +43,45 @@ Hệ thống sử dụng mạng Docker `cloud-net` (bridge). Mỗi server là m�
 
 ```text
 tranhuunhanminiclouddemo/
-├─ .gitignore                          (Bỏ qua các file không cần thiết trên Git)
-├─ docker-compose.yml                  (File thiết kế Orchestrator khởi chạy toàn cụm node)
-├─ test-load-balancer.ps1              (Script test Real Load Balancing)
+├─ .gitignore                             (Bỏ qua các tệp không cần thiết)
+├─ docker-compose.yml                     (Nhạc trưởng điều phối 9 loại dịch vụ)
 │
-├─ api-gateway-proxy-server/           (Nginx cấu hình Load Balancing & API Gateway)
-│  └─ nginx.conf                       (Điều phối route và Docker DNS resolution)
+├─ api-gateway-proxy-server/              (Nginx - Reverse Proxy & Entry Point)
+│  └─ nginx.conf                          (Cấu hình định tuyến và Docker DNS)
 │
-├─ application-backend-server/         (Ứng dụng Flask đảm nhận RESTful APIs)
-│  ├─ app.py                           (Mã nguồn chính xử lý kết nối Database & Auth Keycloak)
-│  ├─ students.json                    (Tài nguyên mock data ban đầu)
+├─ application-backend-server/            (Flask - Logic nghiệp vụ & API)
+│  ├─ app.py                              (Xử lý DB, Auth Keycloak, REST API)
+│  ├─ students.json                       (Dữ liệu dự phòng/mock data)
 │  └─ Dockerfile
 │
-├─ authentication-identity-server/     (Máy chủ cấp phát và định danh OAuth2/OIDC)
-│  └─ .gitkeep                         (Sử dụng base image quay.io/keycloak/keycloak)
+├─ authentication-identity-server/        (Keycloak - IAM & SSO)
+│  └─ .gitkeep                            (Sử dụng image: keycloak:latest)
 │
-├─ internal-dns-server/                (BIND9 Server phân giải tên miền nội bộ)
-│  ├─ Dockerfile                       (Build image từ ubuntu/bind9:latest)
-│  ├─ named.conf.options               (Cấu hình chung: forwarders, allow-query)
-│  ├─ named.conf.local                 (Khai báo zone cloud.local)
+├─ internal-dns-server/                   (BIND9 - Phân giải Domain nội bộ)
+│  ├─ Dockerfile                          (Build từ image: ubuntu/bind9)
+│  ├─ named.conf.options                  (Cấu hình forwarders & access)
+│  ├─ named.conf.local                    (Khai báo zone cloud.local)
 │  └─ zones/                  
-│     └─ db.cloud.local                (File ánh xạ các Domain ảo thành IP thực tế của cụm)
+│     └─ db.cloud.local                   (Bản ghi DNS cho *.cloud.local)
 │
-├─ monitoring-grafana-dashboard-server/ (Giao diện hiển thị biểu đồ đo lường)
-│  └─ .gitkeep                         (Sử dụng image grafana/grafana)
+├─ monitoring-grafana-dashboard-server/   (Grafana - Trực quan hóa dữ liệu)
+│  └─ .gitkeep                            (Sử dụng image: grafana/grafana)
 │
-├─ monitoring-prometheus-server/       (Kho cào/thu thập dữ liệu Metrics)
-│  └─ prometheus.yml                   (Lịch trình và mục tiêu thu thập node / web)
+├─ monitoring-prometheus-server/          (Prometheus - Thu thập Metrics)
+│  └─ prometheus.yml                      (Cấu hình các jobs scrape data)
 │
-├─ object-storage-server/              (MinIO - Kho lưu trữ Objects Data độc lập)
-│  └─ data/                            (Thư mục Map Volumes ảo chứa bucket: profile-pics...)
+├─ object-storage-server/                 (MinIO - S3 Object Storage)
+│  └─ data/                               (Dữ liệu lưu trữ các bucket)
 │
-├─ relational-database-server/         (Ổ lưu trữ dữ liệu cấu trúc MariaDB)
-│  └─ init/                            (Tự động seed dữ liệu lúc bootup)
-│     ├─ 001_init.sql                  (Cấu hình Scheme Myminicloud)
-│     └─ 002_init.sql                  (Cấu hình Scheme Studentdb)
+├─ relational-database-server/            (MariaDB - Cơ sở dữ liệu quan hệ)
+│  └─ init/                               (Khởi tạo dữ liệu tự động)
+│     ├─ 001_init.sql                     (Schema minicloud)
+│     └─ 002_init.sql                     (Schema studentdb)
 │
-└─ web-frontend-server/                (Web Frontend với Real Load Balancing)
-   ├─ html/                            (Website tĩnh với System Panel tích hợp)
-   ├─ conf.default                     (Nginx config với SSI enabled)
-   ├─ metrics.txt                      (Metrics endpoint cho Prometheus)
+└─ web-frontend-server/                   (Nginx - Giao diện người dùng)
+   ├─ html/                               (Mã nguồn Website & System Panel)
+   ├─ conf.default                        (Cấu hình Nginx với SSI enabled)
+   ├─ metrics.txt                         (Endpoint metrics cho Prometheus)
    └─ Dockerfile
 ```
 
@@ -100,33 +97,27 @@ tranhuunhanminiclouddemo/
 Từ thư mục gốc của dự án, thực hiện các lệnh sau:
 
 ```bash
+### 5.2. Khởi động hệ thống
+Từ thư mục gốc của dự án, thực hiện các lệnh sau:
+
+```bash
 # Di chuyển vào thư mục dự án
 cd tranhuunhanminiclouddemo
 
-# Khởi động hệ thống với 3 replicas của web-frontend-server
+# Khởi động hệ thống với 3 replicas của web-frontend-server để test Load Balancing
 docker compose up -d --scale web-frontend-server=3
 
 # Kiểm tra trạng thái các container
 docker compose ps
-
-# Test Real Load Balancing
-./test-load-balancer.ps1
 ```
 
-### 5.3. Kiểm tra Real Load Balancing
+### 5.3. Kiểm tra phân tải (Load Balancing)
+Vì hệ thống sử dụng **Real Load Balancing**, bạn có thể kiểm tra bằng cách truy cập `http://localhost` và Refresh trang. Container ID (Hostname) hiển thị ở phía trên Header sẽ thay đổi sau mỗi lần tải trang, chứng minh Docker đang điều phối traffic.
 
-Dự án đã bao gồm script tự động test Real Load Balancing:
-
-**Trên Windows:**
-```powershell
-./test-load-balancer.ps1
+Bạn cũng có thể dùng `curl` để kiểm tra nhanh:
+```bash
+for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done
 ```
-
-Script sẽ tự động:
-- Gửi 10 requests tới hệ thống
-- Hiển thị Container ID của từng request
-- Thống kê số lượng requests được xử lý bởi mỗi container
-- Xác nhận Real Load Balancing đang hoạt động
 
 ---
 
@@ -134,116 +125,75 @@ Script sẽ tự động:
 
 ### 6.1. Web Frontend & Real Load Balancing
 
-**Mục tiêu:** Kiểm tra web tĩnh và khả năng phân tải thực sự qua Docker replicas với Nginx Load Balancer.
+**Mục tiêu:** Kiểm tra website tĩnh, giao diện quản lý System Panel và khả năng phân tải thực sự qua Docker replicas.
 
-**Cách thực hiện:** Truy cập web qua API Gateway và quan sát Container ID thay đổi động.
+**Hoạt động chính:**
+- **SSI Hostname Display:** Sử dụng Nginx Server Side Includes (SSI) để lấy biến `$hostname` của container và hiển thị trực tiếp lên header. Điều này giúp nhận diện container nào đang xử lý request.
+- **Metrics Scraping:** Cung cấp endpoint `/metrics` để Prometheus thu thập dữ liệu về traffic, trạng thái server và tài nguyên.
+- **System Panel Integration:** Tích hợp bảng điều khiển tại `/blog/system-panel.html` cho phép truy cập nhanh các dịch vụ (MinIO, Grafana...) và chạy các lệnh kiểm tra.
 
-**Lệnh kiểm tra Real Load Balancing:**
+**Lệnh kiểm thử:**
 - Truy cập qua API Gateway: [http://localhost](http://localhost)
-- Quan sát Container ID hiển thị động trên trang web
-- Sử dụng script test tự động: `./test-load-balancer.ps1`
-
-**Lệnh kiểm tra bằng curl:**
+- Kiểm tra Container ID thay đổi (Load Balancing):
 ```bash
-# Kiểm tra Container ID thay đổi - chạy nhiều lần
-curl -s http://localhost | grep -o "Container: [a-f0-9]*"
-curl -s http://localhost | grep -o "Container: [a-f0-9]*"
+# Chạy nhiều lần để thấy Hostname thay đổi
 curl -s http://localhost | grep -o "Container: [a-f0-9]*"
 ```
-
-**Kết quả dự kiến:** 
-- Container ID sẽ thay đổi giữa các request, chứng minh Docker đang phân phối traffic giữa các replicas khác nhau
-- Mỗi container hiển thị ID thực của mình thông qua Server Side Includes (SSI)
-- Script test sẽ hiển thị thống kê phân phối requests giữa các containers
 
 ### 6.2. Application Backend (Flask API)
 
-**Mục tiêu:** Xác minh tính chuyên biệt về mặt logic của Application API và sự chuyển tiếp chuẩn xác từ tuyến Gateway.
+**Mục tiêu:** Xử lý logic nghiệp vụ, kết nối cơ sở dữ liệu và quản lý quyền truy cập qua Keycloak.
 
-**Cách thực hiện:** Dùng lệnh `curl` gọi các endpoint trực tiếp.
+**Hoạt động chính:**
+- **RESTful API:** Cung cấp các endpoint JSON chuẩn cho frontend.
+- **Database Connectivity:** Kết nối trực tiếp tới MariaDB (`relational-database-server`) để thực hiện các thao tác CRUD trên bảng sinh viên.
+- **Identity Verification:** Sử dụng thư viện `python-jose` để giải mã và xác thực JWT Token được gửi từ Keycloak, đảm bảo các endpoint bảo mật chỉ được truy cập bởi người dùng hợp lệ.
+- **Fallback Mechanism:** Nếu không kết nối được tới MariaDB, server tự động chuyển sang đọc dữ liệu từ `students.json` để đảm bảo tính sẵn sàng.
 
-**Lệnh kiểm tra yêu cầu cơ bản:**
-- Gọi API trạng thái (`hello`): `curl http://localhost/api/hello`
+**Các Endpoint chính:**
+- `GET /api/hello`: Kiểm tra trạng thái server.
+- `GET /api/student`: Hiển thị trang danh sách sinh viên (HTML).
+- `GET /api/student/json`: Lấy dữ liệu sinh viên từ file JSON.
+- `GET /api/students-db`: Trang quản lý CRUD sinh viên (HTML + MariaDB).
+- `GET /api/students-db/json`: Lấy dữ liệu sinh viên từ MariaDB.
+- `GET /api/secure`: Endpoint yêu cầu Bearer Token (Keycloak).
 
-**Lệnh kiểm tra yêu cầu mở rộng:**
-- Trả về danh sách sinh viên trực tiếp từ kết nối db (Mở rộng EXT 2 & 9): `curl http://localhost/student/`
-
-**Kết quả dự kiến:**
-- Lệnh `hello`: Trả lời thông báo chào mừng từ Flask API theo định dạng JSON chuyên nghiệp.
-- Lệnh `student`: Load thành công danh sách tập sinh viên từ backend gửi lên dạng chuẩn.
+**Lệnh kiểm thử:**
+- Trả về JSON chào mừng: `curl http://localhost/api/hello`
+- Lấy danh sách sinh viên (JSON): `curl http://localhost/api/student/json`
+- Truy cập trang quản lý sinh viên: [http://localhost/api/students-db](http://localhost/api/students-db)
 
 ### 6.3. Relational Database (MariaDB)
 
-**Mục tiêu:** Kiểm chứng kết nối dữ liệu có cấu trúc từ backend, minh chứng sự tự động hóa Scripts khởi tạo.
+**Mục tiêu:** Lưu trữ dữ liệu có cấu trúc và cung cấp khả năng tự động khởi tạo dữ liệu.
 
-**Cách thực hiện:** Giả lập container con để mở luồng mysql trỏ thẳng vào Master Data.
+**Hoạt động chính:**
+- **Schema Management:** Quản lý hai database độc lập: `minicloud` (ghi chú hệ thống) và `studentdb` (thông tin sinh viên).
+- **Auto Bootstrapping:** Sử dụng thư mục `/docker-entrypoint-initdb.d` để tự động chạy các script SQL (`001_init.sql`, `002_init.sql`) khi khởi tạo container lần đầu.
+- **Data Persistence:** Sử dụng Docker Volumes (`mariadb-data`) để đảm bảo dữ liệu không bị mất khi container bị xóa.
 
-**Lệnh kiểm tra yêu cầu cơ bản:**
-- Xác nhận tập dữ liệu của schema chính `minicloud`:
+**Lệnh kiểm tra dữ liệu:**
 ```bash
-docker exec -it relational-database-server mariadb -u root -proot -D minicloud -e "SHOW TABLES; SELECT * FROM notes;"
-```
+# Xem dữ liệu schema minicloud
+docker exec -it relational-database-server mariadb -u root -proot -D minicloud -e "SELECT * FROM notes;"
 
-**Lệnh kiểm tra yêu cầu mở rộng:**
-- Xác nhận bảng thực thể dữ liệu mới cho luồng Database riêng biệt `studentdb`:
-```bash
+# Xem dữ liệu schema studentdb
 docker exec -it relational-database-server mariadb -u root -proot -D studentdb -e "SELECT * FROM students;"
 ```
 
-**Lệnh kiểm tra kết nối từ bên ngoài (alternative):**
-```bash
-# Sử dụng mysql client từ container tạm thời
-docker run -it --rm --network cloud-net mysql:8 mysql -h relational-database-server -uroot -proot -D studentdb -e "SELECT COUNT(*) as total_students FROM students;"
-```
-
-**Kết quả dự kiến:** Hệ thống tự động phản hồi lại bảng chứa cấu hình dữ liệu được seed thành công bằng script SQL của hệ.
-
 ### 6.4. Authentication Identity (Keycloak)
 
-**Mục tiêu:** Kiểm tra OIDC (OpenID Connect) và bảo mật Identity API theo quy chuẩn bảo vệ microservice.
+**Mục tiêu:** Quản lý định danh tập trung (SSO) và bảo vệ Microservices bằng quy chuẩn OIDC/OAuth2.
 
-**Cách thực hiện:** Thực thi tuần tự quy trình xin thông tin gói xác thực sau đó lấy Bearer Token chèn vào Header cho lệnh triệu gọi.
+**Hoạt động chính:**
+- **Realm & Client Configuration:** Khai báo Realm `TranHuuNhan_52300235` và Client `flask-app`.
+- **Identity Provider:** Lưu trữ thông tin người dùng và cấp phát Access Token (JWT).
+- **Frontend Integration:** Tích hợp `keycloak.js` để xử lý luồng đăng nhập/đăng xuất ngay trên trình duyệt.
+- **Backend Protection:** Application Server xác thực tính hợp lệ của Token trước khi trả về dữ liệu bảo mật.
 
-**Lệnh kiểm tra yêu cầu cơ bản:**
-
-*Bước 1: Truy cập Keycloak Admin Console*
-- URL: [http://localhost:8081/admin/master/console/](http://localhost:8081/admin/master/console/)
-- Username: `admin` / Password: `admin`
-
-*Bước 2: Xin Token qua xác thực user (cần setup user trước)*
-```bash
-# Lấy token từ Keycloak (thay thế username/password thực tế)
-TOKEN=$(curl -s -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token" \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "username=sv01" \
-     -d "password=123" \
-     -d "grant_type=password" \
-     -d "client_id=flask-app" | jq -r '.access_token')
-
-# Kiểm tra token có được tạo không
-echo "Token: $TOKEN"
-```
-
-*Bước 3: Test API bảo mật qua Gateway*
-```bash
-# Sử dụng token để truy cập API bảo mật
-curl -H "Authorization: Bearer $TOKEN" http://localhost/api/secure
-```
-
-**Lệnh kiểm tra yêu cầu mở rộng:**
-*Test trực tiếp backend (port 8085):*
-```bash
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8085/secure
-```
-
-**Lệnh kiểm tra không có token (sẽ trả về 401):**
-```bash
-curl -v http://localhost/api/secure
-```
-
-**Kết quả dự kiến:**
-- Nếu bạn gọi route `/secure` mà bỏ quên token, hệ thống Keycloak sẽ bẻ khóa chặn lại (401 Unauthorized).
-- Nếu mã chuẩn xác, Backend Flask sẽ tiếp nhận và chào mừng thành công.
+**Lệnh kiểm thử:**
+- Truy cập Admin Console: [http://localhost:8081/admin/master/console/](http://localhost:8081/admin/master/console/) (admin/admin)
+- Kiểm tra luồng đăng nhập: Sử dụng nút **"🔐 Đăng nhập"** trên trang chủ.
 
 ### 6.5. Object Storage (MinIO)
 
@@ -279,129 +229,31 @@ exit
 **Kết quả dự kiến:** URL hình ảnh trực tiếp (như: [http://localhost:9000/profile-pics/avatar.jpg](http://localhost:9000/profile-pics/avatar.jpg)) sau khi thiết lập được truy cập trơn tru mà không yêu cầu ID bảo mật.
 ### 6.6. Internal DNS (BIND9)
 
-**Mục tiêu:** Thay vì giao tiếp bằng địa chỉ IP thô cứng, hệ thống Microservices sẽ phân giải tên miền định nghĩa linh hoạt theo pattern `*.cloud.local`.
+**Mục tiêu:** Cung cấp dịch vụ phân giải tên miền nội bộ cho các Microservices.
 
-**Cách thực hiện:** Kích hoạt một shell Alpine/Busybox chung cụm mạng ảo và dùng `nslookup` tra tên trên máy chủ BIND9.
+**Hoạt động chính:**
+- **Zone Management:** Quản lý zone `cloud.local`.
+- **Hostname Mapping:** Ánh xạ các tên miền như `app-backend.cloud.local`, `minio.cloud.local` về đúng IP của container trong mạng `cloud-net`.
+- **Service Discovery:** Cho phép các service giao tiếp với nhau qua DNS thay vì IP tĩnh.
 
-**Lệnh kiểm tra yêu cầu cơ bản:**
-Dùng container `busybox` tra cứu tuyến đầu:
+**Lệnh kiểm tra:**
 ```bash
+# Test phân giải tên miền web-frontend-server
 docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
 ```
 
-**Lệnh kiểm tra yêu cầu mở rộng:**
-1. Khám phá các Backend Component:
-```bash
-docker run --rm --network cloud-net busybox nslookup app-backend.cloud.local internal-dns-server
-docker run --rm --network cloud-net busybox nslookup minio.cloud.local internal-dns-server
-docker run --rm --network cloud-net busybox nslookup keycloak.cloud.local internal-dns-server
-```
+### 6.7. Monitoring Stack (Prometheus & Grafana)
 
-2. Bổ sung bản ghi thực tế theo dự án thiết kế:
-- Cập nhật trực tiếp: Mở Zone tại `tranhuunhanminiclouddemo/internal-dns-server/zones/db.cloud.local`.
-- Ghi mới địa chỉ: `new-service IN A 10.10.10.50`
-- Áp dụng thay đổi: `docker restart internal-dns-server`.
+**Mục tiêu:** Thu thập metrics và trực quan hóa trạng thái sức khỏe của toàn bộ hạ tầng Microservices.
 
-**Kết quả dự kiến:** Domain truy xuất chuyển giao được thành đúng IP nội mạng `cloud-net`, khi gõ lệnh nslookup hệ thống hiển thị chính xác tên miền tương quan (vd tên miền gốc, root ip...).
+**Hoạt động chính:**
+- **Data Collection:** Prometheus tự động "scrape" dữ liệu từ `node-exporter` (cổng 9100) và `web-frontend-server` (cổng 80).
+- **Visualization:** Grafana kết nối tới Prometheus làm Data Source để hiển thị các biểu đồ RAM, CPU, Network.
+- **Alerting:** Có khả năng cấu hình cảnh báo khi tài nguyên vượt ngưỡng.
 
-### 6.7. Monitoring (Prometheus)
-
-**Mục tiêu:** Thu thập metrics và trạng thái tài nguyên cho toàn bộ Microservices Nodes.
-
-**Cách thực hiện:**
-
-**Bước 1: Chỉnh sửa file cấu hình prometheus.yml**
-Trong dự án của bạn, hãy tìm đến thư mục `monitoring-prometheus-server` và mở file `prometheus.yml` lên.
-Mặc định ở phần cơ bản, file này đang có cấu hình scrape cho `node` (Node Exporter). Bạn cần bổ sung thêm cục cấu hình cho `web` vào dưới cùng.
-> ⚠️ **LƯU Ý CỰC KỲ QUAN TRỌNG:** Trong file `.yml` (YAML), khoảng trắng (căn lề) là sự sống còn. Thụt lề sai 1 dấu cách là file sẽ bị lỗi.
-
-Để an toàn tuyệt đối, bạn hãy xóa hết nội dung cũ và copy/paste toàn bộ đoạn code chuẩn dưới đây đè vào file `prometheus.yml` của bạn:
-
-```yaml
-global:
-  scrape_interval: 15s
-
-scrape_configs:
-  - job_name: 'node'
-    static_configs:
-      - targets: ['monitoring-node-exporter-server:9100']
-
-  - job_name: 'web'
-    static_configs:
-      - targets: ['web-frontend-server:80']
-```
-*(Sau khi paste xong, nhớ lưu file lại).*
-
-**Bước 2: Khởi động lại (Restart) container Prometheus**
-Vì bạn vừa thay đổi file cấu hình gốc, Prometheus đang chạy ngầm sẽ không tự đọc được nội dung mới. Bạn cần ra lệnh khởi động lại nó.
-Mở Terminal và chạy lệnh sau:
-```bash
-docker restart monitoring-prometheus-server
-```
-*(Nếu nó in ra lại dòng chữ `monitoring-prometheus-server` là đã restart thành công).*
-
-**Bước 3: Kiểm tra thành quả**
-Mở trình duyệt web của bạn lên, truy cập vào đường dẫn:
-👉 [http://localhost:9090/targets](http://localhost:9090/targets)
-
-Lúc này, trên màn hình của bạn sẽ hiện ra 2 danh sách (Jobs) thay vì 1 cái như trước:
-- Một cái là `node` (cái cũ, cổng 9100).
-- Một cái mới mang tên `web` (trỏ vào `http://web-frontend-server:80/metrics`).
-
-Hãy nhìn vào cột **State** (Trạng thái). Nếu mục `web` hiện chữ **UP** màu xanh lá cây, thì xin chúc mừng, bạn đã cấu hình thành công!
-
-**Kết quả dự kiến:**
-- Prometheus cho cờ hiệu UP xanh đối với toàn bộ các target được cấu hình (`node` và `web`).
-
-### 6.8. Monitoring (Grafana Dashboard)
-
-**Mục tiêu:** Trực quan hóa dữ liệu bằng các biểu đồ phân tích thời gian thực từ metrics của Prometheus.
-
-**Cách thực hiện:** Khai báo Data Source trên Grafana trỏ về Prometheus và tạo Dashboard.
-
-**Kiểm tra và thực hiện:**
-- Truy cập Grafana: Vào thẳng [http://localhost:3000](http://localhost:3000) (Đăng nhập với User `admin` / Password `admin`).
-- Tạo Data Source: Móc nối đường truyền nội mạng tới Prometheus qua URL `http://monitoring-prometheus-server:9090`.
-- Thiết lập Dashboard: Tự do vẽ thông số hoặc import các dashboard có sẵn (ví dụ báo cáo Node Exporter).
-
-**Kết quả dự kiến:**
-- Grafana kết nối luồng dữ liệu trơn tru từ Prometheus.
-- Hiển thị biểu đồ phân tích chuẩn xác cho hệ mét máy chủ (RAM, Disk, Network) và các dịch vụ khác.
-
-### 6.9. Real Load Balancing với Docker Replicas
-
-**Mục tiêu:** Chứng minh Real Load Balancing hoạt động với Docker replicas thay vì fake load balancing.
-
-**Cách thực hiện:** Sử dụng Docker Compose scaling để tạo nhiều replicas từ cùng một image.
-
-**Bước 1: Khởi động hệ thống với multiple replicas**
-```bash
-# Khởi động với 3 replicas của web-frontend-server
-docker compose up -d --scale web-frontend-server=3
-
-# Kiểm tra các replicas đã được tạo
-docker compose ps | grep web-frontend-server
-```
-
-**Bước 2: Test Real Load Balancing**
-```bash
-# Sử dụng script test tự động
-./test-load-balancer.ps1
-
-# Hoặc test thủ công bằng curl
-for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done
-```
-
-**Bước 3: Quan sát Container ID thay đổi**
-- Truy cập [http://localhost](http://localhost) trên trình duyệt
-- Refresh trang nhiều lần (F5)
-- Quan sát Container ID hiển thị ở giữa header thay đổi liên tục
-
-**Kết quả dự kiến:**
-- Script test hiển thị 3 Container IDs khác nhau xử lý requests
-- Mỗi container hiển thị ID thực thông qua Server Side Includes (SSI)
-- Requests được phân phối đều giữa các replicas (Round Robin)
-- Chứng minh Docker đang thực hiện Real Load Balancing thay vì fake
+**Lệnh kiểm tra:**
+- Prometheus Targets: [http://localhost:9090/targets](http://localhost:9090/targets) (Kiểm tra trạng thái job 'web' và 'node' có UP hay không).
+- Grafana Dashboard: [http://localhost:3000](http://localhost:3000) (admin/admin).
 
 ---
 
@@ -478,8 +330,7 @@ curl http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)/stude
 docker run -it --rm --network cloud-net alpine sh
 
 # Trong shell của container, test ping các service:
-ping -c 3 web-frontend-server-1
-ping -c 3 web-frontend-server-2
+ping -c 3 web-frontend-server
 ping -c 3 relational-database-server
 ping -c 3 authentication-identity-server
 ping -c 3 object-storage-server
@@ -495,8 +346,8 @@ exit
 **Kiểm tra DNS resolution:**
 ```bash
 # Test DNS resolution qua internal DNS server
-docker run --rm --network cloud-net busybox nslookup web-frontend-server-1.cloud.local internal-dns-server
-docker run --rm --network cloud-net busybox nslookup web-frontend-server-2.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup app-backend.cloud.local internal-dns-server
 ```
 
 **Kiểm tra port connectivity:**

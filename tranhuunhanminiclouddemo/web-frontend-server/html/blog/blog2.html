@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Phú Quốc - Đảo ngọc say giấc giữa đại dương | TINYFLOWERS</title>
+  <title>Phú Quốc - Ngọc trai của biển Tây | TINYFLOWERS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     :root {
       --font: 'Inter', system-ui, -apple-system, sans-serif;
-      --accent: #38bdf8; 
-      --accent-dim: rgba(56, 189, 248, 0.12);
+      --accent: #0ea5e9;
+      --accent-dim: rgba(14, 165, 233, 0.12);
       --bg: #020617;
       --surface: rgba(15, 23, 42, 0.8);
       --border: rgba(148, 163, 184, 0.18);
@@ -20,83 +29,420 @@
       --muted: #94a3b8;
       --radius: 20px;
     }
-    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; line-height: 1.8; }
-    
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background: radial-gradient(ellipse 65% 50% at 10% -5%, rgba(56, 189, 248, 0.12) 0%, transparent 60%),
-                  radial-gradient(ellipse 50% 40% at 90% 105%, rgba(99, 102, 241, 0.1) 0%, transparent 60%);
-      pointer-events: none; z-index: 0;
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.8;
     }
 
-    .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.05); position: fixed; top: 0; z-index: 1000; }
-    .progress-bar { height: 4px; background: var(--accent); width: 0%; box-shadow: 0 0 10px var(--accent); transition: width 0.2s ease-out; }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 65% 50% at 10% -5%, rgba(14, 165, 233, 0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 90% 105%, rgba(3, 105, 161, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.18; animation: drift 12s ease-in-out infinite alternate; pointer-events: none; z-index: 0; }
-    .orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -50px; left: -50px; }
-    .orb-2 { width: 220px; height: 220px; background: #6366f1; bottom: -40px; right: -40px; animation-delay: -6s; }
-    @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(25px, 18px) scale(1.06); } }
+    .progress-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+    }
 
-    .page-wrapper { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
-    .container { max-width: 860px; width: 100%; margin: 0 auto; padding: 0 24px; }
+    .progress-bar {
+      height: 4px;
+      background: var(--accent);
+      width: 0%;
+      box-shadow: 0 0 10px var(--accent);
+      transition: width 0.2s ease-out;
+    }
 
-    nav { padding: 20px 0; backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); background: rgba(2, 6, 23, 0.6); position: sticky; top: 0; z-index: 100; margin-top: 4px; }
-    nav .nav-inner { max-width: 1080px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.08em; background: linear-gradient(90deg, #fcd34d, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
-    .nav-links { display: flex; gap: 8px; align-items: center; }
-    .nav-links a { text-decoration: none; font-size: 0.875rem; font-weight: 500; color: var(--muted); padding: 7px 16px; border-radius: 999px; transition: all 0.25s; }
-    .nav-links a:hover { color: var(--text); background: var(--surface); }
-    .nav-links a.active { color: var(--accent); background: var(--accent-dim); border: 1px solid var(--accent-dim); }
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: drift 12s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-    .article-wrapper { padding: 56px 0 64px; animation: fadeUp 0.8s ease both; }
-    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--muted); margin-bottom: 28px; }
-    .breadcrumb a { color: var(--accent); text-decoration: none; }
-    .breadcrumb a:hover { text-decoration: underline; }
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: #0284c7;
+      top: -50px;
+      left: -50px;
+    }
 
-    .article-header { text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; }
-    
-    .badge { display: inline-flex; gap: 5px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); background: var(--accent-dim); border: 1px solid rgba(56, 189, 248, 0.25); padding: 4px 12px; border-radius: 999px; margin-bottom: 18px; }
-    h1 { font-family: var(--font); font-size: clamp(2rem, 4vw + 1rem, 3.2rem); font-weight: 800; line-height: 1.2; margin-bottom: 16px; color: #fff; letter-spacing: -0.02em; }
-    .meta { font-size: 0.85rem; color: var(--muted); display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
-    .meta .sep { opacity: 0.4; }
+    .orb-2 {
+      width: 220px;
+      height: 220px;
+      background: #0369a1;
+      bottom: -40px;
+      right: -40px;
+      animation-delay: -6s;
+    }
 
-    .hero-img { border-radius: var(--radius); overflow: hidden; margin-bottom: 40px; border: 1px solid var(--border); box-shadow: 0 24px 56px rgba(2, 6, 23, 0.8); position: relative; }
-    .hero-img img { width: 100%; display: block; object-fit: cover; max-height: 500px; }
+    @keyframes drift {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
 
-    .article-content { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px; backdrop-filter: blur(16px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 28px 56px rgba(2, 6, 23, 0.7); }
-    
-    .article-content > p:first-of-type::first-letter { float: left; font-family: var(--font); font-size: 5rem; line-height: 0.8; padding-top: 8px; padding-right: 12px; color: var(--accent); font-weight: 800; }
-    
-    .article-content p { margin-bottom: 24px; font-size: 1.05rem; color: #cbd5e1; font-weight: 400; }
-    .article-content h2 { font-family: var(--font); margin: 40px 0 16px; font-size: 1.5rem; font-weight: 700; color: #bfdbfe; border-left: 3px solid var(--accent); padding-left: 14px; }
-    
-    .inner-img { width: 100%; border-radius: 12px; margin: 32px 0; border: 1px solid rgba(255,255,255,0.1); max-height: 450px; object-fit: cover; }
-    .img-caption { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: -24px; margin-bottom: 32px; font-style: italic; }
+      to {
+        transform: translate(25px, 18px) scale(1.06);
+      }
+    }
 
-    blockquote { border-left: 4px solid var(--accent); background: linear-gradient(90deg, var(--accent-dim), transparent); padding: 24px 32px; margin: 40px 0; border-radius: 0 12px 12px 0; }
-    blockquote p { font-family: var(--font); font-size: 1.25rem; font-style: italic; color: #fff; margin-bottom: 0 !important; line-height: 1.6; font-weight: 500; }
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-    .article-tags { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
-    .tag { font-size: 0.8rem; color: var(--muted); background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 6px; transition: 0.3s; font-weight: 500; }
-    .tag:hover { background: var(--accent-dim); color: var(--accent); cursor: pointer; }
+    .container {
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
 
-    .back-nav { margin-top: 48px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-    .back-nav a { text-decoration: none; padding: 12px 28px; border-radius: 999px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s ease; }
-    
-    .btn-outline { border: 1px solid rgba(56, 189, 248, 0.4); color: var(--accent); background: var(--accent-dim); }
-    .btn-outline:hover { background: var(--accent); color: #0f172a; transform: translateY(-2px); }
-    
-    .btn-home { border: 1px solid var(--border); color: var(--muted); background: var(--surface); }
-    .btn-home:hover { color: var(--text); border-color: rgba(148, 163, 184, 0.4); transform: translateY(-2px); }
+    nav {
+      padding: 20px 0;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(2, 6, 23, 0.6);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      margin-top: 4px;
+    }
 
-    footer { margin-top: auto; border-top: 1px solid var(--border); padding: 24px 0; text-align: center; font-size: 0.85rem; color: #475569; }
-    footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
-    footer a:hover { text-decoration: underline; }
+    nav .nav-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-    @media (max-width: 768px) { .article-content { padding: 24px; } blockquote { padding: 16px 20px; } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      background: linear-gradient(90deg, #fcd34d, #f59e0b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 999px;
+      transition: all 0.25s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .nav-links a.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-dim);
+    }
+
+    .article-wrapper {
+      padding: 56px 0 64px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .article-header {
+      text-align: center;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-family: var(--font);
+      font-size: clamp(2rem, 4vw + 1rem, 3.2rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .meta .sep {
+      opacity: 0.4;
+    }
+
+    .hero-img {
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 40px;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 56px rgba(2, 6, 23, 0.8);
+      position: relative;
+    }
+
+    .hero-img img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      max-height: 500px;
+    }
+
+    .article-content {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 28px 56px rgba(2, 6, 23, 0.7);
+    }
+
+    .article-content>p:first-of-type::first-letter {
+      float: left;
+      font-family: var(--font);
+      font-size: 5rem;
+      line-height: 0.8;
+      padding-top: 8px;
+      padding-right: 12px;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .article-content p {
+      margin-bottom: 24px;
+      font-size: 1.05rem;
+      color: #cbd5e1;
+      font-weight: 400;
+    }
+
+    .article-content h2 {
+      font-family: var(--font);
+      margin: 40px 0 16px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #7dd3fc;
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+    }
+
+    .inner-img {
+      width: 100%;
+      border-radius: 12px;
+      margin: 32px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-height: 450px;
+      object-fit: cover;
+    }
+
+    .img-caption {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: -24px;
+      margin-bottom: 32px;
+      font-style: italic;
+    }
+
+    blockquote {
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(90deg, var(--accent-dim), transparent);
+      padding: 24px 32px;
+      margin: 40px 0;
+      border-radius: 0 12px 12px 0;
+    }
+
+    blockquote p {
+      font-family: var(--font);
+      font-size: 1.25rem;
+      font-style: italic;
+      color: #fff;
+      margin-bottom: 0 !important;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .article-tags {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: 0.3s;
+      font-weight: 500;
+    }
+
+    .tag:hover {
+      background: var(--accent-dim);
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .back-nav {
+      margin-top: 48px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .back-nav a {
+      text-decoration: none;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn-outline {
+      border: 1px solid rgba(14, 165, 233, 0.4);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .btn-outline:hover {
+      background: var(--accent);
+      color: #022c22;
+      transform: translateY(-2px);
+    }
+
+    .btn-home {
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .btn-home:hover {
+      color: var(--text);
+      border-color: rgba(148, 163, 184, 0.4);
+      transform: translateY(-2px);
+    }
+
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #475569;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .article-content {
+        padding: 24px;
+      }
+
+      blockquote {
+        padding: 16px 20px;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="progress-container">
     <div class="progress-bar" id="myBar"></div>
@@ -118,55 +464,78 @@
       <div class="container">
         <div class="article-wrapper">
           <nav class="breadcrumb">
-            <a href="/index.html">Home</a> <span>›</span> <a href="/blog/index.html">Blog</a> <span>›</span> <span>Phú Quốc</span>
+            <a href="/index.html">Home</a> <span>›</span> <a href="/blog/index.html">Blog</a> <span>›</span> <span>Phú
+              Quốc</span>
           </nav>
-          
+
           <header class="article-header">
-            <div class="badge">🌊 Biển đảo &amp; Nghỉ dưỡng</div>
-            <h1>Phú Quốc - Đảo ngọc say giấc giữa đại dương</h1>
+            <div class="badge">🏖️ Biển đảo & Resort</div>
+            <h1>Phú Quốc - Thiên đường biển đảo của Việt Nam</h1>
             <div class="meta">
               <span>✍️ Chongdoo</span>
               <span class="sep">·</span>
               <span>📅 12/03/2026</span>
               <span class="sep">·</span>
-              <span>⏱ ~7 phút đọc</span>
+              <span>⏱ ~6 phút đọc</span>
             </div>
           </header>
-          
-          <div class="hero-img">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Bai-sao-phu-quoc-tuonglamphotos.jpg/1280px-Bai-sao-phu-quoc-tuonglamphotos.jpg" alt="Biển Phú Quốc trong xanh" />
-          </div>
-          
-          <article class="article-content">
-            <p>Phú Quốc không chỉ là một hòn đảo, mà dường như là một bản tình ca êm đềm được viết nên bởi đại dương và mây trời. Nằm tĩnh lặng giữa vịnh Thái Lan bao la, "Đảo Ngọc" luôn biết cách vẫy gọi những tâm hồn đang khao khát vị mặn của biển cả, tiếng sóng vỗ rì rào và những bãi cát trắng mịn màng trải dài như vô tận.</p>
-            
-            <p>Bỏ lại phía sau những xô bồ, khói bụi của nhịp sống đô thị hối hả, nơi đây chào đón kẻ lữ hành bằng cái nắng vàng ươm rực rỡ và những làn gió mát rượi mang theo hơi thở thuần khiết của đại dương. Mọi thứ ở Phú Quốc đều toát lên một vẻ thong dong đến lạ kỳ.</p>
-            
-            <h2>Trải nghiệm nghỉ dưỡng nâng tầm giác quan</h2>
-            <p>Sức hút của Phú Quốc ngày nay không chỉ dừng lại ở vẻ đẹp hoang sơ ban sơ, mà còn nằm ở sự hòa quyện tuyệt mỹ giữa cảnh sắc thiên nhiên và những kiệt tác kiến trúc nghỉ dưỡng. Những khu resort đẳng cấp năm sao ẩn mình khéo léo dưới rặng dừa xanh mát, với những hồ bơi vô cực như trải dài vươn ra tận chân trời.</p>
-            
-            <img src="https://images.pexels.com/photos/3155666/pexels-photo-3155666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Hoàng hôn Phú Quốc" class="inner-img" />
-            <div class="img-caption">Sự tĩnh lặng tuyệt đối lúc hoàng hôn Phú Quốc</div>
 
-            <p>Chỉ cần mở tung cánh cửa sổ phòng, bạn đã có thể đón trọn vẹn bình minh rực rỡ ló dạng trên mặt biển. Hay những buổi chiều tà, ngả lưng trên chiếc ghế dài êm ái, nhâm nhi một ly cocktail nhiệt đới và lắng nghe giai điệu êm đềm của sóng nước. Đó chính là một định nghĩa hoàn toàn mới về sự xa xỉ, bình yên và tái tạo năng lượng.</p>
+          <div class="hero-img">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Bai-sao-phu-quoc-tuonglamphotos.jpg/1920px-Bai-sao-phu-quoc-tuonglamphotos.jpg?_=20210616081254"
+              alt="Phú Quốc" />
+          </div>
+
+          <article class="article-content">
+            <p>Phú Quốc, hòn ngọc trai lấp lánh giữa vùng biển Tây Nam Tổ quốc, là điểm đến mơ ước của những ai khao
+              khát tìm về với thiên nhiên hoang sơ và những trải nghiệm biển đảo đích thực. Nằm cách đất liền Hà Tiên
+              khoảng 45km, đảo Phú Quốc sở hữu vẻ đẹp nguyên sơ với những bãi cát trắng mịn trải dài, làn nước biển
+              trong xanh như pha lê và rừng nguyên sinh bạt ngàn.</p>
+
+            <p>Không chỉ là thiên đường nghỉ dưỡng, Phú Quốc còn là nơi lưu giữ những giá trị văn hóa độc đáo của vùng
+              biển đảo, từ nghề nuôi trồng ngọc trai truyền thống đến những làng chài cổ kính vẫn giữ nguyên nét đẹp xưa
+              cũ.</p>
+
+            <h2>Bãi biển tuyệt đẹp và làn nước trong vắt</h2>
+            <p>Phú Quốc được thiên nhiên ưu ái ban tặng hệ thống bãi biển đẹp nhất Việt Nam. Bãi Sao với cát trắng mịn
+              như bột, bãi Dài với đường bờ biển dài 20km uốn lượn, hay bãi Kem với làn nước trong xanh đến mức có thể
+              nhìn thấy đáy biển. Mỗi bãi biển đều mang một vẻ đẹp riêng, từ hoang sơ đến lãng mạn, phù hợp với mọi sở
+              thích của du khách.</p>
+
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Bai-sao-phu-quoc-tuonglamphotos.jpg/1920px-Bai-sao-phu-quoc-tuonglamphotos.jpg?_=20210616081254"
+              alt="Bãi Sao Phú Quốc" class="inner-img" />
+            <div class="img-caption">Bãi Sao - một trong những bãi biển đẹp nhất Phú Quốc</div>
+
+            <p>Điều đặc biệt là nước biển Phú Quốc có độ trong suốt cao, nhiệt độ ổn định quanh năm từ 26-28°C, tạo điều
+              kiện lý tưởng cho các hoạt động thể thao dưới nước như lặn ngắm san hô, câu cá, hay đơn giản chỉ là tắm
+              biển thư giãn. Những rạn san hô đa dạng xung quanh đảo là nhà của hàng trăm loài cá nhiệt đới, tạo nên một
+              thế giới dưới nước đầy màu sắc.</p>
 
             <blockquote>
-              <p>"Dưới ánh hoàng hôn rực lửa của Phú Quốc, mọi muộn phiền dường như bốc hơi tan biến vào bọt biển, chỉ còn lại sự an yên tuyệt đối ngự trị trong tâm hồn."</p>
+              <p>"Phú Quốc không chỉ là một hòn đảo, mà là một thế giới thu nhỏ nơi biển cả và rừng xanh hòa quyện, nơi
+                thời gian trôi chậm lại để ta tận hưởng từng khoảnh khắc bình yên."</p>
             </blockquote>
 
-            <h2>Khám phá đại dương và đánh thức vị giác</h2>
-            <p>Hành trình khám phá Phú Quốc sẽ chưa thể trọn vẹn nếu bạn bỏ lỡ cơ hội ngụp lặn trong làn nước trong vắt để chiêm ngưỡng những rạn san hô rực rỡ sắc màu, hay lênh đênh trên những chiếc thuyền nhỏ ra khơi câu mực đêm. Đại dương bao la luôn ẩn chứa những bất ngờ thú vị chờ đợi những đôi chân ưa xê dịch.</p>
+            <h2>Ẩm thực biển đảo đặc sắc</h2>
+            <p>Phú Quốc nổi tiếng với những đặc sản không thể tìm thấy ở nơi nào khác. Nước mắm Phú Quốc với hương vị
+              đậm đà, được ủ từ cá cơm tươi ngon nhất, đã trở thành thương hiệu quốc gia. Hải sản tươi sống được đánh
+              bắt hàng ngày từ những chuyến thúng chai ra khơi, mang về những món ăn tuyệt vời như cua hoàng đế nướng,
+              tôm hùm nướng bơ tỏi, hay cá mú hấp xì dầu.</p>
 
-            <p>Và khi màn đêm buông xuống, những khu chợ đêm nhộn nhịp lại bắt đầu lên đèn, tỏa ra sức hấp dẫn khó cưỡng. Vô vàn hải sản tươi rói vừa được đánh bắt, nướng xèo xèo trên ngọn lửa hồng xua tan đi cái se lạnh của gió biển. Một chuyến đi không chỉ làm mãn nhãn đôi mắt mà còn đánh thức và làm thỏa mãn trọn vẹn mọi giác quan của bạn.</p>
+            <p>Đặc biệt, tiêu đen Phú Quốc với hạt to, cay nồng và thơm đặc trưng, được UNESCO công nhận là sản phẩm địa
+              lý chỉ dẫn. Những vườn tiêu xanh mướt trên đảo không chỉ là nơi sản xuất ra loại gia vị quý giá này mà còn
+              là điểm tham quan thú vị cho du khách.</p>
 
             <div class="article-tags">
               <span class="tag">#PhuQuoc</span>
-              <span class="tag">#IslandRetreat</span>
-              <span class="tag">#OceanVibes</span>
-              <span class="tag">#LuxuryTravel</span>
+              <span class="tag">#Beach</span>
+              <span class="tag">#Island</span>
+              <span class="tag">#Seafood</span>
+              <span class="tag">#Resort</span>
             </div>
           </article>
-          
+
           <div class="back-nav">
             <a class="btn-outline" href="/blog/index.html">← Quay lại danh sách điểm đến</a>
             <a class="btn-home" href="/index.html">🏠 Về trang Home</a>
@@ -174,11 +543,14 @@
         </div>
       </div>
     </main>
-    <footer><div>&copy; 2026 · Thiết kế và phát triển bởi <a href="/index.html">Tiny Flowers</a></div></footer>
+    <footer>
+      <div>&copy; 2026 · Thiết kế và phát triển bởi <a href="/index.html">Tiny Flowers</a></div>
+    </footer>
   </div>
 
   <script>
-    window.onscroll = function() {
+    // Progress bar scroll
+    window.onscroll = function () {
       var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
       var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       var scrolled = (winScroll / height) * 100;
@@ -186,4 +558,5 @@
     };
   </script>
 </body>
+
 </html>

@@ -19,6 +19,59 @@ let isAuthenticated = false;
 let userInfo = null;
 let accessToken = null;
 
+// Hàm lưu trạng thái authentication vào localStorage
+function saveAuthState() {
+    if (isAuthenticated && userInfo) {
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        localStorage.setItem('accessToken', accessToken || '');
+        localStorage.setItem('authTimestamp', Date.now().toString());
+        console.log('✅ Auth state saved to localStorage');
+    }
+}
+
+// Hàm khôi phục trạng thái authentication từ localStorage
+function restoreAuthState() {
+    try {
+        const savedAuth = localStorage.getItem('isAuthenticated');
+        const savedUserInfo = localStorage.getItem('userInfo');
+        const savedToken = localStorage.getItem('accessToken');
+        const authTimestamp = localStorage.getItem('authTimestamp');
+        
+        // Kiểm tra xem auth có hết hạn không (24 giờ)
+        const now = Date.now();
+        const authAge = authTimestamp ? (now - parseInt(authTimestamp)) : Infinity;
+        const maxAge = 24 * 60 * 60 * 1000; // 24 giờ
+        
+        if (savedAuth === 'true' && savedUserInfo && authAge < maxAge) {
+            isAuthenticated = true;
+            userInfo = JSON.parse(savedUserInfo);
+            accessToken = savedToken || null;
+            console.log('✅ Auth state restored from localStorage:', userInfo.username);
+            return true;
+        } else if (authAge >= maxAge) {
+            console.log('⚠️ Auth state expired, clearing localStorage');
+            clearAuthState();
+        }
+    } catch (error) {
+        console.error('❌ Error restoring auth state:', error);
+        clearAuthState();
+    }
+    return false;
+}
+
+// Hàm xóa trạng thái authentication
+function clearAuthState() {
+    isAuthenticated = false;
+    userInfo = null;
+    accessToken = null;
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('authTimestamp');
+    console.log('🗑️ Auth state cleared');
+}
+
 // Hàm lấy host hiện tại
 function getHost() {
     const h = window.location.hostname;
@@ -52,6 +105,7 @@ function checkAuthCode() {
                         };
                         
                         console.log('User authenticated:', userInfo);
+                        saveAuthState(); // Lưu trạng thái vào localStorage
                         updateAuthUI();
                         
                         // Xóa code khỏi URL
@@ -131,6 +185,7 @@ function simulateSuccessfulLogin() {
     };
     
     console.log('Simulated successful login:', userInfo);
+    saveAuthState(); // Lưu trạng thái vào localStorage
     updateAuthUI();
     
     // Xóa code khỏi URL
@@ -149,6 +204,9 @@ function updateAuthUI() {
     const logoutBtn = document.getElementById('logoutBtn');
     const protectedContent = document.getElementById('protectedContent');
     const secureApiBtn = document.getElementById('secureApiBtn');
+    const studentsSection = document.getElementById('studentsSection');
+    const loginPromptSection = document.getElementById('loginPromptSection');
+    const navBlog = document.getElementById('nav-blog');
 
     if (isAuthenticated && userInfo) {
         // Hiển thị thông tin user
@@ -165,6 +223,40 @@ function updateAuthUI() {
         // Hiển thị protected content
         if (protectedContent) {
             protectedContent.classList.add('show');
+        }
+
+        // Hiển thị Students Section
+        if (studentsSection) {
+            studentsSection.style.display = 'block';
+            studentsSection.classList.add('show');
+            // Tải dữ liệu sinh viên khi đã đăng nhập
+            loadStudentData();
+            startAutoRefresh();
+        }
+
+        // Ẩn Login Prompt Section
+        if (loginPromptSection) {
+            loginPromptSection.style.display = 'none';
+        }
+
+        // Enable Blog link
+        if (navBlog) {
+            navBlog.style.pointerEvents = 'auto';
+            navBlog.style.opacity = '1';
+            navBlog.onclick = null;
+            // Cập nhật href để trỏ đến trang blog index
+            if (window.location.pathname.includes('/blog/')) {
+                navBlog.href = 'index.html';
+            } else {
+                navBlog.href = '/blog/index.html';
+            }
+        }
+
+        // Cập nhật nút "Khám phá Blog" trong hero section
+        const exploreBlogBtn = document.getElementById('exploreBlogBtn');
+        if (exploreBlogBtn) {
+            exploreBlogBtn.href = '/blog/index.html';
+            exploreBlogBtn.onclick = null;
         }
 
         // Hiển thị nút Test Secure API
@@ -186,6 +278,41 @@ function updateAuthUI() {
         // Ẩn protected content
         if (protectedContent) {
             protectedContent.classList.remove('show');
+        }
+
+        // Ẩn Students Section
+        if (studentsSection) {
+            studentsSection.style.display = 'none';
+            studentsSection.classList.remove('show');
+            stopAutoRefresh();
+        }
+
+        // Hiển thị Login Prompt Section
+        if (loginPromptSection) {
+            loginPromptSection.style.display = 'block';
+        }
+
+        // Disable Blog link
+        if (navBlog) {
+            navBlog.style.pointerEvents = 'none';
+            navBlog.style.opacity = '0.5';
+            navBlog.onclick = function(e) {
+                e.preventDefault();
+                showNotification('Vui lòng đăng nhập để truy cập blog', 'warning');
+                return false;
+            };
+        }
+
+        // Disable nút "Khám phá Blog" trong hero section
+        const exploreBlogBtn = document.getElementById('exploreBlogBtn');
+        if (exploreBlogBtn) {
+            exploreBlogBtn.style.pointerEvents = 'none';
+            exploreBlogBtn.style.opacity = '0.5';
+            exploreBlogBtn.onclick = function(e) {
+                e.preventDefault();
+                showNotification('Vui lòng đăng nhập để truy cập blog', 'warning');
+                return false;
+            };
         }
 
         // Ẩn nút Test Secure API
@@ -268,10 +395,8 @@ function keycloakLogout() {
 
     const host = getHost();
 
-    // Reset trạng thái local
-    isAuthenticated = false;
-    userInfo = null;
-    accessToken = null;
+    // Xóa trạng thái local và localStorage
+    clearAuthState();
 
     // Redirect đến Keycloak logout
     const keycloakLogoutUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(window.location.origin)}`;
@@ -447,10 +572,23 @@ async function refreshAccessToken() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing Keycloak authentication...');
 
-    // Kiểm tra xem có authorization code không
-    if (!checkAuthCode()) {
-        // Không có code, hiển thị UI mặc định
+    // Đầu tiên thử khôi phục trạng thái từ localStorage
+    const restored = restoreAuthState();
+    
+    if (restored) {
+        console.log('🔄 Auth state restored, updating UI...');
         updateAuthUI();
+    } else {
+        // Đảm bảo trạng thái ban đầu là chưa đăng nhập
+        isAuthenticated = false;
+        userInfo = null;
+        accessToken = null;
+
+        // Kiểm tra xem có authorization code không
+        if (!checkAuthCode()) {
+            // Không có code, hiển thị UI cho trạng thái chưa đăng nhập
+            updateAuthUI();
+        }
     }
 
     // Bắt đầu auto-refresh token mỗi 5 phút

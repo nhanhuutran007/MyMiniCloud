@@ -428,6 +428,13 @@
       pointer-events: auto !important;
     }
 
+    /* ── Students Section Animation ── */
+    #studentsSection.show {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+    }
+
     /* ── Loading Spinner Animation ── */
     @keyframes spin {
       from {
@@ -523,7 +530,7 @@
             <p class="hero-desc">Đây là không gian nhỏ nơi mình lưu lại hành trình khám phá thế giới, chia sẻ những trải
               nghiệm du lịch đẳng cấp và những khoảnh khắc không thể nào quên tại Việt Nam.</p>
             <div class="hero-actions">
-              <a class="btn-primary" href="/blog/index.html">🚀 Khám phá Blog</a>
+              <a class="btn-primary" href="/blog/index.html" id="exploreBlogBtn">🚀 Khám phá Blog</a>
               <a class="btn-ghost" href="#about">📖 Tìm hiểu thêm</a>
             </div>
             <div class="stats-row">
@@ -547,8 +554,8 @@
           </aside>
         </div>
 
-        <!-- Students Display Section -->
-        <div id="studentsSection" class="hero-inner" style="margin-top: 48px;">
+        <!-- Students Display Section - chỉ hiển thị khi đã đăng nhập -->
+        <div id="studentsSection" class="hero-inner" style="margin-top: 48px; opacity: 0; transform: translateY(20px); transition: all 0.6s ease; pointer-events: none; display: none;">
           <div>
             <div class="hero-tag">👥 Danh sách sinh viên</div>
             <h2 style="font-size: clamp(1.5rem, 3vw + 1rem, 2.2rem); font-weight: 700; line-height: 1.2; margin-bottom: 16px;">Dữ liệu thời gian thực</h2>
@@ -592,6 +599,36 @@
               <!-- Student data will be loaded here -->
             </div>
             <p class="card-hint">Dữ liệu được cập nhật tự động mỗi 30 giây ⏱️</p>
+          </aside>
+        </div>
+
+        <!-- Login Prompt Section - hiển thị khi chưa đăng nhập -->
+        <div id="loginPromptSection" class="hero-inner" style="margin-top: 48px;">
+          <div>
+            <div class="hero-tag" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3);">🔐 Yêu cầu đăng nhập</div>
+            <h2 style="font-size: clamp(1.5rem, 3vw + 1rem, 2.2rem); font-weight: 700; line-height: 1.2; margin-bottom: 16px;">Truy cập nội dung đặc biệt</h2>
+            <p style="font-size: 1rem; color: var(--muted); line-height: 1.75; margin-bottom: 24px; max-width: 480px;">
+              Để xem danh sách sinh viên, thống kê và truy cập blog, vui lòng đăng nhập vào hệ thống.
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+              <button onclick="keycloakLogin()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);">
+                🔐 Đăng nhập ngay
+              </button>
+            </div>
+          </div>
+          <aside class="hero-card" style="border-color: rgba(251, 191, 36, 0.2);">
+            <div class="card-header">
+              <div class="card-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">🔒</div>
+              <span class="card-title" style="color: #fcd34d;">Nội dung được bảo vệ</span>
+            </div>
+            <p>Sau khi đăng nhập, bạn sẽ có thể:</p>
+            <div class="pill-list">
+              <span class="pill" style="border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); color: #fbbf24;">👥 Xem danh sách sinh viên</span>
+              <span class="pill" style="border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); color: #fbbf24;">📊 Xem thống kê</span>
+              <span class="pill" style="border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); color: #fbbf24;">📖 Truy cập blog</span>
+            </div>
+            <p>Hệ thống sử dụng Keycloak để đảm bảo bảo mật và quản lý quyền truy cập.</p>
+            <p class="card-hint">Click <strong>"Đăng nhập ngay"</strong> để bắt đầu ✨</p>
           </aside>
         </div>
 
@@ -881,11 +918,11 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 Initializing Students Display...');
       
-      // Tải dữ liệu ban đầu
-      loadStudentData();
+      // Không tải dữ liệu ban đầu - chỉ tải khi đã đăng nhập
+      // loadStudentData();
       
-      // Bắt đầu auto-refresh
-      startAutoRefresh();
+      // Không bắt đầu auto-refresh - chỉ khi đã đăng nhập
+      // startAutoRefresh();
       
       // Dừng auto-refresh khi user rời khỏi trang
       window.addEventListener('beforeunload', stopAutoRefresh);
@@ -894,7 +931,7 @@
       document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
           stopAutoRefresh();
-        } else {
+        } else if (isAuthenticated) {
           startAutoRefresh();
         }
       });
