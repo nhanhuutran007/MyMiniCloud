@@ -142,7 +142,7 @@ jobs:
           fi
           
           # Make scripts executable
-          chmod +x .github/scripts/*.sh
+          chmod +x ../.github/scripts/*.sh
           if [ -f "health-check.sh" ]; then
             chmod +x health-check.sh
           fi
@@ -165,9 +165,9 @@ jobs:
           cd ${{ needs.load-config.outputs.main-directory || 'tranhuunhanminiclouddemo' }}
           
           # Use universal health check if available, fallback to project-specific
-          if [ -f ".github/scripts/universal-health-check.sh" ]; then
+          if [ -f "../.github/scripts/universal-health-check.sh" ]; then
             echo "🔍 Running universal health check..."
-            ./.github/scripts/universal-health-check.sh
+            ../.github/scripts/universal-health-check.sh
           elif [ -f "health-check.sh" ]; then
             echo "🔍 Running project health check..."
             ./health-check.sh
@@ -235,7 +235,7 @@ jobs:
           echo "🚀 Deploying to Staging on $CLEAN_HOST..."
           
           # Copy deployment script to server
-          scp -v -i ~/.ssh/minicloud-key.pem tranhuunhanminiclouddemo/.github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
+          scp -v -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
           
           # Run deployment
           ssh -v -i ~/.ssh/minicloud-key.pem ubuntu@$CLEAN_HOST '
@@ -286,7 +286,7 @@ jobs:
           echo "🚀 Deploying to Production on $CLEAN_HOST..."
           
           # Copy deployment script to server
-          scp -v -i ~/.ssh/minicloud-key.pem tranhuunhanminiclouddemo/.github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
+          scp -v -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
           
           # Run deployment
           ssh -v -i ~/.ssh/minicloud-key.pem ubuntu@$CLEAN_HOST '

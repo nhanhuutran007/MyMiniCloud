@@ -108,15 +108,40 @@ tranhuunhanminiclouddemo/
 Từ thư mục gốc của dự án, thực hiện các lệnh sau:
 
 ```bash
+# Di chuyển vào thư mục dự án
+cd tranhuunhanminiclouddemo
+
 # Build toàn bộ image (không dùng cache để đảm bảo cập nhật mới nhất)
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # Khởi động cả cụm hệ thống
-docker-compose up -d
+docker compose up -d
 
 # Kiểm tra trạng thái các container
-docker-compose ps
+docker compose ps
 ```
+
+### 5.3. Script kiểm tra sức khỏe hệ thống
+
+Dự án đã bao gồm script tự động kiểm tra tất cả các service:
+
+**Trên Linux/macOS:**
+```bash
+./health-check.sh
+```
+
+**Trên Windows:**
+```cmd
+health-check.bat
+```
+
+Script sẽ tự động:
+- Phát hiện môi trường (Local hoặc EC2)
+- Kiểm tra trạng thái tất cả containers
+- Test các endpoint chính
+- Kiểm tra Load Balancer Round Robin
+- Test kết nối database
+- Hiển thị tóm tắt và quick access links
 
 ---
 
@@ -129,13 +154,21 @@ docker-compose ps
 **Cách thực hiện:** Đóng vai người dùng truy cập trực tiếp vào phân hệ web và tiếp cận thông qua API Gateway.
 
 **Lệnh kiểm tra yêu cầu cơ bản:**
-- Truy cập trực tiếp cổng Container 1: [http://localhost:8080](http://localhost:8080)
-- Gọi web qua hệ Gateway: [http://localhost](http://localhost)
+- Truy cập trực tiếp Web Frontend Server: [http://localhost:8080](http://localhost:8080)
+- Truy cập qua API Gateway (Load Balancer): [http://localhost](http://localhost)
+
+**Lệnh kiểm tra Load Balancer bằng curl:**
+```bash
+# Kiểm tra Load Balancer Round Robin - chạy nhiều lần để thấy sự thay đổi
+curl -s http://localhost | grep -o "Server [12]"
+curl -s http://localhost | grep -o "Server [12]"
+curl -s http://localhost | grep -o "Server [12]"
+```
 
 **Lệnh kiểm tra yêu cầu mở rộng:**
-- Load Balancer Round Robin: Truy cập [http://localhost](http://localhost) và f5 liên tục (reload website nhiều lần).
+- Truy cập [http://localhost](http://localhost) trên trình duyệt và F5 liên tục để thấy text "This is Web Frontend Server 1" và "This is Web Frontend Server 2" luân phiên.
 
-**Kết quả dự kiến:** Hiệu ứng chuyển hướng trên trang thay đổi luân phiên theo chu kỳ giữa các node web frontend con chứng minh Load balancer điều phối request thành công.
+**Kết quả dự kiến:** Trang web sẽ hiển thị luân phiên "Server 1" (màu đỏ) và "Server 2" (màu vàng), chứng minh Load Balancer hoạt động đúng.
 
 ### 6.2. Application Backend (Flask API)
 
@@ -162,13 +195,19 @@ docker-compose ps
 **Lệnh kiểm tra yêu cầu cơ bản:**
 - Xác nhận tập dữ liệu của schema chính `minicloud`:
 ```bash
-docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-database-server -uroot -proot -D minicloud -e "SHOW TABLES; SELECT * FROM notes;"'
+docker exec -it relational-database-server mariadb -u root -proot -D minicloud -e "SHOW TABLES; SELECT * FROM notes;"
 ```
 
 **Lệnh kiểm tra yêu cầu mở rộng:**
 - Xác nhận bảng thực thể dữ liệu mới cho luồng Database riêng biệt `studentdb`:
 ```bash
-docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-database-server -uroot -proot -D studentdb -e "SELECT * FROM students;"'
+docker exec -it relational-database-server mariadb -u root -proot -D studentdb -e "SELECT * FROM students;"
+```
+
+**Lệnh kiểm tra kết nối từ bên ngoài (alternative):**
+```bash
+# Sử dụng mysql client từ container tạm thời
+docker run -it --rm --network cloud-net mysql:8 mysql -h relational-database-server -uroot -proot -D studentdb -e "SELECT COUNT(*) as total_students FROM students;"
 ```
 
 **Kết quả dự kiến:** Hệ thống tự động phản hồi lại bảng chứa cấu hình dữ liệu được seed thành công bằng script SQL của hệ.
@@ -180,26 +219,40 @@ docker run -it --rm --network cloud-net mysql:8 sh -c 'mysql -h relational-datab
 **Cách thực hiện:** Thực thi tuần tự quy trình xin thông tin gói xác thực sau đó lấy Bearer Token chèn vào Header cho lệnh triệu gọi.
 
 **Lệnh kiểm tra yêu cầu cơ bản:**
-*Bước 1: Xin Token qua xác thực user*
+
+*Bước 1: Truy cập Keycloak Admin Console*
+- URL: [http://localhost:8081/admin/master/console/](http://localhost:8081/admin/master/console/)
+- Username: `admin` / Password: `admin`
+
+*Bước 2: Xin Token qua xác thực user (cần setup user trước)*
 ```bash
-curl -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token" \
+# Lấy token từ Keycloak (thay thế username/password thực tế)
+TOKEN=$(curl -s -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "username=sv01" \
      -d "password=123" \
      -d "grant_type=password" \
-     -d "client_id=flask-app"
-```
-*(Copy giá trị trong `"access_token": "..."` từ chùm json trả về, giả sử là `<TOKEN_CỦA_BẠN>`)*
+     -d "client_id=flask-app" | jq -r '.access_token')
 
-*Bước 2: Xuyên phòng vệ lớp cổng ngoài Gateway Port 80*
+# Kiểm tra token có được tạo không
+echo "Token: $TOKEN"
+```
+
+*Bước 3: Test API bảo mật qua Gateway*
 ```bash
-curl -H "Authorization: Bearer <TOKEN_CỦA_BẠN>" http://localhost/api/secure
+# Sử dụng token để truy cập API bảo mật
+curl -H "Authorization: Bearer $TOKEN" http://localhost/api/secure
 ```
 
 **Lệnh kiểm tra yêu cầu mở rộng:**
-*Xuyên phòng vệ cổng backend thuần (port 8085):*
+*Test trực tiếp backend (port 8085):*
 ```bash
-curl -H "Authorization: Bearer <TOKEN_CỦA_BẠN>" http://localhost:8085/secure
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8085/secure
+```
+
+**Lệnh kiểm tra không có token (sẽ trả về 401):**
+```bash
+curl -v http://localhost/api/secure
 ```
 
 **Kết quả dự kiến:**
@@ -444,23 +497,108 @@ Mở trình duyệt Web, truy cập URL: `http://localhost/`
 
 ---
 
-## 7. Kiểm tra thông mạng & Docker Hub
+## 7. Triển khai trên AWS EC2
+
+### 7.1. Yêu cầu EC2 Instance
+- **Instance Type:** Tối thiểu t3.medium (2 vCPU, 4GB RAM)
+- **Storage:** 20GB gp3 SSD
+- **Security Group:** Mở các port: 22, 80, 3000, 8080, 8081, 8085, 9000, 9001, 9090, 9100
+- **OS:** Ubuntu 22.04 LTS
+
+### 7.2. Cài đặt Docker trên EC2
+```bash
+# Cập nhật hệ thống
+sudo apt update && sudo apt upgrade -y
+
+# Cài đặt Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Thêm user vào group docker
+sudo usermod -aG docker $USER
+
+# Khởi động Docker
+sudo systemctl enable docker
+sudo systemctl start docker
+
+# Kiểm tra Docker
+docker --version
+```
+
+### 7.3. Clone và khởi động dự án trên EC2
+```bash
+# Clone repository
+git clone <YOUR_REPO_URL>
+cd MyMiniCloud/tranhuunhanminiclouddemo
+
+# Khởi động hệ thống
+docker compose up -d
+
+# Kiểm tra trạng thái
+docker compose ps
+```
+
+### 7.4. Truy cập từ bên ngoài
+Thay thế `localhost` bằng Public IP của EC2 instance:
+- Web Frontend: `http://YOUR_EC2_IP`
+- MinIO Console: `http://YOUR_EC2_IP:9001`
+- Grafana: `http://YOUR_EC2_IP:3000`
+- Prometheus: `http://YOUR_EC2_IP:9090`
+- Keycloak: `http://YOUR_EC2_IP:8081`
+
+### 7.5. Lệnh kiểm tra trên EC2
+```bash
+# Kiểm tra Load Balancer trên EC2
+curl -s http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4) | grep -o "Server [12]"
+
+# Kiểm tra API backend
+curl http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)/api/hello
+
+# Kiểm tra student endpoint
+curl http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)/student/
+```
+
+---
+
+## 8. Kiểm tra thông mạng & Docker Hub
 
 ### 7.1. Thông mạng giữa các container
-Dùng lệnh ping nội bộ để xác nhận các container thấy nhau:
-Có thể dùng ping từ 1 container bất kỳ (ví dụ từ `web-frontend-server`):
 
+**Kiểm tra kết nối nội bộ giữa các container:**
 ```bash
+# Tạo container tạm thời để test network
 docker run -it --rm --network cloud-net alpine sh
 
-# Trong shell của container:
-ping -c 3 web-frontend-server
+# Trong shell của container, test ping các service:
+ping -c 3 web-frontend-server-1
+ping -c 3 web-frontend-server-2
 ping -c 3 relational-database-server
 ping -c 3 authentication-identity-server
 ping -c 3 object-storage-server
 ping -c 3 monitoring-prometheus-server
 ping -c 3 monitoring-grafana-dashboard-server
 ping -c 3 internal-dns-server
+ping -c 3 application-backend-server
+
+# Thoát khỏi container
+exit
+```
+
+**Kiểm tra DNS resolution:**
+```bash
+# Test DNS resolution qua internal DNS server
+docker run --rm --network cloud-net busybox nslookup web-frontend-server-1.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup web-frontend-server-2.cloud.local internal-dns-server
+```
+
+**Kiểm tra port connectivity:**
+```bash
+# Test kết nối port từ bên ngoài
+curl -I http://localhost:8080  # Web Frontend Server trực tiếp
+curl -I http://localhost      # Qua API Gateway
+curl -I http://localhost:9001 # MinIO Console
+curl -I http://localhost:3000 # Grafana
+curl -I http://localhost:9090 # Prometheus
 ```
 
 ### 7.2. Push Image lên Docker Hub
