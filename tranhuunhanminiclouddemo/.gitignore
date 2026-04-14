@@ -1,96 +1,10 @@
-# MyMiniCloud .gitignore
+# MinIO data
+# object-storage-server/data/
 
-# Environment files
-.env
-.env.local
-.env.production
-.env.staging
-
-# SSH Keys and Certificates
+# Secrets / keys
 *.pem
 *.key
-*.crt
-*.cert
 *.p12
 *.pfx
-id_rsa*
-id_ed25519*
-known_hosts
-
-# Logs
-*.log
-logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Docker
-.docker/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Temporary files
-tmp/
-temp/
-.tmp/
-
-# Database dumps
-*.sql
-*.dump
-
-# Secrets
-secrets/
-*.secret
-
-# Node modules (if any)
-node_modules/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-
-# Pytest
-.pytest_cache/
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+*.env
+.env.*

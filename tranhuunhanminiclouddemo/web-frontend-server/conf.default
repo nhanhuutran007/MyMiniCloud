@@ -4,12 +4,8 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
-    # Cấu hình tự động đổi tên Server Identifier
-    sub_filter 'Server_Placeholder' 'Server $hostname';
-    sub_filter_once off;
-    sub_filter_types text/html;
-
     location / {
+        ssi on;
         try_files $uri $uri/ =404;
     }
 

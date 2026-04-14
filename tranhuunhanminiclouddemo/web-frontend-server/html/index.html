@@ -648,12 +648,9 @@
     <nav>
       <div class="container">
         <a class="logo" href="/index.html">TINYFLOWERS</a>
-        <h2 style="color: #ef4444; font-size: 1rem; flex: 1; text-align: center; display: none;" id="dynamic-server-id">This is Web Frontend Server_Placeholder</h2>
-        <style>
-          @media (min-width: 600px) {
-            #dynamic-server-id { display: block !important; }
-          }
-        </style>
+        <div style="color: #10b981; font-size: 0.9rem; font-weight: 600; flex: 1; text-align: center;">
+          Container: <!--#echo var="hostname" -->
+        </div>
         <div class="nav-links">
           <a href="/index.html" class="active" id="nav-home">Home</a>
           <a href="/blog/index.html" id="nav-blog">Blog</a>
@@ -745,13 +742,44 @@
           </div>
           <button class="sys-btn-open" onclick="openService(8081, '/admin/master/console/')">🔐 Mở Keycloak</button>
         </div>
+      </div>
+
+      <hr class="sys-divider" style="margin: 0 28px;">
+
+      <!-- ── API Testing ── -->
+      <div class="sys-section">
+        <div class="sys-section-title">🚀 API Testing – click để test các endpoint</div>
 
         <div class="sys-card">
           <div class="sys-card-info">
-            <div class="sys-card-name">Application Backend (API) <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Port: 8085 · Flask REST API</div>
+            <div class="sys-card-name">Load Balancer Test <span class="sys-badge badge-ui">UI</span></div>
+            <div class="sys-card-port">Port: 80 · Kiểm tra Round Robin Load Balancing</div>
           </div>
-          <button class="sys-btn-open" onclick="openService(8085, '/')">🚀 Mở App API</button>
+          <button class="sys-btn-open" onclick="openService(80, '/')">🔄 Test Load Balancer</button>
+        </div>
+
+        <div class="sys-card">
+          <div class="sys-card-info">
+            <div class="sys-card-name">API Hello Endpoint <span class="sys-badge badge-ui">UI</span></div>
+            <div class="sys-card-port">Qua Gateway: /api/hello</div>
+          </div>
+          <button class="sys-btn-open" onclick="testApiEndpoint('/api/hello')">✅ Test Hello API</button>
+        </div>
+
+        <div class="sys-card">
+          <div class="sys-card-info">
+            <div class="sys-card-name">Student List Endpoint <span class="sys-badge badge-ui">UI</span></div>
+            <div class="sys-card-port">Qua Gateway: /student/</div>
+          </div>
+          <button class="sys-btn-open" onclick="testApiEndpoint('/student/')">👥 Test Student API</button>
+        </div>
+
+        <div class="sys-card">
+          <div class="sys-card-info">
+            <div class="sys-card-name">Students Database CRUD <span class="sys-badge badge-ui">UI</span></div>
+            <div class="sys-card-port">Qua Gateway: /api/students-db</div>
+          </div>
+          <button class="sys-btn-open" onclick="testApiEndpoint('/api/students-db')">🗄️ Test Students DB</button>
         </div>
       </div>
 
@@ -764,191 +792,70 @@
         <div class="sys-card" style="flex-direction:column;">
           <div class="sys-card-name">MariaDB / Relational Database <span class="sys-badge badge-cli">CLI</span></div>
           <div class="sys-card-port">Port: 3306 · Kiểm tra kết nối & dữ liệu</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và kiểm tra database
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Trong EC2, kiểm tra kết nối database
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># Kiểm tra kết nối từ host
             docker exec -it relational-database-server mariadb -u root -proot -e "SHOW DATABASES;"
 
             # Kiểm tra dữ liệu bảng sinh viên
             docker exec -it relational-database-server mariadb -u root -proot studentdb -e "SELECT * FROM students LIMIT
-            10;"
-
-            # Kiểm tra bảng notes trong minicloud database
-            docker exec -it relational-database-server mariadb -u root -proot minicloud -e "SELECT * FROM notes;"</div>
+            10;"</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
           <div class="sys-card-name">Node Exporter <span class="sys-badge badge-cli">CLI</span></div>
           <div class="sys-card-port">Port: 9100 · System Metrics Exporter</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và kiểm tra Node Exporter
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Kiểm tra metrics endpoint từ EC2
+          <div class="sys-cmd-block" id="nodeExporterCmd" onclick="copyCmd(this)"># Kiểm tra metrics endpoint
             curl http://localhost:9100/metrics | head -30
 
-            # Kiểm tra container Node Exporter đang chạy
-            docker ps | grep node-exporter
-
-            # Test từ máy local (thay YOUR_EC2_IP)
-            curl http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:9100/metrics | head -20</div>
+            # Kiểm tra container đang chạy
+            docker ps | grep node-exporter</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">API Gateway / Load Balancer Test <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 80 · Kiểm tra reverse proxy & load balancing</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test Load Balancer
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Test Load Balancer Round Robin từ EC2
-            for i in {1..5}; do curl -s http://localhost | grep -o "Server [12]"; done
-
-            # Test từ máy local - kiểm tra Load Balancer
-            for i in {1..5}; do curl -s http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com | grep -o "Server
-            [12]"; done
-
-            # Kiểm tra nginx config
+          <div class="sys-card-name">API Gateway / Nginx Proxy <span class="sys-badge badge-cli">CLI</span></div>
+          <div class="sys-card-port">Port: 80 · Kiểm tra reverse proxy</div>
+          <div class="sys-cmd-block" id="nginxCmd" onclick="copyCmd(this)"># Kiểm tra nginx config
             docker exec api-gateway-proxy-server nginx -t
 
-            # Xem nginx access logs
-            docker logs api-gateway-proxy-server --tail 20</div>
-        </div>
+            # Reload nginx không downtime
+            docker exec api-gateway-proxy-server nginx -s reload
 
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">API Backend Testing <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 8085 · Test Flask API endpoints</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test API endpoints
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Test API Hello endpoint từ EC2
-            curl http://localhost/api/hello
-
-            # Test Student API endpoint từ EC2
-            curl http://localhost/student/
-
-            # Test từ máy local
-            curl http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com/api/hello
-            curl http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com/student/
-
-            # Test direct backend (bypass gateway)
-            curl http://localhost:8085/hello
-            curl http://localhost:8085/student/</div>
+            # Xem access log
+            docker logs api-gateway-proxy-server --tail 50</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
           <div class="sys-card-name">Internal DNS (BIND9) <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 1053 · Internal DNS Resolution</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test DNS
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Kiểm tra BIND9 config hợp lệ
+          <div class="sys-card-port">Port: 1053 · Internal DNS Resolution (ubuntu/bind9)</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># Kiểm tra cấu hình BIND9 có hợp lệ không
             docker exec internal-dns-server named-checkconf
 
-            # Test DNS resolution từ container khác
-            docker run --rm --network cloud-net busybox nslookup web-frontend-server-1.cloud.local internal-dns-server
-            docker run --rm --network cloud-net busybox nslookup web-frontend-server-2.cloud.local internal-dns-server
+            # Test phân giải DNS nội bộ qua port 1053
+            nslookup web-frontend-server.cloud.local 127.0.0.1 -port=1053
 
-            # Test ping giữa các container
-            docker run --rm --network cloud-net alpine ping -c 3 web-frontend-server-1
-            docker run --rm --network cloud-net alpine ping -c 3 relational-database-server
+            # Hoặc dùng dig (nếu có cài trên host)
+            dig @127.0.0.1 -p 1053 web-frontend-server.cloud.local
 
-            # Xem BIND9 logs
+            # Reload zone mà không restart container
+            docker exec internal-dns-server rndc reload
+
+            # Xem log BIND9
             docker logs internal-dns-server --tail 30</div>
         </div>
 
         <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Authentication (Keycloak) Testing <span class="sys-badge badge-cli">CLI</span>
-          </div>
-          <div class="sys-card-port">Port: 8081 · Test OIDC Authentication</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test Keycloak
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Test Keycloak health từ EC2
-            curl -I http://localhost:8081/health
-
-            # Test từ máy local
-            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:8081/health
-
-            # Lấy token (cần setup user trước trong Keycloak Admin)
-            TOKEN=$(curl -s -X POST "http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "username=sv01" -d "password=123" -d "grant_type=password" -d "client_id=flask-app" | jq -r
-            '.access_token')
-
-            # Test secure API với token
-            curl -H "Authorization: Bearer $TOKEN" http://localhost/api/secure</div>
-        </div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Object Storage (MinIO) Testing <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 9000/9001 · Test S3-compatible storage</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test MinIO
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Test MinIO API từ EC2
-            curl -I http://localhost:9000/minio/health/live
-
-            # Test từ máy local
-            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:9000/minio/health/live
-
-            # Vào MinIO container và test mc client
-            docker exec -it object-storage-server sh
-            mc alias set local http://localhost:9000 minioadmin minioadmin
-            mc ls local/
-            mc ls local/profile-pics/
-            exit
-
-            # Test upload file (nếu có bucket public)
-            curl -X PUT http://localhost:9000/profile-pics/test.txt -d "Hello MinIO"</div>
-        </div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Monitoring Stack Testing <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Prometheus + Grafana + Node Exporter</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và test monitoring
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Test Prometheus targets từ EC2
-            curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | {job: .labels.job, health:
-            .health}'
-
-            # Test Grafana health từ EC2
-            curl -I http://localhost:3000/api/health
-
-            # Test từ máy local
-            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:9090/targets
-            curl -I http://ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com:3000/login
-
-            # Kiểm tra metrics được thu thập
-            curl -s http://localhost:9090/api/v1/query?query=up | jq '.data.result[] | {instance: .metric.instance,
-            value: .value[1]}'</div>
-        </div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Docker Compose – System Health Check <span class="sys-badge badge-cli">CLI</span>
-          </div>
-          <div class="sys-card-port">Quản lý và kiểm tra toàn bộ stack</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># SSH vào EC2 và kiểm tra system health
-            ssh -i "minicloud-key.pem" ubuntu@ec2-13-214-23-181.ap-southeast-1.compute.amazonaws.com
-
-            # Di chuyển vào thư mục project
-            cd MyMiniCloud/tranhuunhanminiclouddemo
-
-            # Chạy health check script
-            ./health-check.sh
-
-            # Xem trạng thái tất cả services
+          <div class="sys-card-name">Docker Compose – Toàn bộ Stack <span class="sys-badge badge-cli">CLI</span></div>
+          <div class="sys-card-port">Quản lý vòng đời tất cả containers</div>
+          <div class="sys-cmd-block" onclick="copyCmd(this)"># Xem trạng thái tất cả service
             docker compose ps
 
-            # Xem resource usage
-            docker stats --no-stream
+            # Xem log realtime tất cả service
+            docker compose logs -f
 
-            # Kiểm tra logs của service bị lỗi (nếu có)
-            docker compose logs web-frontend-server-1 --tail 50
-            docker compose logs application-backend-server --tail 50
+            # Khởi động lại toàn bộ
+            docker compose restart
 
-            # Restart service cụ thể nếu cần
-            docker compose restart web-frontend-server-1</div>
+            # Dừng và xóa container (giữ volume)
+            docker compose down</div>
         </div>
       </div>
     </div>
@@ -982,6 +889,12 @@
     function openService(port, path) {
       const host = getHost();
       const url = `http://${host}:${port}${path}`;
+      window.open(url, '_blank');
+    }
+
+    function testApiEndpoint(endpoint) {
+      const host = getHost();
+      const url = `http://${host}${endpoint}`;
       window.open(url, '_blank');
     }
 

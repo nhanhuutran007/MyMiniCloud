@@ -1,23 +1,13 @@
+version: "3.9"
 
 networks:
   cloud-net:
     name: cloud-net
 
 services:
-  web-frontend-server-1:
-    image: nhanhuutran007/myminicloud-web-frontend-server:latest
-    container_name: web-frontend-server-1
-    hostname: "1"
-    networks:
-      - cloud-net
-    ports:
-      - "8080:80"
-    restart: unless-stopped
-
-  web-frontend-server-2:
-    image: nhanhuutran007/myminicloud-web-frontend-server:latest
-    container_name: web-frontend-server-2
-    hostname: "2"
+  web-frontend-server:
+    # build: ./web-frontend-server
+    image: nhanhuutran007/myminicloud-web:latest
     networks:
       - cloud-net
     restart: unless-stopped
@@ -137,8 +127,7 @@ services:
     image: nginx:stable
     container_name: api-gateway-proxy-server
     depends_on:
-      - web-frontend-server-1
-      - web-frontend-server-2
+      - web-frontend-server
       - application-backend-server
       - authentication-identity-server
     ports:

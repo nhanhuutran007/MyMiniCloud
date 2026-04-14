@@ -32,7 +32,7 @@ def get_db():
     return pymysql.connect(
         host=os.getenv("DB_HOST", "relational-database-server"),
         user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD") or os.getenv("MYSQL_ROOT_PASSWORD", ""),
+        password=os.getenv("DB_PASSWORD", "root"),
         database=os.getenv("DB_NAME", "studentdb"),
         connect_timeout=5,
         cursorclass=pymysql.cursors.DictCursor,
