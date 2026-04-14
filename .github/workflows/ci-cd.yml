@@ -220,11 +220,14 @@ jobs:
           HOST=$(echo "${{ secrets.MINICLOUD_HOST }}" | sed -e 's|^http://||' -e 's|^https://||' -e 's|/$||' | tr -d ' ' | tr -d '\r')
           echo "CLEAN_HOST=$HOST" >> $GITHUB_ENV
           
-          # SSH config to prevent blocking prompts
+          # SSH config to prevent blocking prompts and connection drops
           cat <<EOF > ~/.ssh/config
           Host *
             StrictHostKeyChecking accept-new
             UserKnownHostsFile ~/.ssh/known_hosts
+            ServerAliveInterval 30
+            ServerAliveCountMax 10
+            TCPKeepAlive yes
           EOF
           
           # Safe keyscan (won't fail the build if it errors)
@@ -271,11 +274,14 @@ jobs:
           HOST=$(echo "${{ secrets.MINICLOUD_HOST }}" | sed -e 's|^http://||' -e 's|^https://||' -e 's|/$||' | tr -d ' ' | tr -d '\r')
           echo "CLEAN_HOST=$HOST" >> $GITHUB_ENV
           
-          # SSH config to prevent blocking prompts
+          # SSH config to prevent blocking prompts and connection drops
           cat <<EOF > ~/.ssh/config
           Host *
             StrictHostKeyChecking accept-new
             UserKnownHostsFile ~/.ssh/known_hosts
+            ServerAliveInterval 30
+            ServerAliveCountMax 10
+            TCPKeepAlive yes
           EOF
           
           # Safe keyscan (won't fail the build if it errors)
