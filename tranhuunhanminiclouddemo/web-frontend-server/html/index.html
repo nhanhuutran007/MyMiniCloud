@@ -419,226 +419,18 @@
       }
     }
 
-    /* ── System Modal ── */
-    .sys-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(2, 6, 23, 0.78);
-      backdrop-filter: blur(6px);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
 
-    .sys-overlay.open {
-      display: flex;
-    }
 
-    .sys-modal {
-      background: rgba(10, 17, 35, 0.97);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      width: 100%;
-      max-width: 760px;
-      max-height: 88vh;
-      overflow-y: auto;
-      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-      animation: fadeUp 0.28s ease both;
-    }
-
-    .sys-modal-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 28px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sys-modal-head h2 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .sys-close {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 4px 10px;
-      transition: 0.2s;
-    }
-
-    .sys-close:hover {
-      color: var(--text);
-      border-color: rgba(251, 191, 36, 0.4);
-    }
-
-    .sys-host-bar {
-      margin: 14px 28px 0;
-      padding: 10px 14px;
-      background: rgba(251, 191, 36, 0.07);
-      border: 1px solid rgba(251, 191, 36, 0.2);
-      border-radius: 10px;
-      font-size: 0.8rem;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .sys-host-bar span {
-      color: var(--accent);
-      font-weight: 600;
-      word-break: break-all;
-    }
-
-    .sys-section {
-      padding: 20px 28px;
-    }
-
-    .sys-section-title {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    .sys-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      transition: border-color 0.2s;
-    }
-
-    .sys-card:hover {
-      border-color: rgba(251, 191, 36, 0.3);
-    }
-
-    .sys-card-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .sys-card-name {
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .sys-badge {
-      font-size: 0.68rem;
-      font-weight: 600;
-      border-radius: 999px;
-      padding: 2px 8px;
-      letter-spacing: 0.05em;
-    }
-
-    .badge-ui {
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-
-    .badge-cli {
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
-      border: 1px solid rgba(99, 102, 241, 0.3);
-    }
-
-    .sys-card-port {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .sys-cmd-block {
-      font-family: 'Courier New', monospace;
-      font-size: 0.78rem;
-      color: #a5b4fc;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 8px;
-      padding: 10px 12px;
-      white-space: pre-wrap;
-      word-break: break-all;
-      line-height: 1.6;
-      cursor: pointer;
-      position: relative;
-      transition: border-color 0.2s;
-    }
-
-    .sys-cmd-block:hover {
-      border-color: rgba(99, 102, 241, 0.5);
-    }
-
-    .sys-cmd-block::after {
-      content: '📋 Copy';
-      position: absolute;
-      top: 6px;
-      right: 8px;
-      font-size: 0.68rem;
-      color: var(--muted);
-      background: rgba(15, 23, 42, 0.8);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    .sys-cmd-block.copied::after {
-      content: '✅ Copied!';
-      color: #4ade80;
-    }
-
-    .sys-btn-open {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      background: linear-gradient(135deg, #f59e0b, #b45309);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      white-space: nowrap;
-      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.25);
-      transition: 0.2s ease;
-      flex-shrink: 0;
-    }
-
-    .sys-btn-open:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.1);
-      box-shadow: 0 8px 24px rgba(251, 191, 36, 0.4);
-    }
-
-    .sys-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 4px 0 16px;
+    /* ── Protected Content Animation ── */
+    #protectedContent.show {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
     }
   </style>
+  
+  <!-- Keycloak Authentication Script -->
+  <script src="keycloak-auth.js"></script>
 </head>
 
 <body>
@@ -654,7 +446,21 @@
         <div class="nav-links">
           <a href="/index.html" class="active" id="nav-home">Home</a>
           <a href="/blog/index.html" id="nav-blog">Blog</a>
-          <a href="#" id="nav-system" onclick="openSysPanel(event)">⚙️ System</a>
+          <a href="#" id="nav-system" onclick="window.open('/system-panel.html', '_blank')">⚙️ System</a>
+          
+          <!-- Authentication UI -->
+          <div id="userInfo" style="display: none; align-items: center; gap: 8px; margin-left: 8px;">
+            <div id="userAvatar" style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white;">U</div>
+            <span id="userName" style="font-size: 0.875rem; font-weight: 500; color: var(--text);">User</span>
+          </div>
+          
+          <button id="loginBtn" onclick="keycloakLogin()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 999px; font-size: 0.875rem; font-weight: 500; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; cursor: pointer; transition: all 0.25s ease;">
+            🔐 Đăng nhập
+          </button>
+          
+          <button id="logoutBtn" onclick="keycloakLogout()" style="display: none; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 999px; font-size: 0.875rem; font-weight: 500; background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); cursor: pointer; transition: all 0.25s ease;">
+            🚪 Đăng xuất
+          </button>
         </div>
       </div>
     </nav>
@@ -691,6 +497,36 @@
             <p class="card-hint">Bắt đầu bằng cách bấm <strong>"Khám phá Blog"</strong> ở bên trái ✨</p>
           </aside>
         </div>
+
+        <!-- Protected Content - chỉ hiển thị khi đã đăng nhập -->
+        <div id="protectedContent" class="hero-inner" style="margin-top: 48px; opacity: 0; transform: translateY(20px); transition: all 0.6s ease; pointer-events: none;">
+          <div>
+            <div class="hero-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">🔐 Nội dung đặc biệt</div>
+            <h2 style="font-size: clamp(1.5rem, 3vw + 1rem, 2.2rem); font-weight: 700; line-height: 1.2; margin-bottom: 16px; color: #10b981;">Chào mừng bạn đã đăng nhập!</h2>
+            <p class="protected-desc" style="font-size: 1rem; color: var(--muted); line-height: 1.75; margin-bottom: 24px; max-width: 480px;">
+              Bạn đã đăng nhập thành công vào hệ thống MyMiniCloud. Giờ đây bạn có thể truy cập các tính năng đặc biệt và API bảo mật.
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+              <button id="secureApiBtn" onclick="testSecureAPI()" style="display: none; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);">
+                🔐 Test Secure API
+              </button>
+            </div>
+          </div>
+          <aside class="hero-card" style="border-color: rgba(16, 185, 129, 0.2);">
+            <div class="card-header">
+              <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">🔒</div>
+              <span class="card-title" style="color: #6ee7b7;">Tính năng đặc biệt</span>
+            </div>
+            <p>Với tài khoản đã xác thực, bạn có thể:</p>
+            <div class="pill-list">
+              <span class="pill" style="border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); color: #10b981;">🔐 API Bảo mật</span>
+              <span class="pill" style="border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); color: #10b981;">👤 Hồ sơ cá nhân</span>
+              <span class="pill" style="border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); color: #10b981;">📊 Dashboard</span>
+            </div>
+            <p>Hệ thống sử dụng Keycloak để xác thực và JWT token để bảo mật API endpoints.</p>
+            <p class="card-hint">Click <strong>"Test Secure API"</strong> để kiểm tra token của bạn ✨</p>
+          </aside>
+        </div>
       </div>
     </section>
     <footer>
@@ -698,219 +534,8 @@
     </footer>
   </div>
 
-  <!-- ══════════════ SYSTEM PANEL MODAL ══════════════ -->
-  <div class="sys-overlay" id="sysOverlay" onclick="closeSysOnBg(event)">
-    <div class="sys-modal" id="sysModal">
-      <div class="sys-modal-head">
-        <h2>⚙️ System Services</h2>
-        <button class="sys-close" onclick="closeSysPanel()">✕ Đóng</button>
-      </div>
-      <div class="sys-host-bar">🌐 Host hiện tại: <span id="sysHostDisplay">đang phát hiện…</span></div>
-
-      <!-- ── UI Services ── -->
-      <div class="sys-section">
-        <div class="sys-section-title">🖥️ UI Services – click để mở giao diện</div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">MinIO Console <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Port: 9001 · Object Storage</div>
-          </div>
-          <button class="sys-btn-open" onclick="openService(9001, '/')">🪣 Mở MinIO</button>
-        </div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">Grafana Dashboard <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Port: 3000 · Monitoring Dashboard</div>
-          </div>
-          <button class="sys-btn-open" onclick="openService(3000, '/')">📊 Mở Grafana</button>
-        </div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">Prometheus <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Port: 9090 · Metrics Backend</div>
-          </div>
-          <button class="sys-btn-open" onclick="openService(9090, '/')">🔥 Mở Prometheus</button>
-        </div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">Keycloak (Identity) <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Port: 8081 · Authentication & SSO</div>
-          </div>
-          <button class="sys-btn-open" onclick="openService(8081, '/admin/master/console/')">🔐 Mở Keycloak</button>
-        </div>
-      </div>
-
-      <hr class="sys-divider" style="margin: 0 28px;">
-
-      <!-- ── API Testing ── -->
-      <div class="sys-section">
-        <div class="sys-section-title">🚀 API Testing – click để test các endpoint</div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">Load Balancer Test <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Port: 80 · Kiểm tra Round Robin Load Balancing</div>
-          </div>
-          <button class="sys-btn-open" onclick="openService(80, '/')">🔄 Test Load Balancer</button>
-        </div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">API Hello Endpoint <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Qua Gateway: /api/hello</div>
-          </div>
-          <button class="sys-btn-open" onclick="testApiEndpoint('/api/hello')">✅ Test Hello API</button>
-        </div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">Student List Endpoint <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Qua Gateway: /student/</div>
-          </div>
-          <button class="sys-btn-open" onclick="testApiEndpoint('/student/')">👥 Test Student API</button>
-        </div>
-
-        <div class="sys-card">
-          <div class="sys-card-info">
-            <div class="sys-card-name">Students Database CRUD <span class="sys-badge badge-ui">UI</span></div>
-            <div class="sys-card-port">Qua Gateway: /api/students-db</div>
-          </div>
-          <button class="sys-btn-open" onclick="testApiEndpoint('/api/students-db')">🗄️ Test Students DB</button>
-        </div>
-      </div>
-
-      <hr class="sys-divider" style="margin: 0 28px;">
-
-      <!-- ── CLI Services ── -->
-      <div class="sys-section">
-        <div class="sys-section-title">🖧 CLI / Command-line Services – click lệnh để copy</div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">MariaDB / Relational Database <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 3306 · Kiểm tra kết nối & dữ liệu</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># Kiểm tra kết nối từ host
-            docker exec -it relational-database-server mariadb -u root -proot -e "SHOW DATABASES;"
-
-            # Kiểm tra dữ liệu bảng sinh viên
-            docker exec -it relational-database-server mariadb -u root -proot studentdb -e "SELECT * FROM students LIMIT
-            10;"</div>
-        </div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Node Exporter <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 9100 · System Metrics Exporter</div>
-          <div class="sys-cmd-block" id="nodeExporterCmd" onclick="copyCmd(this)"># Kiểm tra metrics endpoint
-            curl http://localhost:9100/metrics | head -30
-
-            # Kiểm tra container đang chạy
-            docker ps | grep node-exporter</div>
-        </div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">API Gateway / Nginx Proxy <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 80 · Kiểm tra reverse proxy</div>
-          <div class="sys-cmd-block" id="nginxCmd" onclick="copyCmd(this)"># Kiểm tra nginx config
-            docker exec api-gateway-proxy-server nginx -t
-
-            # Reload nginx không downtime
-            docker exec api-gateway-proxy-server nginx -s reload
-
-            # Xem access log
-            docker logs api-gateway-proxy-server --tail 50</div>
-        </div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Internal DNS (BIND9) <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Port: 1053 · Internal DNS Resolution (ubuntu/bind9)</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># Kiểm tra cấu hình BIND9 có hợp lệ không
-            docker exec internal-dns-server named-checkconf
-
-            # Test phân giải DNS nội bộ qua port 1053
-            nslookup web-frontend-server.cloud.local 127.0.0.1 -port=1053
-
-            # Hoặc dùng dig (nếu có cài trên host)
-            dig @127.0.0.1 -p 1053 web-frontend-server.cloud.local
-
-            # Reload zone mà không restart container
-            docker exec internal-dns-server rndc reload
-
-            # Xem log BIND9
-            docker logs internal-dns-server --tail 30</div>
-        </div>
-
-        <div class="sys-card" style="flex-direction:column;">
-          <div class="sys-card-name">Docker Compose – Toàn bộ Stack <span class="sys-badge badge-cli">CLI</span></div>
-          <div class="sys-card-port">Quản lý vòng đời tất cả containers</div>
-          <div class="sys-cmd-block" onclick="copyCmd(this)"># Xem trạng thái tất cả service
-            docker compose ps
-
-            # Xem log realtime tất cả service
-            docker compose logs -f
-
-            # Khởi động lại toàn bộ
-            docker compose restart
-
-            # Dừng và xóa container (giữ volume)
-            docker compose down</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // ── Phát hiện host (local hay EC2) ──
-    function getHost() {
-      const h = window.location.hostname;
-      // Nếu là localhost / 127.0.0.1 thì dùng localhost, ngược lại dùng IP/hostname EC2
-      return (h === '' || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
-    }
-
-    function openSysPanel(e) {
-      e && e.preventDefault();
-      const host = getHost();
-      document.getElementById('sysHostDisplay').textContent = host;
-      document.getElementById('sysOverlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSysPanel() {
-      document.getElementById('sysOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function closeSysOnBg(e) {
-      if (e.target === document.getElementById('sysOverlay')) closeSysPanel();
-    }
-
-    function openService(port, path) {
-      const host = getHost();
-      const url = `http://${host}:${port}${path}`;
-      window.open(url, '_blank');
-    }
-
-    function testApiEndpoint(endpoint) {
-      const host = getHost();
-      const url = `http://${host}${endpoint}`;
-      window.open(url, '_blank');
-    }
-
-    function copyCmd(el) {
-      const text = el.innerText
-        .replace(/^# .+\n/gm, '')   // bỏ dòng comment
-        .trim();
-      // copy toàn bộ text kể cả comment
-      navigator.clipboard.writeText(el.innerText.trim()).then(() => {
-        el.classList.add('copied');
-        setTimeout(() => el.classList.remove('copied'), 2000);
-      });
-    }
-
-    // ESC để đóng modal
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSysPanel(); });
+    // Không cần JavaScript cho System panel nữa vì đã chuyển sang trang riêng
   </script>
 </body>
 

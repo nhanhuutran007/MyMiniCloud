@@ -47,10 +47,10 @@ Hệ thống sử dụng mạng Docker `cloud-net` (bridge). Mỗi server là m�
 tranhuunhanminiclouddemo/
 ├─ .gitignore                          (Bỏ qua các file không cần thiết trên Git)
 ├─ docker-compose.yml                  (File thiết kế Orchestrator khởi chạy toàn cụm node)
+├─ test-load-balancer.ps1              (Script test Real Load Balancing)
 │
-├─ api-gateway-proxy-server/           (Nginx cấu hình tĩnh Load Balancing & API Gateway)
-│  ├─ nginx.conf                       (Điều phối route và Round Robin)
-│  └─ Dockerfile              
+├─ api-gateway-proxy-server/           (Nginx cấu hình Load Balancing & API Gateway)
+│  └─ nginx.conf                       (Điều phối route và Docker DNS resolution)
 │
 ├─ application-backend-server/         (Ứng dụng Flask đảm nhận RESTful APIs)
 │  ├─ app.py                           (Mã nguồn chính xử lý kết nối Database & Auth Keycloak)
@@ -81,18 +81,10 @@ tranhuunhanminiclouddemo/
 │     ├─ 001_init.sql                  (Cấu hình Scheme Myminicloud)
 │     └─ 002_init.sql                  (Cấu hình Scheme Studentdb)
 │
-├─ web-frontend-server/                (Bản web tĩnh cơ sở mẫu thiết kế UI/UX)
-│  ├─ html/                            (Thư mục chứa mã nguồn website tĩnh: Trang chủ, Blog)
-│  ├─ conf.default                     (Nginx Server block config)
-│  ├─ metrics.txt                      (Trang lộ trình Metrics mẫu để Prometheus theo dõi)
-│  └─ Dockerfile
-│
-├─ web-frontend-server-1/              (Bản sao Frontend làm Node 1 cân bằng tải)
-│  ├─ html/                            (Đã biến thể thành giao diện SERVER 1)
-│  └─ Dockerfile
-│
-└─ web-frontend-server-2/              (Bản sao Frontend làm Node 2 cân bằng tải)
-   ├─ html/                            (Đã biến thể thành giao diện SERVER 2)
+└─ web-frontend-server/                (Web Frontend với Real Load Balancing)
+   ├─ html/                            (Website tĩnh với System Panel tích hợp)
+   ├─ conf.default                     (Nginx config với SSI enabled)
+   ├─ metrics.txt                      (Metrics endpoint cho Prometheus)
    └─ Dockerfile
 ```
 
@@ -104,71 +96,65 @@ tranhuunhanminiclouddemo/
 - Đã cài đặt **Docker** & **Docker Compose**.
 - Các Port sau cần được giải phóng: `80`, `8080`, `8081`, `3306`, `9000`, `9001`, `9090`, `9100`, `3000`, `1053`.
 
-### 5.2. Khởi động hệ thống
+### 5.2. Khởi động hệ thống với Real Load Balancing
 Từ thư mục gốc của dự án, thực hiện các lệnh sau:
 
 ```bash
 # Di chuyển vào thư mục dự án
 cd tranhuunhanminiclouddemo
 
-# Build toàn bộ image (không dùng cache để đảm bảo cập nhật mới nhất)
-docker compose build --no-cache
-
-# Khởi động cả cụm hệ thống
-docker compose up -d
+# Khởi động hệ thống với 3 replicas của web-frontend-server
+docker compose up -d --scale web-frontend-server=3
 
 # Kiểm tra trạng thái các container
 docker compose ps
+
+# Test Real Load Balancing
+./test-load-balancer.ps1
 ```
 
-### 5.3. Script kiểm tra sức khỏe hệ thống
+### 5.3. Kiểm tra Real Load Balancing
 
-Dự án đã bao gồm script tự động kiểm tra tất cả các service:
-
-**Trên Linux/macOS:**
-```bash
-./health-check.sh
-```
+Dự án đã bao gồm script tự động test Real Load Balancing:
 
 **Trên Windows:**
-```cmd
-health-check.bat
+```powershell
+./test-load-balancer.ps1
 ```
 
 Script sẽ tự động:
-- Phát hiện môi trường (Local hoặc EC2)
-- Kiểm tra trạng thái tất cả containers
-- Test các endpoint chính
-- Kiểm tra Load Balancer Round Robin
-- Test kết nối database
-- Hiển thị tóm tắt và quick access links
+- Gửi 10 requests tới hệ thống
+- Hiển thị Container ID của từng request
+- Thống kê số lượng requests được xử lý bởi mỗi container
+- Xác nhận Real Load Balancing đang hoạt động
 
 ---
 
 ## 6. Demo & Kiểm thử từng Server
 
-### 6.1. Web Frontend & Load Balancer
+### 6.1. Web Frontend & Real Load Balancing
 
-**Mục tiêu:** Kiểm tra web tĩnh và khả năng phân tải tự động qua Nginx Load Balancer.
+**Mục tiêu:** Kiểm tra web tĩnh và khả năng phân tải thực sự qua Docker replicas với Nginx Load Balancer.
 
-**Cách thực hiện:** Đóng vai người dùng truy cập trực tiếp vào phân hệ web và tiếp cận thông qua API Gateway.
+**Cách thực hiện:** Truy cập web qua API Gateway và quan sát Container ID thay đổi động.
 
-**Lệnh kiểm tra yêu cầu cơ bản:**
-- Truy cập trực tiếp Web Frontend Server: [http://localhost:8080](http://localhost:8080)
-- Truy cập qua API Gateway (Load Balancer): [http://localhost](http://localhost)
+**Lệnh kiểm tra Real Load Balancing:**
+- Truy cập qua API Gateway: [http://localhost](http://localhost)
+- Quan sát Container ID hiển thị động trên trang web
+- Sử dụng script test tự động: `./test-load-balancer.ps1`
 
-**Lệnh kiểm tra Load Balancer bằng curl:**
+**Lệnh kiểm tra bằng curl:**
 ```bash
-# Kiểm tra Load Balancer Round Robin - chạy nhiều lần để thấy sự thay đổi
-curl -s http://localhost | grep -o "Server [12]"
-curl -s http://localhost | grep -o "Server [12]"
-curl -s http://localhost | grep -o "Server [12]"
+# Kiểm tra Container ID thay đổi - chạy nhiều lần
+curl -s http://localhost | grep -o "Container: [a-f0-9]*"
+curl -s http://localhost | grep -o "Container: [a-f0-9]*"
+curl -s http://localhost | grep -o "Container: [a-f0-9]*"
 ```
 
-**Lệnh kiểm tra yêu cầu mở rộng:**
-- Truy cập [http://localhost](http://localhost) trên trình duyệt và F5 liên tục để thấy text "This is Web Frontend Server 1" và "This is Web Frontend Server 2" luân phiên.
-
-**Kết quả dự kiến:** Trang web sẽ hiển thị luân phiên "Server 1" (màu đỏ) và "Server 2" (màu vàng), chứng minh Load Balancer hoạt động đúng.
+**Kết quả dự kiến:** 
+- Container ID sẽ thay đổi giữa các request, chứng minh Docker đang phân phối traffic giữa các replicas khác nhau
+- Mỗi container hiển thị ID thực của mình thông qua Server Side Includes (SSI)
+- Script test sẽ hiển thị thống kê phân phối requests giữa các containers
 
 ### 6.2. Application Backend (Flask API)
 
@@ -382,118 +368,40 @@ Hãy nhìn vào cột **State** (Trạng thái). Nếu mục `web` hiện chữ 
 - Grafana kết nối luồng dữ liệu trơn tru từ Prometheus.
 - Hiển thị biểu đồ phân tích chuẩn xác cho hệ mét máy chủ (RAM, Disk, Network) và các dịch vụ khác.
 
-### 6.9. API Gateway Proxy Server & Load Balancer Test
+### 6.9. Real Load Balancing với Docker Replicas
 
-**Mục tiêu:** Chứng minh API Gateway hoạt động ổn định và thuật toán phân tải Round Robin của Nginx điều hướng request luân phiên giữa các node.
+**Mục tiêu:** Chứng minh Real Load Balancing hoạt động với Docker replicas thay vì fake load balancing.
 
-**Cách thực hiện:**
+**Cách thực hiện:** Sử dụng Docker Compose scaling để tạo nhiều replicas từ cùng một image.
 
-**Bước 1: Nhân bản Web Server để dễ nhận biết**
-Vào thư mục dự án, nhân bản thư mục `web-frontend-server` làm 2 thư mục mới:
-- `web-frontend-server1`
-- `web-frontend-server2`
-
-Mở file `web-frontend-server1/html/index.html` và sửa thẻ title/tiêu đề thành: `<h1>MyMiniCloud – Home (SERVER 1)</h1>`
-Mở file `web-frontend-server2/html/index.html` và sửa thẻ title/tiêu đề thành: `<h1>MyMiniCloud – Home (SERVER 2)</h1>`
-
-**Bước 2: Cập nhật file docker-compose.yml**
-Mở file `docker-compose.yml`, xóa khối cấu hình `web-frontend-server` cũ và thêm 2 khối mới vào vị trí đó:
-```yaml
-  web-frontend-server1:
-    build: ./web-frontend-server1
-    container_name: web-frontend-server1
-    networks: [cloud-net]
-
-  web-frontend-server2:
-    build: ./web-frontend-server2
-    container_name: web-frontend-server2
-    networks: [cloud-net]
-```
-Tiếp tục tìm phần `api-gateway-proxy-server`. Cập nhật mục `depends_on`:
-```yaml
-  api-gateway-proxy-server:
-    image: nginx:stable
-    container_name: api-gateway-proxy-server
-    depends_on:
-      - web-frontend-server1
-      - web-frontend-server2
-      - application-backend-server
-      - authentication-identity-server
-    ports: [ "80:80" ]
-    volumes:
-      - ./api-gateway-proxy-server/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks: [cloud-net]
-    restart: unless-stopped
-```
-
-**Bước 3: Cấu hình Load Balancer (Round Robin) & Route /student**
-Mở file `api-gateway-proxy-server/nginx.conf`. Xóa toàn bộ nội dung cũ và chép đoạn cấu hình dưới đây vào:
-```nginx
-events {}
-http {
-    upstream web_cluster {
-        server web-frontend-server1:80;
-        server web-frontend-server2:80;
-    }
-
-    server {
-        listen 80;
-
-        location / {
-            proxy_pass http://web_cluster;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        location /student/ {
-            proxy_pass http://application-backend-server:8081/student;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-        }
-
-        location /api/ {
-            proxy_pass http://application-backend-server:8081/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-        }
-
-        location /auth/ {
-            proxy_pass http://authentication-identity-server:8080/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-        }
-    }
-}
-```
-
-**Bước 4: Khởi động lại hệ thống**
-Mở Terminal, chạy 2 lệnh sau để Docker cập nhật kiến trúc:
+**Bước 1: Khởi động hệ thống với multiple replicas**
 ```bash
-docker compose down
-docker compose up -d --build
+# Khởi động với 3 replicas của web-frontend-server
+docker compose up -d --scale web-frontend-server=3
+
+# Kiểm tra các replicas đã được tạo
+docker compose ps | grep web-frontend-server
 ```
 
-**Kiểm tra và thực hiện:**
-
-**1. Kiểm thử Route /student/:**
-Mở Terminal, chạy lệnh:
+**Bước 2: Test Real Load Balancing**
 ```bash
-curl http://localhost/student/
+# Sử dụng script test tự động
+./test-load-balancer.ps1
+
+# Hoặc test thủ công bằng curl
+for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done
 ```
 
-**2. Kiểm thử Cân Bằng Tải (Load Balancing):**
-Mở trình duyệt Web, truy cập URL: `http://localhost/`
-
-- Lần 1: Giao diện sẽ hiện chữ **MyMiniCloud – Home (SERVER 1)**.
-- Tải lại trang (F5): Giao diện đổi thành **MyMiniCloud – Home (SERVER 2)**.
-- Tải lại trang lần nữa (F5): Giao diện quay về **SERVER 1**.
-(Trang web sẽ tự động luân phiên đổi qua đổi lại giữa 2 server).
+**Bước 3: Quan sát Container ID thay đổi**
+- Truy cập [http://localhost](http://localhost) trên trình duyệt
+- Refresh trang nhiều lần (F5)
+- Quan sát Container ID hiển thị ở giữa header thay đổi liên tục
 
 **Kết quả dự kiến:**
-- Lệnh curl trả về danh sách sinh viên định dạng JSON.
-- Giao diện người dùng trên web luân chuyển tự động, chứng minh Load Balancer hoạt động thành công.
+- Script test hiển thị 3 Container IDs khác nhau xử lý requests
+- Mỗi container hiển thị ID thực thông qua Server Side Includes (SSI)
+- Requests được phân phối đều giữa các replicas (Round Robin)
+- Chứng minh Docker đang thực hiện Real Load Balancing thay vì fake
 
 ---
 
@@ -601,13 +509,70 @@ curl -I http://localhost:3000 # Grafana
 curl -I http://localhost:9090 # Prometheus
 ```
 
-### 7.2. Push Image lên Docker Hub
-Các image tùy chỉnh của hệ thống (bao gồm Web Server và Application Backend) đã được triển khai và đẩy trực tiếp lên kho chứa Docker Hub để sẵn sàng pull về trên môi trường Cloud thực tế (như AWS EC2):
+### 8.2. Docker Images & Real Load Balancing Architecture
 
-- **Docker Hub Profile:** [https://hub.docker.com/u/nhanhuutran007](https://hub.docker.com/u/nhanhuutran007)
-- **Các Repository chính:**
-  - `nhanhuutran007/myminicloud-web:latest`
-  - `nhanhuutran007/myminicloud-web1:latest`
-  - `nhanhuutran007/myminicloud-web2:latest`
-  - `nhanhuutran007/myminicloud-app:latest`
+Hệ thống đã được refactoring từ "fake load balancing" sang **Real Load Balancing** với Docker replicas. Các image tùy chỉnh đã được tối ưu hóa:
+
+**Docker Hub Profile:** [https://hub.docker.com/u/nhanhuutran007](https://hub.docker.com/u/nhanhuutran007)
+
+**Images hiện tại:**
+- `nhanhuutran007/myminicloud-web:latest` - Web Frontend Server (với SSI và System Panel)
+- `nhanhuutran007/myminicloud-app:latest` - Application Backend API
+
+**Kiến trúc Real Load Balancing:**
+- Sử dụng Docker Compose scaling: `--scale web-frontend-server=3`
+- Một image duy nhất được replicated thành nhiều containers
+- Docker tự động phân phối traffic qua internal DNS
+- Container ID hiển thị động qua Server Side Includes (SSI)
+
+**System Panel tích hợp:**
+- Truy cập nút "⚙️ System" trên header của website
+- Giao diện quản lý tập trung cho tất cả services
+- Các nút truy cập nhanh đến dashboards (Grafana, Prometheus, MinIO, Keycloak)
+- Test endpoints API trực tiếp từ giao diện web
+- Copy commands CLI để quản lý hệ thống
+
+---
+
+## 9. Tính năng mới - System Panel
+
+### 9.1. Truy cập System Panel
+- Mở [http://localhost](http://localhost) 
+- Click nút **"⚙️ System"** ở header
+- System Panel sẽ tự động phát hiện host (localhost hoặc EC2 IP)
+
+### 9.2. Các tính năng chính
+**UI Services:** Các nút để mở trực tiếp giao diện web
+- MinIO Console (Object Storage)
+- Grafana Dashboard (Monitoring)
+- Prometheus (Metrics Backend)
+- Keycloak (Authentication & SSO)
+
+**API Testing:** Test endpoints trực tiếp từ giao diện
+- Load Balancer Test
+- API Hello Endpoint
+- Student List Endpoint
+- **Students Database CRUD** (Mới thêm)
+
+**CLI Commands:** Copy lệnh để chạy trong terminal
+- MariaDB database commands
+- Docker Compose management
+- Nginx proxy commands
+- DNS server commands
+- System monitoring commands
+
+**Students Display:** Hiển thị danh sách sinh viên trực tiếp trên trang chủ
+- **Tự động tải dữ liệu** từ MariaDB hoặc JSON file
+- **Fallback mechanism** - Nếu MariaDB không khả dụng, tự động chuyển sang JSON file
+- **Real-time data** - Hiển thị dữ liệu thời gian thực từ backend
+- **Responsive design** - Giao diện thích ứng với mọi kích thước màn hình
+
+**Keycloak Authentication Integration:** Tích hợp đăng nhập SSO với Keycloak
+- **Single Sign-On (SSO)** - Đăng nhập một lần, truy cập tất cả services
+- **User Profile Display** - Hiển thị thông tin user khi đã đăng nhập
+- **Protected Content** - Nội dung chỉ hiển thị cho user đã xác thực
+- **Secure API Testing** - Test API bảo mật với JWT token
+- **Auto Token Refresh** - Tự động refresh token khi hết hạn
+- **Seamless Integration** - Tích hợp mượt mà với Keycloak JavaScript Adapter
+
 

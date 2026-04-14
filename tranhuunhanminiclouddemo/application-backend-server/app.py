@@ -139,6 +139,31 @@ def student():
     return html, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
+# ── /student/json  (JSON API) ─────────────────────────────────────────────────
+@app.get("/student/json")
+def student_json():
+    try:
+        with open("students.json", encoding="utf-8") as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+
+# ── /students-db/json  (JSON API from MariaDB) ───────────────────────────────
+@app.get("/students-db/json")
+def students_db_json():
+    try:
+        conn = get_db()
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT id, student_id, fullname, dob, major FROM students ORDER BY id")
+                data = cur.fetchall()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+
 # ── /students-db  CRUD page ───────────────────────────────────────────────────
 @app.route("/students-db", methods=["GET", "POST"])
 def students_db():

@@ -1,5 +1,3 @@
-version: "3.9"
-
 networks:
   cloud-net:
     name: cloud-net
@@ -15,11 +13,8 @@ services:
   application-backend-server:
     # build: ./application-backend-server
     image: nhanhuutran007/myminicloud-app:latest
-    container_name: application-backend-server
     networks:
       - cloud-net
-    ports:
-      - "8085:8081"
     environment:
       OIDC_ISSUER: "http://authentication-identity-server:8080/realms/TranHuuNhan_52300235"
       OIDC_AUDIENCE: "account"
