@@ -213,19 +213,32 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.MINICLOUD_SSH_KEY }}" > ~/.ssh/minicloud-key.pem
+          echo "${{ secrets.MINICLOUD_SSH_KEY }}" | tr -d '\r' > ~/.ssh/minicloud-key.pem
           chmod 600 ~/.ssh/minicloud-key.pem
-          ssh-keyscan -H ${{ secrets.MINICLOUD_HOST }} >> ~/.ssh/known_hosts
+          
+          # Clean the host variable to remove http:// or spaces
+          HOST=$(echo "${{ secrets.MINICLOUD_HOST }}" | sed -e 's|^http://||' -e 's|^https://||' -e 's|/$||' | tr -d ' ' | tr -d '\r')
+          echo "CLEAN_HOST=$HOST" >> $GITHUB_ENV
+          
+          # SSH config to prevent blocking prompts
+          cat <<EOF > ~/.ssh/config
+          Host *
+            StrictHostKeyChecking accept-new
+            UserKnownHostsFile ~/.ssh/known_hosts
+          EOF
+          
+          # Safe keyscan (won't fail the build if it errors)
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts || true
       
       - name: Deploy to staging
         run: |
-          echo "🚀 Deploying to Staging..."
+          echo "🚀 Deploying to Staging on $CLEAN_HOST..."
           
           # Copy deployment script to server
-          scp -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@${{ secrets.MINICLOUD_HOST }}:/tmp/
+          scp -v -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
           
           # Run deployment
-          ssh -i ~/.ssh/minicloud-key.pem ubuntu@${{ secrets.MINICLOUD_HOST }} '
+          ssh -v -i ~/.ssh/minicloud-key.pem ubuntu@$CLEAN_HOST '
             export PROJECT_NAME="MyMiniCloud"
             export DEPLOY_PATH="/home/ubuntu/MyMiniCloud/tranhuunhanminiclouddemo"
             export BRANCH="develop"
@@ -251,19 +264,32 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.MINICLOUD_SSH_KEY }}" > ~/.ssh/minicloud-key.pem
+          echo "${{ secrets.MINICLOUD_SSH_KEY }}" | tr -d '\r' > ~/.ssh/minicloud-key.pem
           chmod 600 ~/.ssh/minicloud-key.pem
-          ssh-keyscan -H ${{ secrets.MINICLOUD_HOST }} >> ~/.ssh/known_hosts
+          
+          # Clean the host variable to remove http:// or spaces
+          HOST=$(echo "${{ secrets.MINICLOUD_HOST }}" | sed -e 's|^http://||' -e 's|^https://||' -e 's|/$||' | tr -d ' ' | tr -d '\r')
+          echo "CLEAN_HOST=$HOST" >> $GITHUB_ENV
+          
+          # SSH config to prevent blocking prompts
+          cat <<EOF > ~/.ssh/config
+          Host *
+            StrictHostKeyChecking accept-new
+            UserKnownHostsFile ~/.ssh/known_hosts
+          EOF
+          
+          # Safe keyscan (won't fail the build if it errors)
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts || true
       
       - name: Deploy to production
         run: |
-          echo "🚀 Deploying to Production..."
+          echo "🚀 Deploying to Production on $CLEAN_HOST..."
           
           # Copy deployment script to server
-          scp -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@${{ secrets.MINICLOUD_HOST }}:/tmp/
+          scp -v -i ~/.ssh/minicloud-key.pem .github/scripts/deploy.sh ubuntu@$CLEAN_HOST:/tmp/
           
           # Run deployment
-          ssh -i ~/.ssh/minicloud-key.pem ubuntu@${{ secrets.MINICLOUD_HOST }} '
+          ssh -v -i ~/.ssh/minicloud-key.pem ubuntu@$CLEAN_HOST '
             export PROJECT_NAME="MyMiniCloud"
             export DEPLOY_PATH="/home/ubuntu/MyMiniCloud/tranhuunhanminiclouddemo"
             export BRANCH="main"
