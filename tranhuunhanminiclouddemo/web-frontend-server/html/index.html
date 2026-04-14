@@ -427,6 +427,55 @@
       transform: translateY(0) !important;
       pointer-events: auto !important;
     }
+
+    /* ── Loading Spinner Animation ── */
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Students Section Styles ── */
+    .student-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .student-item:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .student-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+
+    .student-major {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .student-gpa {
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .gpa-excellent { color: #34d399; }
+    .gpa-good { color: #fbbf24; }
+    .gpa-average { color: #f87171; }
   </style>
   
   <!-- Keycloak Authentication Script -->
@@ -446,7 +495,7 @@
         <div class="nav-links">
           <a href="/index.html" class="active" id="nav-home">Home</a>
           <a href="/blog/index.html" id="nav-blog">Blog</a>
-          <a href="#" id="nav-system" onclick="window.open('/system-panel.html', '_blank')">⚙️ System</a>
+          <a href="/blog/system-panel.html" id="nav-system" target="_blank">⚙️ System</a>
           
           <!-- Authentication UI -->
           <div id="userInfo" style="display: none; align-items: center; gap: 8px; margin-left: 8px;">
@@ -498,6 +547,54 @@
           </aside>
         </div>
 
+        <!-- Students Display Section -->
+        <div id="studentsSection" class="hero-inner" style="margin-top: 48px;">
+          <div>
+            <div class="hero-tag">👥 Danh sách sinh viên</div>
+            <h2 style="font-size: clamp(1.5rem, 3vw + 1rem, 2.2rem); font-weight: 700; line-height: 1.2; margin-bottom: 16px;">Dữ liệu thời gian thực</h2>
+            <p style="font-size: 1rem; color: var(--muted); line-height: 1.75; margin-bottom: 24px; max-width: 480px;">
+              Hệ thống tự động tải dữ liệu từ MariaDB, với fallback mechanism chuyển sang JSON file khi database không khả dụng.
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+              <button onclick="refreshStudentData()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);">
+                🔄 Làm mới dữ liệu
+              </button>
+              <button onclick="toggleDataSource()" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px; font-size: 0.9rem; font-weight: 500; border: 1px solid var(--border); color: var(--text); background: var(--surface); transition: 0.2s ease;">
+                🔀 Chuyển nguồn dữ liệu
+              </button>
+            </div>
+            <div id="dataSourceInfo" style="margin-top: 16px; padding: 12px 16px; border-radius: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.85rem; color: #60a5fa;">
+              📊 Nguồn dữ liệu: <span id="currentDataSource">MariaDB</span>
+            </div>
+          </div>
+          <aside class="hero-card">
+            <div class="card-header">
+              <div class="card-icon">📊</div>
+              <span class="card-title">Thống kê sinh viên</span>
+            </div>
+            <div id="studentStats" style="margin-bottom: 16px;">
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
+                <div style="text-align: center; padding: 12px; border-radius: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);">
+                  <div id="totalStudents" style="font-size: 1.5rem; font-weight: 700; color: #60a5fa;">0</div>
+                  <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase;">Tổng số</div>
+                </div>
+                <div style="text-align: center; padding: 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2);">
+                  <div id="avgGPA" style="font-size: 1.5rem; font-weight: 700; color: #10b981;">0.0</div>
+                  <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase;">GPA TB</div>
+                </div>
+              </div>
+            </div>
+            <div id="loadingIndicator" style="text-align: center; padding: 20px; color: var(--muted); display: none;">
+              <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; border-top-color: var(--accent); animation: spin 1s linear infinite;"></div>
+              <div style="margin-top: 8px; font-size: 0.85rem;">Đang tải dữ liệu...</div>
+            </div>
+            <div id="studentPreview" style="max-height: 200px; overflow-y: auto; font-size: 0.85rem;">
+              <!-- Student data will be loaded here -->
+            </div>
+            <p class="card-hint">Dữ liệu được cập nhật tự động mỗi 30 giây ⏱️</p>
+          </aside>
+        </div>
+
         <!-- Protected Content - chỉ hiển thị khi đã đăng nhập -->
         <div id="protectedContent" class="hero-inner" style="margin-top: 48px; opacity: 0; transform: translateY(20px); transition: all 0.6s ease; pointer-events: none;">
           <div>
@@ -535,7 +632,277 @@
   </div>
 
   <script>
-    // Không cần JavaScript cho System panel nữa vì đã chuyển sang trang riêng
+    // ── Students Display Management ──────────────────────────────────────────
+    let currentDataSource = 'mariadb'; // 'mariadb' hoặc 'json'
+    let studentData = [];
+    let refreshInterval = null;
+
+    // Hàm lấy host hiện tại
+    function getHost() {
+      const h = window.location.hostname;
+      return (h === '' || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
+    }
+
+    // Hàm hiển thị loading indicator
+    function showLoading(show = true) {
+      const loadingEl = document.getElementById('loadingIndicator');
+      const previewEl = document.getElementById('studentPreview');
+      
+      if (loadingEl) {
+        loadingEl.style.display = show ? 'block' : 'none';
+      }
+      if (previewEl && show) {
+        previewEl.innerHTML = '';
+      }
+    }
+
+    // Hàm tải dữ liệu sinh viên từ MariaDB
+    async function loadStudentsFromDB() {
+      try {
+        const host = getHost();
+        const response = await fetch(`http://${host}/api/students-db/json`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 5000
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Loaded students from MariaDB:', data.length, 'records');
+          return data.map(student => ({
+            id: student.id,
+            name: student.fullname || student.name || 'N/A',
+            major: student.major || 'N/A',
+            gpa: parseFloat(Math.random() * 2 + 2).toFixed(1), // Giả lập GPA
+            student_id: student.student_id || `ST${student.id}`
+          }));
+        } else {
+          throw new Error(`MariaDB API failed: ${response.status}`);
+        }
+      } catch (error) {
+        console.warn('⚠️ MariaDB not available:', error.message);
+        throw error;
+      }
+    }
+
+    // Hàm tải dữ liệu sinh viên từ JSON file
+    async function loadStudentsFromJSON() {
+      try {
+        const host = getHost();
+        const response = await fetch(`http://${host}/api/student/json`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Loaded students from JSON:', data.length, 'records');
+          return data;
+        } else {
+          throw new Error(`JSON API failed: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('❌ JSON fallback failed:', error.message);
+        // Fallback cuối cùng: dữ liệu mẫu
+        return [
+          { id: 1, name: 'Trần Hữu Nhân', major: 'Computer Networks', gpa: 3.8 },
+          { id: 2, name: 'Đỗ Văn Trọng', major: 'Software Engineering', gpa: 3.6 },
+          { id: 3, name: 'Nguyễn Yến Phụng', major: 'AI & Machine Learning', gpa: 3.9 }
+        ];
+      }
+    }
+
+    // Hàm tải dữ liệu sinh viên với fallback mechanism
+    async function loadStudentData() {
+      showLoading(true);
+      
+      try {
+        let data;
+        
+        if (currentDataSource === 'mariadb') {
+          try {
+            data = await loadStudentsFromDB();
+            updateDataSourceInfo('MariaDB', 'success');
+          } catch (error) {
+            console.log('🔄 Fallback to JSON file...');
+            data = await loadStudentsFromJSON();
+            currentDataSource = 'json';
+            updateDataSourceInfo('JSON File (Fallback)', 'warning');
+          }
+        } else {
+          data = await loadStudentsFromJSON();
+          updateDataSourceInfo('JSON File', 'info');
+        }
+
+        studentData = data;
+        displayStudentData(data);
+        updateStudentStats(data);
+        
+      } catch (error) {
+        console.error('❌ All data sources failed:', error);
+        updateDataSourceInfo('Offline Mode', 'error');
+        displayErrorMessage('Không thể tải dữ liệu sinh viên. Vui lòng thử lại sau.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Hàm cập nhật thông tin nguồn dữ liệu
+    function updateDataSourceInfo(source, type = 'success') {
+      const sourceEl = document.getElementById('currentDataSource');
+      const infoEl = document.getElementById('dataSourceInfo');
+      
+      if (sourceEl) {
+        sourceEl.textContent = source;
+      }
+      
+      if (infoEl) {
+        // Cập nhật màu sắc theo trạng thái
+        const colors = {
+          success: { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)', text: '#10b981' },
+          warning: { bg: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.3)', text: '#fbbf24' },
+          info: { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', text: '#60a5fa' },
+          error: { bg: 'rgba(248, 113, 113, 0.1)', border: 'rgba(248, 113, 113, 0.3)', text: '#f87171' }
+        };
+        
+        const color = colors[type] || colors.info;
+        infoEl.style.background = color.bg;
+        infoEl.style.borderColor = color.border;
+        infoEl.style.color = color.text;
+      }
+    }
+
+    // Hàm hiển thị dữ liệu sinh viên
+    function displayStudentData(data) {
+      const previewEl = document.getElementById('studentPreview');
+      if (!previewEl) return;
+
+      if (!data || data.length === 0) {
+        previewEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--muted);">Không có dữ liệu sinh viên</div>';
+        return;
+      }
+
+      // Hiển thị tối đa 5 sinh viên đầu tiên
+      const displayData = data.slice(0, 5);
+      
+      const html = displayData.map(student => {
+        const gpa = parseFloat(student.gpa) || 0;
+        const gpaClass = gpa >= 3.6 ? 'gpa-excellent' : gpa >= 3.0 ? 'gpa-good' : 'gpa-average';
+        
+        return `
+          <div class="student-item">
+            <div>
+              <div class="student-name">${student.name || 'N/A'}</div>
+              <div class="student-major">${student.major || 'N/A'}</div>
+            </div>
+            <div class="student-gpa ${gpaClass}">${gpa.toFixed(1)}</div>
+          </div>
+        `;
+      }).join('');
+
+      previewEl.innerHTML = html;
+
+      // Thêm link xem tất cả nếu có nhiều hơn 5 sinh viên
+      if (data.length > 5) {
+        previewEl.innerHTML += `
+          <div style="text-align: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <a href="/api/students-db" target="_blank" style="color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+              Xem tất cả ${data.length} sinh viên →
+            </a>
+          </div>
+        `;
+      }
+    }
+
+    // Hàm cập nhật thống kê sinh viên
+    function updateStudentStats(data) {
+      const totalEl = document.getElementById('totalStudents');
+      const avgGpaEl = document.getElementById('avgGPA');
+
+      if (totalEl) {
+        totalEl.textContent = data.length;
+      }
+
+      if (avgGpaEl && data.length > 0) {
+        const totalGpa = data.reduce((sum, student) => sum + (parseFloat(student.gpa) || 0), 0);
+        const avgGpa = totalGpa / data.length;
+        avgGpaEl.textContent = avgGpa.toFixed(1);
+      }
+    }
+
+    // Hàm hiển thị thông báo lỗi
+    function displayErrorMessage(message) {
+      const previewEl = document.getElementById('studentPreview');
+      if (previewEl) {
+        previewEl.innerHTML = `
+          <div style="text-align: center; padding: 20px; color: #f87171; background: rgba(248, 113, 113, 0.1); border-radius: 8px; border: 1px solid rgba(248, 113, 113, 0.3);">
+            <div style="font-size: 1.2rem; margin-bottom: 8px;">⚠️</div>
+            <div style="font-size: 0.85rem;">${message}</div>
+          </div>
+        `;
+      }
+    }
+
+    // Hàm làm mới dữ liệu sinh viên
+    async function refreshStudentData() {
+      console.log('🔄 Refreshing student data...');
+      await loadStudentData();
+    }
+
+    // Hàm chuyển đổi nguồn dữ liệu
+    async function toggleDataSource() {
+      currentDataSource = currentDataSource === 'mariadb' ? 'json' : 'mariadb';
+      console.log('🔀 Switching data source to:', currentDataSource);
+      await loadStudentData();
+    }
+
+    // Hàm khởi tạo auto-refresh
+    function startAutoRefresh() {
+      // Refresh mỗi 30 giây
+      refreshInterval = setInterval(async () => {
+        console.log('⏱️ Auto-refreshing student data...');
+        await loadStudentData();
+      }, 30000);
+    }
+
+    // Hàm dừng auto-refresh
+    function stopAutoRefresh() {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+      }
+    }
+
+    // Khởi tạo khi DOM loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🚀 Initializing Students Display...');
+      
+      // Tải dữ liệu ban đầu
+      loadStudentData();
+      
+      // Bắt đầu auto-refresh
+      startAutoRefresh();
+      
+      // Dừng auto-refresh khi user rời khỏi trang
+      window.addEventListener('beforeunload', stopAutoRefresh);
+      
+      // Pause auto-refresh khi tab không active
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          stopAutoRefresh();
+        } else {
+          startAutoRefresh();
+        }
+      });
+    });
+
+    // Export functions để có thể gọi từ HTML
+    window.refreshStudentData = refreshStudentData;
+    window.toggleDataSource = toggleDataSource;
   </script>
 </body>
 

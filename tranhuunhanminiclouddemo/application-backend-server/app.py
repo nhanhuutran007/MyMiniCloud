@@ -62,15 +62,36 @@ def hello():
 def secure():
     auth = request.headers.get("Authorization", "")
     if not auth.startswith("Bearer "):
-        return jsonify(error="Missing Bearer token"), 401
+        return jsonify(error="Missing Bearer token", message="Vui lòng cung cấp JWT token trong header Authorization"), 401
+    
     token = auth.split(" ", 1)[1]
     try:
         payload = jwt.decode(token, get_jwks(), algorithms=["RS256"],
                              audience=AUDIENCE, options={"verify_iss": False})
-        return jsonify(message="Secure resource OK",
-                       preferred_username=payload.get("preferred_username"))
+        
+        # Trả về thông tin chi tiết cho secure API
+        return jsonify({
+            "message": "✅ Secure API access granted",
+            "user": {
+                "username": payload.get("preferred_username", "unknown"),
+                "email": payload.get("email", "N/A"),
+                "roles": payload.get("realm_access", {}).get("roles", []),
+                "client_roles": payload.get("resource_access", {})
+            },
+            "token_info": {
+                "issued_at": payload.get("iat"),
+                "expires_at": payload.get("exp"),
+                "issuer": payload.get("iss")
+            },
+            "timestamp": time.time(),
+            "server": "MyMiniCloud Backend"
+        })
     except Exception as e:
-        return jsonify(error=str(e)), 401
+        return jsonify(
+            error="Invalid JWT token", 
+            details=str(e),
+            message="Token không hợp lệ hoặc đã hết hạn"
+        ), 401
 
 
 # ── /student  (JSON file) ─────────────────────────────────────────────────────

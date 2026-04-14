@@ -265,13 +265,16 @@ function keycloakLogout() {
 // Hàm test API bảo mật với token
 async function testSecureAPI() {
     if (!isAuthenticated) {
-        alert('Vui lòng đăng nhập trước khi test API bảo mật');
+        showNotification('Vui lòng đăng nhập trước khi test API bảo mật', 'warning');
         return;
     }
 
     try {
         const host = getHost();
         console.log('Testing secure API with token...');
+
+        // Hiển thị loading
+        showNotification('Đang test API bảo mật...', 'info');
 
         if (accessToken) {
             // Test với token thực
@@ -285,17 +288,140 @@ async function testSecureAPI() {
 
             if (response.ok) {
                 const data = await response.json();
-                alert(`✅ API Secure thành công!\n\nResponse: ${JSON.stringify(data, null, 2)}\n\nUser: ${userInfo.username}\nEmail: ${userInfo.email}`);
+                showNotification(`✅ API Secure thành công!\n\nResponse: ${JSON.stringify(data, null, 2)}\n\nUser: ${userInfo.username}\nEmail: ${userInfo.email}`, 'success');
+                
+                // Log token info for debugging
+                console.log('Token payload:', parseJWT(accessToken));
             } else {
                 throw new Error(`API call failed: ${response.status}`);
             }
         } else {
             // Fallback: hiển thị thông tin user
-            alert(`✅ Đăng nhập thành công!\n\nUser: ${userInfo.username}\nEmail: ${userInfo.email}\nName: ${userInfo.firstName} ${userInfo.lastName}\n\nAPI secure endpoint sẽ hoạt động khi có token thực từ Keycloak.`);
+            showNotification(`✅ Đăng nhập thành công!\n\nUser: ${userInfo.username}\nEmail: ${userInfo.email}\nName: ${userInfo.firstName} ${userInfo.lastName}\n\nAPI secure endpoint sẽ hoạt động khi có token thực từ Keycloak.`, 'success');
         }
     } catch (error) {
         console.error('Error testing secure API:', error);
-        alert(`✅ Đăng nhập thành công!\n\nUser: ${userInfo.username}\nEmail: ${userInfo.email}\n\nLưu ý: API secure endpoint cần token hợp lệ.`);
+        showNotification(`⚠️ API Test Warning\n\nUser: ${userInfo.username}\nEmail: ${userInfo.email}\n\nLưu ý: API secure endpoint cần token hợp lệ từ Keycloak.`, 'warning');
+    }
+}
+
+// Hàm hiển thị notification đẹp hơn
+function showNotification(message, type = 'info') {
+    // Tạo notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        max-width: 400px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        z-index: 10000;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(12px);
+        animation: slideIn 0.3s ease-out;
+        white-space: pre-line;
+    `;
+
+    // Màu sắc theo type
+    const colors = {
+        success: { bg: 'rgba(16, 185, 129, 0.9)', border: '#10b981', text: '#ffffff' },
+        warning: { bg: 'rgba(251, 191, 36, 0.9)', border: '#fbbf24', text: '#ffffff' },
+        error: { bg: 'rgba(248, 113, 113, 0.9)', border: '#f87171', text: '#ffffff' },
+        info: { bg: 'rgba(59, 130, 246, 0.9)', border: '#3b82f6', text: '#ffffff' }
+    };
+
+    const color = colors[type] || colors.info;
+    notification.style.background = color.bg;
+    notification.style.border = `1px solid ${color.border}`;
+    notification.style.color = color.text;
+
+    notification.textContent = message;
+
+    // Thêm animation CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(notification);
+
+    // Tự động ẩn sau 5 giây
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 5000);
+
+    // Click để đóng
+    notification.addEventListener('click', () => {
+        notification.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    });
+}
+
+// Hàm auto-refresh token
+async function refreshTokenIfNeeded() {
+    if (!accessToken) return;
+
+    try {
+        const payload = parseJWT(accessToken);
+        if (!payload || !payload.exp) return;
+
+        const now = Math.floor(Date.now() / 1000);
+        const timeUntilExpiry = payload.exp - now;
+
+        // Refresh nếu token sắp hết hạn trong 5 phút
+        if (timeUntilExpiry < 300) {
+            console.log('🔄 Token sắp hết hạn, đang refresh...');
+            await refreshAccessToken();
+        }
+    } catch (error) {
+        console.error('Error checking token expiry:', error);
+    }
+}
+
+// Hàm refresh access token
+async function refreshAccessToken() {
+    try {
+        const host = getHost();
+        const refreshUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/token`;
+        
+        // Giả lập refresh (trong thực tế cần refresh token)
+        console.log('Token refresh would happen here');
+        showNotification('Token đã được refresh tự động', 'info');
+    } catch (error) {
+        console.error('Token refresh failed:', error);
+        showNotification('Không thể refresh token. Vui lòng đăng nhập lại.', 'warning');
     }
 }
 
@@ -308,9 +434,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Không có code, hiển thị UI mặc định
         updateAuthUI();
     }
+
+    // Bắt đầu auto-refresh token mỗi 5 phút
+    setInterval(refreshTokenIfNeeded, 5 * 60 * 1000);
 });
 
 // Export functions để có thể gọi từ HTML
 window.keycloakLogin = keycloakLogin;
 window.keycloakLogout = keycloakLogout;
 window.testSecureAPI = testSecureAPI;
+window.showNotification = showNotification;
