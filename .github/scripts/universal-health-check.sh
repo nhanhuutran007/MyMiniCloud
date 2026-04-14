@@ -159,14 +159,15 @@ test_load_balancer() {
     local servers_found=()
     
     for i in {1..5}; do
-        result=$(curl -s "http://$HOST" | grep -o "Server [12]" || echo "No server info")
+        result=$(curl -s "http://$HOST" | grep -oEi "Server_[a-zA-Z0-9_-]+|Server [a-zA-Z0-9_-]+" | head -1 || echo "No server info")
         servers_found+=("$result")
         log_info "Request $i: $result"
     done
     
-    # Check if we got both servers (indicating load balancing)
-    if printf '%s\n' "${servers_found[@]}" | grep -q "Server 1" && \
-       printf '%s\n' "${servers_found[@]}" | grep -q "Server 2"; then
+    # Check if we got more than 1 unique server
+    unique_servers=$(printf '%s\n' "${servers_found[@]}" | grep -v "No server info" | sort -u | wc -l)
+    
+    if [ "$unique_servers" -ge 2 ]; then
         log_success "Load Balancer is working (Round Robin detected)"
         return 0
     else
