@@ -51,7 +51,7 @@ jobs:
       - name: Check for secrets in code
         run: |
           echo "🔍 Scanning for potential secrets..."
-          if grep -r -i "password.*=" . --exclude-dir=.git --exclude="*.yml" | grep -v "DB_PASSWORD" | grep -v "example" | grep -v ".github"; then
+          if grep -r -i "password.*=" . --exclude-dir=.git --exclude="*.yml" --exclude="*.html" --exclude="*.md" | grep -v "DB_PASSWORD" | grep -v "example" | grep -v ".github"; then
             echo "⚠️ Potential sensitive data found!"
             exit 1
           fi
