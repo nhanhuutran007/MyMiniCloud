@@ -106,7 +106,7 @@ check_http_endpoints() {
             log_success "$desc - http://$url"
         else
             log_error "$desc - http://$url"
-            ((failed++))
+            failed=$((failed + 1))
         fi
     done
     
@@ -139,7 +139,7 @@ test_api_endpoints() {
             log_success "$desc - http://$HOST$endpoint"
         else
             log_error "$desc - http://$HOST$endpoint (HTTP $response)"
-            ((failed++))
+            failed=$((failed + 1))
         fi
     done
     
@@ -227,10 +227,10 @@ main() {
     )
     
     for check in "${checks[@]}"; do
-        ((total_checks++))
+        total_checks=$((total_checks + 1))
         echo ""
         if $check; then
-            ((passed_checks++))
+            passed_checks=$((passed_checks + 1))
         fi
     done
     
