@@ -4,8 +4,8 @@ networks:
 
 services:
   web-frontend-server:
-    # build: ./web-frontend-server
-    image: nhanhuutran007/myminicloud-web:latest
+    build: ./web-frontend-server
+    # image: nhanhuutran007/myminicloud-web:latest
     networks:
       - cloud-net
     restart: unless-stopped
@@ -17,8 +17,8 @@ services:
           memory: 64M
 
   application-backend-server:
-    # build: ./application-backend-server
-    image: nhanhuutran007/myminicloud-app:latest
+    build: ./application-backend-server
+    # image: nhanhuutran007/myminicloud-app:latest
     networks:
       - cloud-net
     environment:
