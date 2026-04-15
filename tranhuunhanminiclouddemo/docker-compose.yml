@@ -66,14 +66,14 @@ services:
   authentication-identity-server:
     image: quay.io/keycloak/keycloak:latest
     container_name: authentication-identity-server
-    command: ["start-dev"]
+    command: ["start-dev", "--proxy", "edge", "--hostname-strict=false"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_PROXY: "edge"
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT_HTTPS: "false"
-      KC_PROXY: "edge"
       JAVA_OPTS: "-Xms128m -Xmx512m"
     volumes:
       - keycloak-data:/opt/keycloak/data

@@ -593,6 +593,21 @@ docker compose up -d --scale web-frontend-server=3
 for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done</div>
                         </div>
 
+                        <div class="service-card" style="border-color: rgba(251, 191, 36, 0.4); background: rgba(251, 191, 36, 0.03);">
+                            <div class="service-header">
+                                <div class="service-name">Rapid Deploy & Fix (EC2) <span
+                                        class="service-badge" style="background: #f59e0b; color: #fff;">HOTFIX</span></div>
+                            </div>
+                            <div class="service-port">Auto-Start · Auto-Scale · Auto-SSL Fix</div>
+                            <div class="cmd-block" onclick="copyCmd(this)" style="color: #fbbf24; border-color: rgba(251, 191, 36, 0.3);"># Lệnh gộp: Khởi động + Scale 3 + Sửa lỗi Keycloak
+cd ~/MyMiniCloud/tranhuunhanminiclouddemo && \
+sudo docker-compose up -d --scale web-frontend-server=3 && \
+sleep 30 && \
+sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin && \
+sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=none && \
+sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh update realms/TranHuuNhan_52300235 -s sslRequired=none</div>
+                        </div>
+
                         <div class="service-card">
                             <div class="service-header">
                                 <div class="service-name">Backup & Migration <span
