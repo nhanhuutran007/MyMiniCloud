@@ -71,7 +71,9 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_PROXY_HEADERS: "xforwarded"
+      KC_HOSTNAME: "52.220.231.37"
       KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT_HTTPS: "false"
       JAVA_OPTS: "-Xms256m -Xmx768m"
