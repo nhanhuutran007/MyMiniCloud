@@ -106,15 +106,12 @@ docker compose ps
 ```
 
 ### 5.3. [DÀNH CHO EC2] Lệnh khởi động nhanh (3-trong-1)
-Nếu bạn triển khai trên EC2, hãy dùng lệnh gộp này để tự động Khởi động, Phân tải và Sửa lỗi Keycloak cùng lúc:
+Nếu bạn triển khai trên EC2, hãy dùng lệnh gộp này để tự động Khởi động, Phân tải và Sửa lỗi Keycloak một cách tin cậy hơn (đã bao gồm cơ chế đợi Keycloak sẵn sàng):
 ```bash
 # Di chuyển vào thư mục dự án và chạy lệnh gộp
 cd ~/MyMiniCloud/tranhuunhanminiclouddemo && \
 sudo docker-compose up -d --scale web-frontend-server=3 && \
-sleep 30 && \
-sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin && \
-sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=none && \
-sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh update realms/TranHuuNhan_52300235 -s sslRequired=none
+chmod +x setup-keycloak.sh && ./setup-keycloak.sh
 ```
 
 ### 5.3. Kiểm tra phân tải (Load Balancing)
