@@ -185,6 +185,23 @@ def students_db_json():
         return jsonify(error=str(e)), 500
 
 
+# ── API Routes with /api prefix ──────────────────────────────────────────────
+@app.get("/api/student/json")
+def api_student_json():
+    return student_json()
+
+
+@app.get("/api/students-db/json") 
+def api_students_db_json():
+    return students_db_json()
+
+
+@app.get("/api/students-db")
+@app.post("/api/students-db")
+def api_students_db():
+    return students_db()
+
+
 # ── /students-db  CRUD page ───────────────────────────────────────────────────
 @app.route("/students-db", methods=["GET", "POST"])
 def students_db():
