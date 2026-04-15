@@ -96,25 +96,9 @@ function checkLogoutSuccess() {
         // Hiển thị thông báo logout thành công với auto-redirect
         showNotification('✅ Đăng xuất thành công!\nBạn đã được đăng xuất khỏi hệ thống.\n\nTự động chuyển về trang chủ sau 3 giây...', 'success');
 
-        // Xóa logout parameter khỏi URL
+        // Xóa logout parameter khỏi URL mà không cần reload trang
         const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
-
-        // Auto-redirect về trang chủ sau 3 giây
-        setTimeout(() => {
-            const currentPort = window.location.port;
-            let homeUrl;
-
-            // Xác định URL trang chủ dựa trên port hiện tại
-            if (currentPort === '8080' || currentPort === '80' || !currentPort) {
-                homeUrl = `${window.location.protocol}//${window.location.hostname}:8080`;
-            } else {
-                homeUrl = `${window.location.protocol}//${window.location.hostname}:80`;
-            }
-
-            console.log('Auto-redirecting to home:', homeUrl);
-            window.location.href = homeUrl;
-        }, 3000);
 
         return true;
     }
@@ -637,14 +621,12 @@ function checkKeycloakLogoutPage() {
     const bodyText = document.body.textContent.toLowerCase();
     
     // Kiểm tra xem có phải đang ở trang logout của Keycloak không
+    // Kiểm tra xem có phải đang ở trang logout thực sự của Keycloak không
+    // Tránh trùng với tham số ?logout=success của chính trang web
     const isKeycloakLogout = (
         url.includes('/realms/') && 
-        url.includes('/protocol/openid-connect/logout') ||
-        url.includes('logout') ||
-        document.title.toLowerCase().includes('logout') ||
-        bodyText.includes('you are logged out') ||
-        bodyText.includes('logged out') ||
-        bodyText.includes('đăng xuất')
+        (url.includes('/protocol/openid-connect/logout') || url.includes('logout')) &&
+        !url.includes('logout=success')
     );
     
     if (isKeycloakLogout) {
@@ -722,20 +704,13 @@ function showKeycloakLogoutMessage() {
 
 // Redirect từ trang Keycloak logout về trang chủ
 function redirectFromKeycloakLogout() {
-    const hostname = window.location.hostname;
-    let homeUrl;
-    
-    // Ưu tiên port 8080, fallback về port 80
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') {
-        homeUrl = 'http://localhost:8080';
-    } else {
-        homeUrl = `http://${hostname}:8080`;
-    }
+    // Sử dụng origin hiện tại (bao gồm cả port) để đảm bảo quay về đúng gateway
+    const homeUrl = window.location.origin;
     
     console.log('Redirecting from Keycloak logout to home:', homeUrl);
     
     // Thêm parameter để báo hiệu logout thành công
-    const redirectUrl = `${homeUrl}?logout=success`;
+    const redirectUrl = `${homeUrl}/index.html?logout=success`;
     
     // Redirect với delay 2 giây để user thấy thông báo
     setTimeout(() => {
