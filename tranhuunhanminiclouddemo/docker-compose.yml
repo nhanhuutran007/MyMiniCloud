@@ -66,11 +66,11 @@ services:
   authentication-identity-server:
     image: quay.io/keycloak/keycloak:latest
     container_name: authentication-identity-server
-    command: ["start-dev", "--proxy", "edge", "--hostname-strict=false"]
+    command: ["start-dev", "--proxy-headers", "xforwarded", "--hostname-strict=false"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_PROXY: "edge"
+      KC_PROXY_HEADERS: "xforwarded"
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT_HTTPS: "false"
