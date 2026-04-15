@@ -94,6 +94,68 @@ Mở các ports sau trong Security Group:
 - Port 9000-9001: MinIO (nếu cần truy cập từ bên ngoài)
 - Port 9090: Prometheus (nếu cần truy cập từ bên ngoài)
 
+### 6. Kiểm tra hệ thống sau khi deploy
+
+#### Kiểm tra status containers
+```bash
+docker-compose ps
+docker volume ls
+```
+
+#### Test từng service với IP public (52.220.231.37)
+
+**API Gateway (Port 80):**
+```bash
+curl http://52.220.231.37/
+# Hoặc mở browser: http://52.220.231.37
+```
+
+**Grafana Dashboard (Port 3000):**
+```bash
+curl http://52.220.231.37:3000/
+# Hoặc mở browser: http://52.220.231.37:3000
+# Login: admin/admin (hoặc dữ liệu từ backup)
+```
+
+**Keycloak Admin (Port 8081):**
+```bash
+curl http://52.220.231.37:8081/
+# Hoặc mở browser: http://52.220.231.37:8081
+# Login: admin/admin
+```
+
+**Prometheus (Port 9090):**
+```bash
+curl http://52.220.231.37:9090/
+# Hoặc mở browser: http://52.220.231.37:9090
+```
+
+**MinIO Console (Port 9001):**
+```bash
+curl http://52.220.231.37:9001/
+# Hoặc mở browser: http://52.220.231.37:9001
+# Login: minioadmin/minioadmin
+```
+
+**MinIO API (Port 9000):**
+```bash
+curl http://52.220.231.37:9000/minio/health/live
+```
+
+**Node Exporter (Port 9100):**
+```bash
+curl http://52.220.231.37:9100/metrics
+```
+
+#### Test API endpoints
+```bash
+# Test backend API
+curl http://52.220.231.37/api/students
+
+# Test authentication endpoint
+curl http://52.220.231.37/auth/realms/TranHuuNhan_52300235/.well-known/openid_configuration
+```
+
 ## Backup định kỳ trên EC2
 
 ### Tạo cron job để backup tự động
