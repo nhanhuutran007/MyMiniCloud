@@ -70,9 +70,10 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HOSTNAME: "localhost"
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_PROXY: "edge"
       JAVA_OPTS: "-Xms128m -Xmx512m"
     volumes:
       - keycloak-data:/opt/keycloak/data
@@ -168,9 +169,10 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
-      - GF_INSTALL_PLUGINS=""
+      - GF_INSTALL_PLUGINS=
       - GF_ANALYTICS_REPORTING_ENABLED=false
       - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     deploy:
       resources:
         limits:
