@@ -3,7 +3,8 @@ console.log('Keycloak Auth module loaded');
 
 // Cấu hình Keycloak
 const KEYCLOAK_CONFIG = {
-    url: 'http://localhost:8081',
+    // Tự động nhận diện URL gốc để gọi qua Nginx Proxy (tránh lỗi CORS)
+    baseUrl: `${window.location.protocol}//${window.location.host}`,
     realm: 'TranHuuNhan_52300235',
     clientId: 'flask-app'
 };
@@ -171,8 +172,7 @@ function checkAuthCode() {
 
 // Hàm exchange authorization code cho access token
 async function exchangeCodeForToken(code) {
-    const host = getHost();
-    const tokenUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/token`;
+    const tokenUrl = `${KEYCLOAK_CONFIG.baseUrl}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/token`;
 
     // Sử dụng port hiện tại để đảm bảo redirect đúng
     const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
@@ -410,18 +410,15 @@ function keycloakLogin() {
 
     const host = getHost();
 
-    // Kiểm tra Keycloak có sẵn không - sử dụng endpoint trực tiếp thay vì qua load balancer
-    fetch(`http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}`)
+    // Kiểm tra Keycloak có sẵn không - gọi qua Proxy
+    fetch(`${KEYCLOAK_CONFIG.baseUrl}/realms/${KEYCLOAK_CONFIG.realm}`)
         .then(response => {
             if (response.ok) {
                 // Keycloak có sẵn, thử đăng nhập thực
                 const state = Math.random().toString(36).substring(2, 15);
+                const redirectUri = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
 
-                // Sử dụng port hiện tại để đảm bảo redirect đúng
-                const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
-                const redirectUri = `${window.location.protocol}//${window.location.hostname}:${currentPort}`;
-
-                const keycloakLoginUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid&state=${state}`;
+                const keycloakLoginUrl = `${KEYCLOAK_CONFIG.baseUrl}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid&state=${state}`;
 
                 console.log('Redirecting to Keycloak:', keycloakLoginUrl);
                 window.location.href = keycloakLoginUrl;
@@ -453,13 +450,11 @@ function keycloakLogout() {
     // Cập nhật UI ngay lập tức
     updateAuthUI();
 
-    // Tạo URL redirect về trang chủ sau logout - sử dụng port cụ thể
-    const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
-    const redirectUrl = `${window.location.protocol}//${window.location.hostname}:${currentPort}/index.html?logout=success`;
+    // Tạo URL redirect về trang chủ sau logout
+    const redirectUrl = `${KEYCLOAK_CONFIG.baseUrl}/index.html?logout=success`;
 
-    // Redirect đến Keycloak logout với post_logout_redirect_uri (OIDC Standard)
-    // Cần cung cấp client_id hoặc id_token_hint cho post_logout_redirect_uri
-    const keycloakLogoutUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?post_logout_redirect_uri=${encodeURIComponent(redirectUrl)}&client_id=${encodeURIComponent(KEYCLOAK_CONFIG.clientId)}`;
+    // Redirect đến Keycloak logout với post_logout_redirect_uri qua Proxy
+    const keycloakLogoutUrl = `${KEYCLOAK_CONFIG.baseUrl}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?post_logout_redirect_uri=${encodeURIComponent(redirectUrl)}&client_id=${encodeURIComponent(KEYCLOAK_CONFIG.clientId)}`;
 
     console.log('Redirecting to logout:', keycloakLogoutUrl);
     console.log('Post-Logout Redirect URL:', redirectUrl);

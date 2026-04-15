@@ -602,10 +602,7 @@ for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; d
                             <div class="cmd-block" onclick="copyCmd(this)" style="color: #fbbf24; border-color: rgba(251, 191, 36, 0.3);"># Lệnh gộp: Khởi động + Scale 3 + Sửa lỗi Keycloak
 cd ~/MyMiniCloud/tranhuunhanminiclouddemo && \
 sudo docker-compose up -d --scale web-frontend-server=3 && \
-sleep 30 && \
-sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin && \
-sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=none && \
-sudo docker exec authentication-identity-server /opt/keycloak/bin/kcadm.sh update realms/TranHuuNhan_52300235 -s sslRequired=none</div>
+chmod +x setup-keycloak.sh && ./setup-keycloak.sh</div>
                         </div>
 
                         <div class="service-card">
