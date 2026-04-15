@@ -37,12 +37,12 @@ function restoreAuthState() {
         const savedUserInfo = localStorage.getItem('userInfo');
         const savedToken = localStorage.getItem('accessToken');
         const authTimestamp = localStorage.getItem('authTimestamp');
-        
+
         // Kiểm tra xem auth có hết hạn không (24 giờ)
         const now = Date.now();
         const authAge = authTimestamp ? (now - parseInt(authTimestamp)) : Infinity;
         const maxAge = 24 * 60 * 60 * 1000; // 24 giờ
-        
+
         if (savedAuth === 'true' && savedUserInfo && authAge < maxAge) {
             isAuthenticated = true;
             userInfo = JSON.parse(savedUserInfo);
@@ -78,6 +78,49 @@ function getHost() {
     return (h === '' || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
 }
 
+// Hàm kiểm tra logout success từ URL
+function checkLogoutSuccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const logoutStatus = urlParams.get('logout');
+
+    if (logoutStatus === 'success') {
+        console.log('Logout success detected');
+
+        // Đảm bảo auth state đã được clear
+        clearAuthState();
+
+        // Cập nhật UI
+        updateAuthUI();
+
+        // Hiển thị thông báo logout thành công với auto-redirect
+        showNotification('✅ Đăng xuất thành công!\nBạn đã được đăng xuất khỏi hệ thống.\n\nTự động chuyển về trang chủ sau 3 giây...', 'success');
+
+        // Xóa logout parameter khỏi URL
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+
+        // Auto-redirect về trang chủ sau 3 giây
+        setTimeout(() => {
+            const currentPort = window.location.port;
+            let homeUrl;
+
+            // Xác định URL trang chủ dựa trên port hiện tại
+            if (currentPort === '8080' || currentPort === '80' || !currentPort) {
+                homeUrl = `${window.location.protocol}//${window.location.hostname}:8080`;
+            } else {
+                homeUrl = `${window.location.protocol}//${window.location.hostname}:80`;
+            }
+
+            console.log('Auto-redirecting to home:', homeUrl);
+            window.location.href = homeUrl;
+        }, 3000);
+
+        return true;
+    }
+
+    return false;
+}
+
 // Hàm kiểm tra authorization code từ URL
 function checkAuthCode() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -86,13 +129,13 @@ function checkAuthCode() {
 
     if (code) {
         console.log('Authorization code found:', code);
-        
+
         // Exchange code for token
         exchangeCodeForToken(code)
             .then(tokenData => {
                 if (tokenData && tokenData.access_token) {
                     accessToken = tokenData.access_token;
-                    
+
                     // Decode token để lấy thông tin user
                     const payload = parseJWT(tokenData.access_token);
                     if (payload) {
@@ -103,11 +146,11 @@ function checkAuthCode() {
                             firstName: payload.given_name || payload.preferred_username || 'User',
                             lastName: payload.family_name || ''
                         };
-                        
+
                         console.log('User authenticated:', userInfo);
                         saveAuthState(); // Lưu trạng thái vào localStorage
                         updateAuthUI();
-                        
+
                         // Xóa code khỏi URL
                         const newUrl = window.location.origin + window.location.pathname;
                         window.history.replaceState({}, document.title, newUrl);
@@ -119,7 +162,7 @@ function checkAuthCode() {
                 // Fallback: giả lập đăng nhập thành công
                 simulateSuccessfulLogin();
             });
-        
+
         return true;
     }
 
@@ -130,12 +173,16 @@ function checkAuthCode() {
 async function exchangeCodeForToken(code) {
     const host = getHost();
     const tokenUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/token`;
-    
+
+    // Sử dụng port hiện tại để đảm bảo redirect đúng
+    const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
+    const redirectUri = `${window.location.protocol}//${window.location.hostname}:${currentPort}`;
+
     const body = new URLSearchParams({
         grant_type: 'authorization_code',
         client_id: KEYCLOAK_CONFIG.clientId,
         code: code,
-        redirect_uri: window.location.origin
+        redirect_uri: redirectUri
     });
 
     try {
@@ -163,7 +210,7 @@ function parseJWT(token) {
     try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
 
@@ -183,11 +230,11 @@ function simulateSuccessfulLogin() {
         firstName: 'TRAN HUU',
         lastName: 'NHAN'
     };
-    
+
     console.log('Simulated successful login:', userInfo);
     saveAuthState(); // Lưu trạng thái vào localStorage
     updateAuthUI();
-    
+
     // Xóa code khỏi URL
     const newUrl = window.location.origin + window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
@@ -296,7 +343,7 @@ function updateAuthUI() {
         if (navBlog) {
             navBlog.style.pointerEvents = 'none';
             navBlog.style.opacity = '0.5';
-            navBlog.onclick = function(e) {
+            navBlog.onclick = function (e) {
                 e.preventDefault();
                 showNotification('Vui lòng đăng nhập để truy cập blog', 'warning');
                 return false;
@@ -308,7 +355,7 @@ function updateAuthUI() {
         if (exploreBlogBtn) {
             exploreBlogBtn.style.pointerEvents = 'none';
             exploreBlogBtn.style.opacity = '0.5';
-            exploreBlogBtn.onclick = function(e) {
+            exploreBlogBtn.onclick = function (e) {
                 e.preventDefault();
                 showNotification('Vui lòng đăng nhập để truy cập blog', 'warning');
                 return false;
@@ -362,15 +409,20 @@ function keycloakLogin() {
     console.log('Login button clicked - checking Keycloak availability');
 
     const host = getHost();
-    
-    // Kiểm tra Keycloak có sẵn không
+
+    // Kiểm tra Keycloak có sẵn không - sử dụng endpoint trực tiếp thay vì qua load balancer
     fetch(`http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}`)
         .then(response => {
             if (response.ok) {
                 // Keycloak có sẵn, thử đăng nhập thực
                 const state = Math.random().toString(36).substring(2, 15);
-                const keycloakLoginUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(window.location.origin)}&response_type=code&scope=openid&state=${state}`;
-                
+
+                // Sử dụng port hiện tại để đảm bảo redirect đúng
+                const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
+                const redirectUri = `${window.location.protocol}//${window.location.hostname}:${currentPort}`;
+
+                const keycloakLoginUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid&state=${state}`;
+
                 console.log('Redirecting to Keycloak:', keycloakLoginUrl);
                 window.location.href = keycloakLoginUrl;
             } else {
@@ -380,7 +432,7 @@ function keycloakLogin() {
         .catch(error => {
             console.log('Keycloak not available, using demo mode:', error);
             showNotification('Keycloak không khả dụng. Sử dụng chế độ demo.', 'info');
-            
+
             // Fallback: demo mode
             setTimeout(() => {
                 simulateSuccessfulLogin();
@@ -398,11 +450,26 @@ function keycloakLogout() {
     // Xóa trạng thái local và localStorage
     clearAuthState();
 
-    // Redirect đến Keycloak logout
-    const keycloakLogoutUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    // Cập nhật UI ngay lập tức
+    updateAuthUI();
+
+    // Tạo URL redirect về trang chủ sau logout - sử dụng port cụ thể
+    const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
+    const redirectUrl = `${window.location.protocol}//${window.location.hostname}:${currentPort}?logout=success`;
+
+    // Redirect đến Keycloak logout với redirect_uri về trang chủ
+    const keycloakLogoutUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(redirectUrl)}`;
 
     console.log('Redirecting to logout:', keycloakLogoutUrl);
-    window.location.href = keycloakLogoutUrl;
+    console.log('Redirect URL:', redirectUrl);
+
+    // Hiển thị thông báo logout
+    showNotification('Đang đăng xuất...', 'info');
+
+    // Redirect sau 1 giây để user thấy thông báo
+    setTimeout(() => {
+        window.location.href = keycloakLogoutUrl;
+    }, 1000);
 }
 
 // Hàm test API bảo mật với token
@@ -432,7 +499,7 @@ async function testSecureAPI() {
             if (response.ok) {
                 const data = await response.json();
                 showNotification(`✅ API Secure thành công!\n\nResponse: ${JSON.stringify(data, null, 2)}\n\nUser: ${userInfo.username}\nEmail: ${userInfo.email}`, 'success');
-                
+
                 // Log token info for debugging
                 console.log('Token payload:', parseJWT(accessToken));
             } else {
@@ -558,7 +625,7 @@ async function refreshAccessToken() {
     try {
         const host = getHost();
         const refreshUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/token`;
-        
+
         // Giả lập refresh (trong thực tế cần refresh token)
         console.log('Token refresh would happen here');
         showNotification('Token đã được refresh tự động', 'info');
@@ -568,13 +635,137 @@ async function refreshAccessToken() {
     }
 }
 
+// Hàm kiểm tra và xử lý trang Keycloak logout
+function checkKeycloakLogoutPage() {
+    const url = window.location.href;
+    const bodyText = document.body.textContent.toLowerCase();
+    
+    // Kiểm tra xem có phải đang ở trang logout của Keycloak không
+    const isKeycloakLogout = (
+        url.includes('/realms/') && 
+        url.includes('/protocol/openid-connect/logout') ||
+        url.includes('logout') ||
+        document.title.toLowerCase().includes('logout') ||
+        bodyText.includes('you are logged out') ||
+        bodyText.includes('logged out') ||
+        bodyText.includes('đăng xuất')
+    );
+    
+    if (isKeycloakLogout) {
+        console.log('Keycloak logout page detected, preparing auto-redirect...');
+        showKeycloakLogoutMessage();
+        redirectFromKeycloakLogout();
+        return true;
+    }
+    
+    return false;
+}
+
+// Hiển thị thông báo khi ở trang Keycloak logout
+function showKeycloakLogoutMessage() {
+    // Tạo overlay thông báo
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+    `;
+    
+    const message = document.createElement('div');
+    message.style.cssText = `
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    `;
+    
+    const hostname = window.location.hostname;
+    const homeUrl = (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') 
+        ? 'http://localhost:8080?logout=success' 
+        : `http://${hostname}:8080?logout=success`;
+    
+    message.innerHTML = `
+        <div style="color: #10b981; font-size: 48px; margin-bottom: 16px;">✅</div>
+        <h2 style="color: #333; margin: 0 0 16px 0;">Đăng xuất thành công!</h2>
+        <p style="color: #666; margin: 0 0 20px 0;">
+            Bạn đã được đăng xuất khỏi hệ thống.<br>
+            Tự động chuyển về trang chủ sau <span id="keycloak-countdown">2</span> giây...
+        </p>
+        <button onclick="window.location.href='${homeUrl}'" 
+                style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+            Về trang chủ ngay
+        </button>
+    `;
+    
+    overlay.appendChild(message);
+    document.body.appendChild(overlay);
+    
+    // Countdown timer
+    let countdown = 2;
+    const countdownEl = document.getElementById('keycloak-countdown');
+    const timer = setInterval(() => {
+        countdown--;
+        if (countdownEl) {
+            countdownEl.textContent = countdown;
+        }
+        if (countdown <= 0) {
+            clearInterval(timer);
+        }
+    }, 1000);
+}
+
+// Redirect từ trang Keycloak logout về trang chủ
+function redirectFromKeycloakLogout() {
+    const hostname = window.location.hostname;
+    let homeUrl;
+    
+    // Ưu tiên port 8080, fallback về port 80
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') {
+        homeUrl = 'http://localhost:8080';
+    } else {
+        homeUrl = `http://${hostname}:8080`;
+    }
+    
+    console.log('Redirecting from Keycloak logout to home:', homeUrl);
+    
+    // Thêm parameter để báo hiệu logout thành công
+    const redirectUrl = `${homeUrl}?logout=success`;
+    
+    // Redirect với delay 2 giây để user thấy thông báo
+    setTimeout(() => {
+        window.location.href = redirectUrl;
+    }, 2000);
+}
+
 // Khởi tạo authentication khi DOM loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM loaded, initializing Keycloak authentication...');
+
+    // Kiểm tra xem có phải đang ở trang Keycloak logout không
+    if (checkKeycloakLogoutPage()) {
+        // Đã xử lý Keycloak logout page, không cần làm gì thêm
+        return;
+    }
+
+    // Kiểm tra logout success từ URL parameter
+    if (checkLogoutSuccess()) {
+        // Đã xử lý logout success, không cần làm gì thêm
+        return;
+    }
 
     // Đầu tiên thử khôi phục trạng thái từ localStorage
     const restored = restoreAuthState();
-    
+
     if (restored) {
         console.log('🔄 Auth state restored, updating UI...');
         updateAuthUI();
@@ -590,6 +781,24 @@ document.addEventListener('DOMContentLoaded', function() {
             updateAuthUI();
         }
     }
+
+    // Theo dõi thay đổi DOM để phát hiện Keycloak logout page (cho trường hợp trang load động)
+    const observer = new MutationObserver((mutations) => {
+        if (checkKeycloakLogoutPage()) {
+            observer.disconnect();
+        }
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+    
+    // Timeout để tránh observer chạy mãi
+    setTimeout(() => {
+        observer.disconnect();
+    }, 10000);
 
     // Bắt đầu auto-refresh token mỗi 5 phút
     setInterval(refreshTokenIfNeeded, 5 * 60 * 1000);
