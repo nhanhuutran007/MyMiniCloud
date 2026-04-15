@@ -56,6 +56,8 @@ services:
       KC_HOSTNAME: "localhost"
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
     ports:
       - "8081:8080"
     restart: unless-stopped
@@ -105,6 +107,7 @@ services:
       - "9090:9090"
     volumes:
       - ./monitoring-prometheus-server/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
     networks:
       - cloud-net
     restart: unless-stopped
@@ -114,6 +117,8 @@ services:
     container_name: monitoring-grafana-dashboard-server
     ports:
       - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
     networks:
       - cloud-net
     restart: unless-stopped
@@ -136,3 +141,9 @@ services:
 volumes:
   mariadb-data:
     name: mariadb-data
+  keycloak-data:
+    name: keycloak-data
+  grafana-data:
+    name: grafana-data
+  prometheus-data:
+    name: prometheus-data
