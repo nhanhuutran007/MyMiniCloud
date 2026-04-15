@@ -455,13 +455,14 @@ function keycloakLogout() {
 
     // Tạo URL redirect về trang chủ sau logout - sử dụng port cụ thể
     const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
-    const redirectUrl = `${window.location.protocol}//${window.location.hostname}:${currentPort}?logout=success`;
+    const redirectUrl = `${window.location.protocol}//${window.location.hostname}:${currentPort}/index.html?logout=success`;
 
-    // Redirect đến Keycloak logout với redirect_uri về trang chủ
-    const keycloakLogoutUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(redirectUrl)}`;
+    // Redirect đến Keycloak logout với post_logout_redirect_uri (OIDC Standard)
+    // Cần cung cấp client_id hoặc id_token_hint cho post_logout_redirect_uri
+    const keycloakLogoutUrl = `http://${host}:8081/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?post_logout_redirect_uri=${encodeURIComponent(redirectUrl)}&client_id=${encodeURIComponent(KEYCLOAK_CONFIG.clientId)}`;
 
     console.log('Redirecting to logout:', keycloakLogoutUrl);
-    console.log('Redirect URL:', redirectUrl);
+    console.log('Post-Logout Redirect URL:', redirectUrl);
 
     // Hiển thị thông báo logout
     showNotification('Đang đăng xuất...', 'info');

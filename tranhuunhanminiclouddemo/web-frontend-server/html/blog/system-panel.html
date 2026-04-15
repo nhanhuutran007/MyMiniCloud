@@ -453,7 +453,7 @@
                                 </div>
                             </div>
                             <div class="service-port">Port: 8081 · Identity & Access Management</div>
-                            <button class="service-btn" onclick="openService(8081, '/admin/master/console/')">🔐 Mở
+                            <button class="service-btn" onclick="openService(8081, '/admin/')">🔐 Mở
                                 Keycloak</button>
                         </div>
 
@@ -518,10 +518,10 @@
                                         class="service-badge badge-cli">CLI</span></div>
                             </div>
                             <div class="service-port">Port: 3306 · Relational Database</div>
-                            <div class="cmd-block" onclick="copyCmd(this)"># Kiểm tra kết nối database
-docker exec -it relational-database-server mariadb -u root -proot -e "SHOW DATABASES;"
+                            <div class="cmd-block" onclick="copyCmd(this)"># Kiểm tra Database Notes (Minicloud)
+docker exec -it relational-database-server mariadb -u root -proot minicloud -e "SELECT * FROM notes LIMIT 10;"
 
-# Xem dữ liệu sinh viên
+# Xem dữ liệu sinh viên (StudentDB)
 docker exec -it relational-database-server mariadb -u root -proot studentdb -e "SELECT * FROM students LIMIT 10;"</div>
                         </div>
 
@@ -560,14 +560,11 @@ docker logs api-gateway-proxy-server --tail 50</div>
                                         class="service-badge badge-cli">CLI</span></div>
                             </div>
                             <div class="service-port">Port: 1053 · Internal DNS Resolution</div>
-                            <div class="cmd-block" onclick="copyCmd(this)"># Kiểm tra BIND9 config
-docker exec internal-dns-server named-checkconf
+                            <div class="cmd-block" onclick="copyCmd(this)"># Test DNS resolution (Portable Docker command)
+docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
 
-# Test DNS resolution
-nslookup web-frontend-server.cloud.local 127.0.0.1 -port=1053
-
-# Reload DNS zones
-docker exec internal-dns-server rndc reload</div>
+# Kiểm tra BIND9 config
+docker exec internal-dns-server named-checkconf</div>
                         </div>
 
                         <div class="service-card">
@@ -580,13 +577,34 @@ docker exec internal-dns-server rndc reload</div>
 docker compose ps
 
 # Xem logs realtime
-docker compose logs -f
+docker compose logs -f</div>
+                        </div>
 
-# Restart toàn bộ stack
-docker compose restart
+                        <div class="service-card">
+                            <div class="service-header">
+                                <div class="service-name">Scaling & Load Balancer <span
+                                        class="service-badge badge-cli">CLI</span></div>
+                            </div>
+                            <div class="service-port">Docker Compose · Real Load Balancing</div>
+                            <div class="cmd-block" onclick="copyCmd(this)"># Scale Web Frontend lên 3 instances
+docker compose up -d --scale web-frontend-server=3
 
-# Stop và remove containers
-docker compose down</div>
+# Kiểm tra phân tải (Linux/Ubuntu)
+for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done</div>
+                        </div>
+
+                        <div class="service-card">
+                            <div class="service-header">
+                                <div class="service-name">Backup & Migration <span
+                                        class="service-badge badge-cli">CLI</span></div>
+                            </div>
+                            <div class="service-port">Filesystem · Volume Persistence</div>
+                            <div class="cmd-block" onclick="copyCmd(this)"># --- Windows (Local) ---
+powershell.exe -File .\BaoCao\volume-backup-restore.ps1 -Action backup
+
+# --- Linux / EC2 (Ubuntu) ---
+# Backup MariaDB Volume
+docker run --rm -v mariadb-data:/volume -v $(pwd):/backup alpine tar czf /backup/mariadb-data.tar.gz -C /volume .</div>
                         </div>
 
                     </div>

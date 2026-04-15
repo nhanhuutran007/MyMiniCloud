@@ -93,14 +93,6 @@ tranhuunhanminiclouddemo/
 - Đã cài đặt **Docker** & **Docker Compose**.
 - Các Port sau cần được giải phóng: `80`, `8080`, `8081`, `3306`, `9000`, `9001`, `9090`, `9100`, `3000`, `1053`.
 
-### 5.2. Khởi động hệ thống với Real Load Balancing
-Từ thư mục gốc của dự án, thực hiện các lệnh sau:
-
-```bash
-### 5.2. Khởi động hệ thống
-Từ thư mục gốc của dự án, thực hiện các lệnh sau:
-
-```bash
 # Di chuyển vào thư mục dự án
 cd tranhuunhanminiclouddemo
 
@@ -186,13 +178,14 @@ docker exec -it relational-database-server mariadb -u root -proot -D studentdb -
 **Mục tiêu:** Quản lý định danh tập trung (SSO) và bảo vệ Microservices bằng quy chuẩn OIDC/OAuth2.
 
 **Hoạt động chính:**
-- **Realm & Client Configuration:** Khai báo Realm `TranHuuNhan_52300235` và Client `flask-app`.
+- **Realm & Client Configuration:** Khai báo Realm `TranHuuNhan_52300235` và Client `flask-app`. Cấu hình hỗ trợ song song cả **Localhost** và **EC2 IP** (52.220.231.37).
 - **Identity Provider:** Lưu trữ thông tin người dùng và cấp phát Access Token (JWT).
-- **Frontend Integration:** Tích hợp `keycloak.js` để xử lý luồng đăng nhập/đăng xuất ngay trên trình duyệt.
-- **Backend Protection:** Application Server xác thực tính hợp lệ của Token trước khi trả về dữ liệu bảo mật.
+- **Frontend Integration:** Tích hợp `keycloak-auth.js` để xử lý luồng đăng nhập/đăng xuất OIDC.
+- **Automatic Logout Redirect:** Đã cấu hình `post_logout_redirect_uri` chuẩn OIDC để tự động quay về trang chủ sau khi đăng xuất thành công.
+- **Backend Protection:** Application Server xác thực tính hợp lệ của Token trước khi trả về dữ liệu bảo mật qua middleware xác thực JWT.
 
 **Lệnh kiểm thử:**
-- Truy cập Admin Console: [http://localhost:8081/admin/master/console/](http://localhost:8081/admin/master/console/) (admin/admin)
+- Truy cập Admin Console: [http://localhost:8081/admin/](http://localhost:8081/admin/) (admin/admin)
 - Kiểm tra luồng đăng nhập: Sử dụng nút **"🔐 Đăng nhập"** trên trang chủ.
 
 ### 6.5. Object Storage (MinIO)
@@ -308,14 +301,14 @@ Thay thế `localhost` bằng Public IP của EC2 instance:
 
 ### 7.5. Lệnh kiểm tra trên EC2
 ```bash
-# Kiểm tra Load Balancer trên EC2
-curl -s http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4) | grep -o "Server [12]"
+# Kiểm tra Load Balancer trên EC2 (Container ID sẽ thay đổi)
+for i in {1..5}; do curl -s http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4) | grep -o "Container: [a-f0-9]*"; done
 
 # Kiểm tra API backend
 curl http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)/api/hello
 
-# Kiểm tra student endpoint
-curl http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)/student/
+# Kiểm tra student endpoint (MariaDB/JSON fallback)
+curl http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)/api/student/json
 ```
 
 ---
@@ -425,5 +418,34 @@ Hệ thống đã được refactoring từ "fake load balancing" sang **Real Lo
 - **Secure API Testing** - Test API bảo mật với JWT token
 - **Auto Token Refresh** - Tự động refresh token khi hết hạn
 - **Seamless Integration** - Tích hợp mượt mà với Keycloak JavaScript Adapter
+
+---
+
+## 10. Bảo trì & Sao lưu (Maintenance)
+
+Hệ thống cung cấp công cụ sao lưu dữ liệu toàn diện để phục vụ việc di chuyển (migration) hoặc dự phòng.
+
+### 10.1. Sao lưu Docket Volumes
+Sử dụng script PowerShell được cung cấp để đóng gói toàn bộ dữ liệu từ MariaDB, Keycloak, Grafana và Prometheus:
+
+```powershell
+# Chạy từ thư mục gốc dự án
+powershell.exe -ExecutionPolicy Bypass -File .\BaoCao\volume-backup-restore.ps1 -Action backup
+```
+Các tệp `.tar.gz` sẽ được lưu tại thư mục `./backup-volumes`.
+
+### 10.2. Khôi phục dữ liệu (Trên môi trường mới/EC2)
+Sau khi copy thư mục dự án và các tệp backup lên EC2:
+
+```powershell
+# Khôi phục dữ liệu vào các volume tương ứng
+powershell.exe -ExecutionPolicy Bypass -File .\BaoCao\volume-backup-restore.ps1 -Action restore
+```
+
+---
+
+## 11. Liên hệ & Tài liệu tham khảo
+- **Tài liệu hướng dẫn Keycloak:** [KEYCLOAK-LOGIN-GUIDE.md](/BaoCao/KEYCLOAK-LOGIN-GUIDE.md)
+- **Báo cáo hệ thống:** [system-test-report.md](/BaoCao/system-test-report.md)
 
 
