@@ -674,10 +674,10 @@
     let studentData = [];
     let refreshInterval = null;
 
-    // Hàm lấy host hiện tại
+    // Hàm lấy host hiện tại (bao gồm cả port để tránh lỗi CORS)
     function getHost() {
-      const h = window.location.hostname;
-      return (h === '' || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
+      // Sử dụng window.location.host để lấy cả hostname và port (VD: localhost:8080)
+      return window.location.host;
     }
 
     // Hàm hiển thị loading indicator

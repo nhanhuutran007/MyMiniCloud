@@ -634,10 +634,9 @@ docker run --rm -v mariadb-data:/volume -v $(pwd):/backup alpine tar czf /backup
     </div>
 
     <script>
-        // Phát hiện host hiện tại
+        // Phát hiện host hiện tại (bao gồm cả port để tránh lỗi CORS)
         function getHost() {
-            const h = window.location.hostname;
-            return (h === '' || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
+            return window.location.host;
         }
 
         // Hiển thị host khi trang load

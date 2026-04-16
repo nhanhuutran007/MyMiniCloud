@@ -15,6 +15,13 @@ function getKeycloakHost() {
     return (h === '' || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
 }
 
+// Hàm lấy Redirect URI chuẩn hóa (bao gồm protocol, host, port và pathname)
+// Keycloak yêu cầu redirect_uri phải khớp tuyệt đối giữa lúc lấy code và lúc đổi token
+function getRedirectUri() {
+    // Loại bỏ các query parameters (như ?code=..., ?state=...) để có URL gốc
+    return window.location.origin + window.location.pathname;
+}
+
 // Biến global để lưu trạng thái authentication
 let isAuthenticated = false;
 let userInfo = null;
@@ -97,7 +104,7 @@ function checkLogoutSuccess() {
         showNotification('✅ Đăng xuất thành công!\nBạn đã được đăng xuất khỏi hệ thống.\n\nTự động chuyển về trang chủ sau 3 giây...', 'success');
 
         // Xóa logout parameter khỏi URL mà không cần reload trang
-        const newUrl = window.location.origin + window.location.pathname;
+        const newUrl = getRedirectUri();
         window.history.replaceState({}, document.title, newUrl);
 
         return true;
@@ -137,15 +144,14 @@ function checkAuthCode() {
                         updateAuthUI();
 
                         // Xóa code khỏi URL
-                        const newUrl = window.location.origin + window.location.pathname;
+                        const newUrl = getRedirectUri();
                         window.history.replaceState({}, document.title, newUrl);
                     }
                 }
             })
             .catch(error => {
                 console.error('Error exchanging code for token:', error);
-                // Fallback: giả lập đăng nhập thành công
-                simulateSuccessfulLogin();
+                showNotification('Lỗi xác thực: Không thể đổi mã code lấy token.\nVui lòng kiểm tra cấu hình Keycloak.', 'error');
             });
 
         return true;
@@ -158,9 +164,7 @@ function checkAuthCode() {
 async function exchangeCodeForToken(code) {
     const tokenUrl = `${KEYCLOAK_CONFIG.baseUrl}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/token`;
 
-    // Sử dụng port hiện tại để đảm bảo redirect đúng
-    const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
-    const redirectUri = `${window.location.protocol}//${window.location.hostname}:${currentPort}`;
+    const redirectUri = getRedirectUri();
 
     const body = new URLSearchParams({
         grant_type: 'authorization_code',
@@ -220,7 +224,7 @@ function simulateSuccessfulLogin() {
     updateAuthUI();
 
     // Xóa code khỏi URL
-    const newUrl = window.location.origin + window.location.pathname;
+    const newUrl = getRedirectUri();
     window.history.replaceState({}, document.title, newUrl);
 }
 
@@ -400,7 +404,7 @@ function keycloakLogin() {
             if (response.ok) {
                 // Keycloak có sẵn, thử đăng nhập thực
                 const state = Math.random().toString(36).substring(2, 15);
-                const redirectUri = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+                const redirectUri = getRedirectUri();
 
                 const keycloakLoginUrl = `${KEYCLOAK_CONFIG.baseUrl}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/auth?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid&state=${state}`;
 
@@ -435,7 +439,7 @@ function keycloakLogout() {
     updateAuthUI();
 
     // Tạo URL redirect về trang chủ sau logout
-    const redirectUrl = `${KEYCLOAK_CONFIG.baseUrl}/index.html?logout=success`;
+    const redirectUrl = getRedirectUri() + '?logout=success';
 
     // Redirect đến Keycloak logout với post_logout_redirect_uri qua Proxy
     const keycloakLogoutUrl = `${KEYCLOAK_CONFIG.baseUrl}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout?post_logout_redirect_uri=${encodeURIComponent(redirectUrl)}&client_id=${encodeURIComponent(KEYCLOAK_CONFIG.clientId)}`;
