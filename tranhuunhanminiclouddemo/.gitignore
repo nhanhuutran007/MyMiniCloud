@@ -1,6 +1,6 @@
 # MinIO data
 # object-storage-server/data/
-
+tranhuunhanminiclouddemo/object-storage-server/data/
 # Secrets / keys
 *.pem
 *.key

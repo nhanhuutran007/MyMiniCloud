@@ -114,13 +114,142 @@ sudo docker-compose up -d --scale web-frontend-server=3 && \
 chmod +x setup-keycloak.sh && ./setup-keycloak.sh
 ```
 
-### 5.3. Kiểm tra phân tải (Load Balancing)
+### 5.4. Kiểm tra phân tải (Load Balancing)
 Vì hệ thống sử dụng **Real Load Balancing**, bạn có thể kiểm tra bằng cách truy cập `http://localhost` và Refresh trang. Container ID (Hostname) hiển thị ở phía trên Header sẽ thay đổi sau mỗi lần tải trang.
 
 Bạn cũng có thể dùng `curl` để kiểm tra nhanh:
 ```bash
 for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done
 ```
+
+### 5.5. Kiểm tra Hạ tầng & Khởi tạo (Docker Orchestration)
+Dùng các lệnh sau để kiểm tra trạng thái khởi tạo và mạng lưới của hệ thống (phục vụ báo cáo):
+
+**1. Kiểm tra trạng thái các Server (Containers):**
+```bash
+# Xem danh sách rút gọn các container đang chạy
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+```
+*Mục đích: Xác nhận tất cả các dịch vụ (9 loại) đã 'Up' thành công.*
+
+**2. Kiểm tra mạng ảo `cloud-net`:**
+```bash
+# Kiểm tra sự tồn tại của mạng kết nối
+docker network ls | grep cloud-net
+```
+*Mục đích: Đảm bảo mạng nội bộ dùng chung cho các thành phần đã được tạo.*
+
+**3. Kiểm tra chi tiết kết nối & IP nội bộ:**
+```bash
+# Xem chi tiết các container trong mạng và IP tương ứng
+docker network inspect cloud-net
+```
+*Mục đích: Chứng minh khả năng Orchestration và Service Discovery của Docker.*
+
+**4. Kiểm tra hiệu năng tài nguyên:**
+```bash
+# Xem mức độ chiếm dụng CPU/RAM của từng server
+docker stats --no-stream
+```
+
+### 5.6. Web Hosting & Định tuyến (Nginx API Gateway)
+Dùng các lệnh sau để kiểm tra khả năng định tuyến và phân tải của Gateway:
+
+**1. Kiểm tra cấu hình Nginx:**
+```bash
+docker exec api-gateway-proxy-server nginx -t
+```
+*Mục đích: Xác nhận cú pháp cấu hình định tuyến (Routing Rules) không có lỗi.*
+
+**2. Kiểm tra khả năng định tuyến (Reverse Proxy):**
+```bash
+# Kiểm tra định tuyến tới Frontend
+curl -I http://localhost/
+
+# Kiểm tra định tuyến tới Backend API
+curl -I http://localhost/api/hello
+
+# Kiểm tra định tuyến tới Keycloak
+curl -I http://localhost/admin/
+```
+*Mục đích: Chứng minh Gateway có thể phân loại và chuyển tiếp yêu cầu đến các microservices tương ứng qua Path-based Routing.*
+
+**3. Kiểm tra Cân bằng tải (Real Load Balancing):**
+```bash
+# Vòng lặp kiểm tra sự thay đổi của Container ID (Hostname) phản hồi từ Web Frontend
+for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done
+```
+*Mục đích: Xác nhận thuật toán Round Robin đang phân phối traffic đều qua các bản sao (replicas) của web-frontend.*
+
+### 5.7. Backend & Database (Flask & MariaDB)
+Dùng các lệnh sau để kiểm tra sự liên thông giữa App Server và Cơ sở dữ liệu:
+
+**1. Kiểm tra API lấy dữ liệu từ MariaDB:**
+```bash
+# Lấy dữ liệu dạng JSON trực tiếp từ DB qua API
+curl -s http://localhost/api/students-db/json
+```
+*Mục đích: Xác nhận Flask API đã kết nối và truy vấn được dữ liệu từ MariaDB.*
+
+**2. Chứng minh kết nối qua Service Name (DNS):**
+```bash
+# Kiểm tra biến môi trường DB_HOST trong App Server
+docker exec application-backend-server env | grep DB_HOST
+```
+*Mục đích: Chứng minh Backend kết nối tới database qua tên dịch vụ `relational-database-server` thay vì IP tĩnh.*
+
+**3. Kiểm tra tính sẵn sàng của Database:**
+```bash
+# Xem 20 dòng logs cuối của MariaDB
+docker logs relational-database-server --tail 20
+```
+
+### 5.8. Bảo mật & Lưu trữ (Keycloak & MinIO)
+Dùng các lệnh sau để kiểm tra cơ chế bảo mật xác thực và lưu trữ đối tượng:
+
+**1. Kiểm tra lấy Token xác thực từ Keycloak:**
+```bash
+# Thay đổi realm và client_id nếu cần thiết
+curl -X POST http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token \
+  -d "client_id=flask-app" -d "grant_type=password" \
+  -d "username=sv01" -d "password=123" -d "scope=openid"
+```
+*Mục đích: Xác nhận cơ chế cấp phát Token JWT của Keycloak đã hoạt động.*
+
+**2. Kiểm tra truy cập API bảo mật (Unauthorized):**
+```bash
+# Thử truy cập API yêu cầu xác thực mà không có Token
+curl -I http://localhost/api/secure
+```
+*Mục đích: Chứng minh hệ thống chặn các truy cập không hợp lệ (Mã 401).*
+
+**3. Kiểm tra tính sẵn sàng của Object Storage (MinIO):**
+```bash
+# Kiểm tra khả năng kết nối cổng API của MinIO
+curl -I http://localhost:9000
+```
+*Mục đích: Xác nhận dịch vụ lưu trữ đối tượng S3 đã hoạt động.*
+
+### 5.9. Dịch vụ tên miền nội bộ (Internal DNS - BIND9)
+Kiểm tra khả năng phân giải domain trong mạng nội bộ:
+
+**1. Kiểm tra phân giải tên miền tùy chỉnh:**
+```bash
+# Truy vấn bản ghi A của domain nội bộ qua BIND9
+docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
+```
+*Mục đích: Xác nhận BIND9 đã quản lý thành công zone `cloud.local`.*
+
+### 5.10. Giám sát hệ thống (Monitoring Stack)
+Kiểm tra khả năng thu thập và trực quan hóa dữ liệu:
+
+**1. Kiểm tra các điểm thu thập dữ liệu (Prometheus Targets):**
+Truy cập: [http://localhost:9090/targets](http://localhost:9090/targets)
+*Xác nhận tất cả các endpoint đều có trạng thái **UP**.*
+
+**2. Kiểm tra Dashboard giám sát (Grafana):**
+Truy cập: [http://localhost:3000](http://localhost:3000) (admin / admin)
+*Mục đích: Xem biểu đồ trực quan về CPU, RAM và Traffic của hệ thống.*
 
 ---
 
@@ -139,13 +268,37 @@ for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; d
 ```bash
 # Xem dữ liệu minicloud
 docker exec -it relational-database-server mariadb -u root -proot -D minicloud -e "SELECT * FROM notes;"
+
+docker exec -it relational-database-server mariadb -u root -proot -D studentdb -e "SELECT * FROM students;"
+
 ```
 
 ### 6.4. Authentication Identity (Keycloak)
 - Admin Console: [http://localhost:8081/admin/](http://localhost:8081/admin/) (admin/admin).
+- **Test Lấy Token (CLI):**
+  ```bash
+  curl -X POST \
+  http://52.220.231.37:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token \
+  -d "client_id=flask-app" \
+  -d "grant_type=password" \
+  -d "username=sv01" \
+  -d "password=123" \
+  -d "scope=openid"
+  ```
 
 ### 6.5. Object Storage (MinIO)
 - Console: [http://localhost:9001](http://localhost:9001) (minioadmin / minioadmin).
+- **Cấu hình Public Bucket (CLI):**
+  ```bash
+  sudo docker run --rm --network cloud-net --entrypoint=/bin/sh minio/mc -c "\
+    mc alias set myminio http://object-storage-server:9000 minioadmin minioadmin && \
+    mc mb --ignore-existing myminio/profile-pics && \
+    mc anonymous set download myminio/profile-pics"
+cle
+   #Kiểm tra truy cập ảnh
+   curl -I http://52.220.231.37:9000/profile-pics/avatar.jpg
+
+  ```
 
 ---
 
