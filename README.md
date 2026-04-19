@@ -164,20 +164,20 @@ docker exec api-gateway-proxy-server nginx -t
 **2. Kiểm tra khả năng định tuyến (Reverse Proxy):**
 ```bash
 # Kiểm tra định tuyến tới Frontend
-curl -I http://localhost/
+curl -I http://52.220.231.37/
 
 # Kiểm tra định tuyến tới Backend API
-curl -I http://localhost/api/hello
+curl -I http://52.220.231.37/api/hello
 
 # Kiểm tra định tuyến tới Keycloak
-curl -I http://localhost/admin/
+curl -I http://52.220.231.37/admin/
 ```
 *Mục đích: Chứng minh Gateway có thể phân loại và chuyển tiếp yêu cầu đến các microservices tương ứng qua Path-based Routing.*
 
 **3. Kiểm tra Cân bằng tải (Real Load Balancing):**
 ```bash
 # Vòng lặp kiểm tra sự thay đổi của Container ID (Hostname) phản hồi từ Web Frontend
-for i in {1..5}; do curl -s http://localhost | grep -o "Container: [a-f0-9]*"; done
+for i in {1..5}; do curl -s http://52.220.231.37 | grep -o "Container: [a-f0-9]*"; done
 ```
 *Mục đích: Xác nhận thuật toán Round Robin đang phân phối traffic đều qua các bản sao (replicas) của web-frontend.*
 
@@ -187,7 +187,7 @@ Dùng các lệnh sau để kiểm tra sự liên thông giữa App Server và C
 **1. Kiểm tra API lấy dữ liệu từ MariaDB:**
 ```bash
 # Lấy dữ liệu dạng JSON trực tiếp từ DB qua API
-curl -s http://localhost/api/students-db/json
+curl -s http://52.220.231.37/api/students-db/json
 ```
 *Mục đích: Xác nhận Flask API đã kết nối và truy vấn được dữ liệu từ MariaDB.*
 
@@ -210,7 +210,7 @@ Dùng các lệnh sau để kiểm tra cơ chế bảo mật xác thực và lư
 **1. Kiểm tra lấy Token xác thực từ Keycloak:**
 ```bash
 # Thay đổi realm và client_id nếu cần thiết
-curl -X POST http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token \
+curl -X POST http://52.220.231.37:8081/realms/TranHuuNhan_52300235/protocol/openid-connect/token \
   -d "client_id=flask-app" -d "grant_type=password" \
   -d "username=sv01" -d "password=123" -d "scope=openid"
 ```
@@ -219,14 +219,14 @@ curl -X POST http://localhost:8081/realms/TranHuuNhan_52300235/protocol/openid-c
 **2. Kiểm tra truy cập API bảo mật (Unauthorized):**
 ```bash
 # Thử truy cập API yêu cầu xác thực mà không có Token
-curl -I http://localhost/api/secure
+curl -I http://52.220.231.37/api/secure
 ```
 *Mục đích: Chứng minh hệ thống chặn các truy cập không hợp lệ (Mã 401).*
 
 **3. Kiểm tra tính sẵn sàng của Object Storage (MinIO):**
 ```bash
 # Kiểm tra khả năng kết nối cổng API của MinIO
-curl -I http://localhost:9000
+curl -I http://52.220.231.37:9001
 ```
 *Mục đích: Xác nhận dịch vụ lưu trữ đối tượng S3 đã hoạt động.*
 
@@ -235,20 +235,44 @@ Kiểm tra khả năng phân giải domain trong mạng nội bộ:
 
 **1. Kiểm tra phân giải tên miền tùy chỉnh:**
 ```bash
-# Truy vấn bản ghi A của domain nội bộ qua BIND9
+# Truy vấn bản ghi A của các domain nội bộ qua BIND9
 docker run --rm --network cloud-net busybox nslookup web-frontend-server.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup app-backend.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup keycloak.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup minio.cloud.local internal-dns-server
 ```
 *Mục đích: Xác nhận BIND9 đã quản lý thành công zone `cloud.local`.*
+
+**2. Kiểm tra thông mạng (Network Connectivity):**
+```bash
+# Kiểm tra khả năng kết nối trực tiếp qua Service Name (Container Name)
+docker run -it --rm --network cloud-net alpine ping -c 3 web-frontend-server
+docker run -it --rm --network cloud-net alpine ping -c 3 application-backend-server
+docker run -it --rm --network cloud-net alpine ping -c 3 relational-database-server
+docker run -it --rm --network cloud-net alpine ping -c 3 authentication-identity-server
+docker run -it --rm --network cloud-net alpine ping -c 3 object-storage-server
+docker run -it --rm --network cloud-net alpine ping -c 3 internal-dns-server
+docker run -it --rm --network cloud-net alpine ping -c 3 api-gateway-proxy-server
+docker run -it --rm --network cloud-net alpine ping -c 3 monitoring-prometheus-server
+
+# Kiểm tra kết nối qua Domain nội bộ .cloud.local (Phải dùng nslookup và chỉ định DNS server)
+docker run --rm --network cloud-net busybox nslookup app-backend.cloud.local internal-dns-server
+docker run --rm --network cloud-net busybox nslookup keycloak.cloud.local internal-dns-server
+
+# Kiểm tra kết nối ra Internet (Egress connectivity)
+docker run -it --rm --network cloud-net alpine ping -c 3 8.8.8.8
+```
+*Mục đích: Đảm bảo các dịch vụ trong mạng nội bộ có thể "thấy" nhau qua Service Name và BIND9 có thể phân giải chính xác các tên miền tùy chỉnh.*
 
 ### 5.10. Giám sát hệ thống (Monitoring Stack)
 Kiểm tra khả năng thu thập và trực quan hóa dữ liệu:
 
 **1. Kiểm tra các điểm thu thập dữ liệu (Prometheus Targets):**
-Truy cập: [http://localhost:9090/targets](http://localhost:9090/targets)
+Truy cập: [http://52.220.231.37:9090/targets](http://52.220.231.37:9090/targets)
 *Xác nhận tất cả các endpoint đều có trạng thái **UP**.*
 
 **2. Kiểm tra Dashboard giám sát (Grafana):**
-Truy cập: [http://localhost:3000](http://localhost:3000) (admin / admin)
+Truy cập: [http://52.220.231.37:3000](http://52.220.231.37:3000) (admin / admin)
 *Mục đích: Xem biểu đồ trực quan về CPU, RAM và Traffic của hệ thống.*
 
 ---

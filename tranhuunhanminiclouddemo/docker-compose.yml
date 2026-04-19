@@ -17,6 +17,7 @@ services:
           memory: 64M
 
   application-backend-server:
+    container_name: application-backend-server
     build: ./application-backend-server
     # image: nhanhuutran007/myminicloud-app:latest
     networks:
